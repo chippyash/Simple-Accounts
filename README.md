@@ -152,15 +152,13 @@ $chart = $accountant->fetchChart(new StringType('Name of Chart'));
 </pre>
 
 #### Making entries into accounts
-ac = new Account($chart, new Nominal('2000'), AccountType::ASSET(), new StringType('Asset'));
-$chart->addAccount($ac)
 
 You can make debit and credit entries to any account. Obviously, to maintain double entry accounting rules, you'll
 generally make one of each for any transaction.
 
 You don't need to keep track of accounts, simply get them from the chart using their id.
 
-Whilst it is not enforced, you are advised to use that same currency that you used for your organisation when creating
+Whilst it is not enforced, you are advised to use the same currency that you used for your organisation when creating
 amounts to debit and credit.
 
 <pre>
