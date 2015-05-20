@@ -249,7 +249,7 @@ Clone this repo, and then run Composer in local repo root to pull in dependencie
 
 <pre>
     git clone git@github.com:chippyash/Simple-Accounts.git Accounts
-    cd StrongType
+    cd Accounts
     composer update
 </pre>
 
