@@ -5,7 +5,7 @@
 Certified for PHP 5.5
 
 [![Build Status](https://travis-ci.org/chippyash/Simple-Accounts.svg?branch=master)](https://travis-ci.org/chippyash/Simple-Accounts)
-[![Coverage Status](https://coveralls.io/repos/chippyash/Simple-Accounts/badge.png)](https://coveralls.io/r/chippyash/Simple-Accounts)
+[![Coverage Status](https://coveralls.io/repos/chippyash/Simple-Accounts/badge.svg?branch=master)](https://coveralls.io/r/chippyash/Simple-Accounts?branch=master)
 
 See the [Test Contract](https://github.com/chippyash/Simple-Accounts/blob/master/docs/Test-Contract.md)
 
