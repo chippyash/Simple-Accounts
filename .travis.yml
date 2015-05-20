@@ -15,7 +15,7 @@ before_script:
   - mkdir -p build/logs
 
 script:
-  - vendor/phpunit/phpunit/phpunit --configuration phpunit.travis.xml --coverage-clover build/logs/clover.xml
+  - vendor/phpunit/phpunit/phpunit --configuration phpunit.travis.xml --coverage-clover build/logs/clover.xml test
 
 after_success:
     - php vendor/bin/coveralls -v
@@ -24,4 +24,3 @@ after_success:
 notifications:
   email: "ashley@zf4.biz"
 
-  
