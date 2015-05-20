@@ -22,7 +22,8 @@
 
   "require-dev": {
     "phpunit/phpunit": "4.6.6",
-    "mikey179/vfsStream": "v1.5.0"
+    "mikey179/vfsStream": "v1.5.0",
+    "satooshi/php-coveralls": "dev-master"
   },
 
   "autoload": {
