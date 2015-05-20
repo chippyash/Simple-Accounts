@@ -209,7 +209,7 @@ The balance respects the conventions of DR and CR accounts.:
 
 ### Class diagram
 
-![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/Classes.svg)
+![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/Classes.png)
 
 ### Changing the library
 
