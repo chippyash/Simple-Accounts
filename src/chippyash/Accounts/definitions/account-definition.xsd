@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="chart" type="chartType"/>
+
+  <xs:complexType name="chartType">
+    <xs:sequence>
+      <xs:element type="accountType" name="account"/>
+    </xs:sequence>
+    <xs:attribute type="xs:string" name="name"/>
+  </xs:complexType>
+
+  <xs:complexType name="accountType" mixed="true">
+    <xs:sequence>
+      <xs:element type="accountType" name="account" maxOccurs="unbounded" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute type="xs:short" name="nominal" use="required"/>
+    <xs:attribute type="xs:string" name="type" use="required"/>
+    <xs:attribute type="xs:string" name="name" use="required"/>
+  </xs:complexType>
+</xs:schema>

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!--
+PHPUnit configuration file to run chippyash\Simple-Accounts tests
+-->
+
+<!--
+Additional items for phpunit section
+printerFile="/path/to/ResultPrinter.php"
+testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"
+-->
+<phpunit
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/3.7/phpunit.xsd"
+         backupGlobals="true"
+         backupStaticAttributes="false"
+         bootstrap="./vendor/autoload.php"
+         cacheTokens="false"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         forceCoversAnnotation="false"
+         mapTestClassNameToCoveredClassName="false"
+         printerClass="PHPUnit_TextUI_ResultPrinter"
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         timeoutForSmallTests="1"
+         timeoutForMediumTests="10"
+         timeoutForLargeTests="60"
+         verbose="false">
+
+    <!--
+     ! The <filter> element and its children can be used to configure the
+     ! blacklist and whitelist for the code coverage reporting.
+     !-->
+    <filter>
+        <blacklist>
+            <directory>../vendor</directory>
+            <!-- don't cover interfaces -->
+            <file>./src/chippyash/Accounts/AccountStorageInterface</file>
+            <!-- don't cover empty files -->
+            <file>./src/chippyash/Accounts/Nominal</file>
+        </blacklist>
+    </filter>
+
+
+</phpunit>
+
+

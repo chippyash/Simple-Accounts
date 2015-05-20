@@ -1,0 +1,106 @@
+@startuml
+title Simple Accounts Classes
+
+enum AccountType << IntType >> {
+    ~DUMMY
+    ~REAL
+    +DR
+        +ASSET
+            +BANK
+            +CUSTOMER
+        +EXPENSE
+    +CR
+        +INCOME
+        +LIABILITY
+            +EQUITY
+            +SUPPLIER
+    drTitle():StringType
+    crTitle():StringType
+    balance(dr:Currency, cr:Currency):Currency
+}
+
+class Nominal <<DigitString>>
+
+class Account {
+    #id:Nominal
+    #type:AccountType
+    #name:StringType
+    #acDr:Currency
+    #acCr:Currency
+    #chart:Chart
+    debit(amount:Currency):Account
+    credit(amount:Currency):Account
+    getDebit():Currency
+    getCredit():Currency
+    getBalance():Currency
+    getId():IntType
+    getType():AccountType
+    getName():StringType
+}
+
+class Tree <<Node>> {
+    #value:Account
+    #parent:Tree
+    #children:array
+}
+
+class Chart {
+    #chartName:StringType
+    #tree:Tree
+    #org:Organisation
+    addAccount(ac:Account, parent:Nominal):Chart
+    delAccount(id:Nominal):Chart
+    getAccount(id:Nominal):Account
+    getParentId(id:Nominal):Nominal
+    hasAccount(id:Nominal):boolean
+    getOrg():Organisation
+    getTree():Tree
+}
+
+class ChartDefinition {
+    #xmlFileName:StringType
+    getDefinition():DOMDocument
+}
+
+class Organisation {
+    #id:IntType
+    #name:StringType
+    #crcy:Currency
+    getId():IntType
+    getName():StringType
+    getCurrency():Currency
+    getCurrencyCode:StringType
+}
+
+class Accountant {
+    #fileClerk:AccountStorageInterface
+    createChart(chartName:StringType, Org:Organisation, chart:ChartDefinition):Chart
+    fileChart(chart:Chart):Accountant
+    fetchChart(chartName:StringType):Chart
+}
+
+interface AccountStorageInterface {
+    fetch(chartName:StringType):Chart
+    send(chart:Chart):bool
+}
+
+class Currency << IntType >>
+
+class Store << (O,#FF7700) >>
+
+AccountStorageInterface <-- Store
+Store "1" --* "1" Accountant : has
+ChartDefinition <.. Accountant
+Organisation <.. Accountant
+Chart <.. Accountant
+Organisation "1" --* "*" Chart
+Tree "1" --* "1" Chart
+Nominal <.. Chart
+Account "*" --* "1" Tree
+Tree <.. Tree : parent
+AccountType <.. Account
+Nominal <.. Account
+Currency <.. Account
+Currency "1" --* "1" Organisation
+
+@enduml
