@@ -23,3 +23,5 @@ after_success:
 # configure notifications (email, IRC, campfire etc)
 notifications:
   email: "ashley@zf4.biz"
+
+  
