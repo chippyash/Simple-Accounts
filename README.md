@@ -7,7 +7,7 @@ Certified for PHP 5.5
 [![Build Status](https://travis-ci.org/chippyash/Simple-Accounts.svg?branch=master)](https://travis-ci.org/chippyash/Simple-Accounts)
 [![Coverage Status](https://coveralls.io/repos/chippyash/Simple-Accounts/badge.png)](https://coveralls.io/r/chippyash/Simple-Accounts)
 
-See the [Test Contract]()
+See the [Test Contract](https://github.com/chippyash/Simple-Accounts/blob/master/docs/Test-Contract.md)
 
 ## What?
 
@@ -209,7 +209,7 @@ The balance respects the conventions of DR and CR accounts.:
 
 ### Class diagram
 
-![UML Diagram]()
+![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/class-uml.png)
 
 ### Changing the library
 
