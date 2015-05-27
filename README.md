@@ -325,7 +325,7 @@ Install [Composer](https://getcomposer.org/)
 #### For production
 
 <pre>
-    "chippyash/simple-accounts": "~1.0.0"
+    "chippyash/simple-accounts": "~1.1.0"
 </pre>
 
 #### For development
@@ -358,4 +358,6 @@ I'd like to highlight some others:
 ## History
 
 V1.0.0 Original release
+
+V1.1.0 Journals added
 
