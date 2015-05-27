@@ -31,7 +31,8 @@ Provides a simple double entry accounting system, that can be used as a componen
         
 *  Ability to save and retrieve a Chart through a simple interface
 *  Organisation concept that can have multiple Chart of Accounts
-*  Fantasy currencies are catered for 
+*  Fantasy currencies are catered for
+*  Extensible Journal system, allowing recording of account transactions
 
 The library is released under the [GNU GPL V3 or later license](http://www.gnu.org/copyleft/gpl.html)
 
@@ -48,15 +49,13 @@ the customer by way of discounts and prizes.
    
 ## When
 
-The current library supports a Chart of Accounts.  
+The current library support Organisations, Charts of Account and Journals.  
 
 ### Roadmap
 
-- Journals
-    - recording transactions
-    - simplify transaction entries
-    - closing accounts at year end
+- Accounting
     - control accounts
+    - closing accounts
 - Reporting
     - balance sheet
     - trial balance
@@ -205,9 +204,97 @@ The balance respects the conventions of DR and CR accounts.:
 - DR balance = dr-cr
 - CR balance = cr-dr
 
-### Class diagram
+#### Using Journals
 
-![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/Classes.png)
+Whilst an Account records the value state at any given point in time, and a Chart holds the state of a collection (tree)
+ of accounts, a Journal is responsible for recording the transaction history that led to the current state of the Account.
+ 
+ You may use the library without using Journalling at all, but most systems will want a transaction history. The Accountant
+ can make use of an optional 'Journalist' that implements the JournalStorageInterface to create, save and amend both a Journal
+ and the transactions that it records.
+
+ You must first supply a Journalist in the form of a JournalStorageInterface.  An example is provided, Accounts\Storage\Journal\Xml
+ which stores the Journal and its transactions into an XML file.  You can provide your own to store against any other
+ storage mechanism that you want to use.
+ 
+<pre>
+use chippyash\Accounts\Storage\Journal\Xml as Journalist;
+
+$accountant->setJournalist(new Journalist(new StringType('/path/to/my/journal/store/folder')));
+</pre>
+ 
+#### Creating a Journal
+
+<pre>
+use chippyash\Currency\Factory as Currency;
+
+$journal = $accountant->createJournal(new StringType('My Journal'), Currency::create('gbp'));
+</pre>
+
+Under most circumstances, you'll associate an Organisation, and a Chart with a Journal, so it makes sense to use the same Currency:
+
+<pre>
+$journal = $accountant->createJournal(new StringType('My Journal'), $chart->getOrg()->getCurrency());
+</pre>
+
+#### Fetching a Journal that you already made
+
+<pre>
+$journal = $accountant->fetchJournal(new StringType('My Journal'));
+</pre>
+
+You can also store a journal via the accountant if you amend its definition
+
+#### Creating transactions in the journal
+
+You can either manage the link between the Journal and the Chart yourself by calling their appropriate store mechanisms
+(see the code, tests and diagrams for that,) or more simply, ask the accountant to do it for you.  In either case, you first of all
+need a Transaction:
+
+<pre>
+use chippyash\Accounts\Transaction;
+use chippyash\Accounts\Nominal;
+
+$drAc = new Nominal('0000');
+$crAc = new Nominal('1000');
+$amount = Currency::create($chart->getOrg()->getCurrencyCode(), 12.26);
+$txn = new  Transaction($drAc, $crAc, $amount);
+</pre>
+
+You can set an optional 4th parameter when creating a Transaction:
+ 
+<pre>
+$txn = new  Transaction($drAc, $crAc, $amount, new StringType('This is a note'));
+</pre>
+
+By default the date and time for the transaction is set to now().  You can set an optional 5th parameter when creating
+a Transaction and supply a DateTime object of your own choosing.
+
+<pre>
+$txn = new  Transaction($drAc, $crAc, $amount, new StringType(''), new \DateTime('2015-12-03T12:14:30Z));
+</pre>
+
+To record a transaction and update the chart of accounts you can now use the Accountant again:
+
+<pre>
+$txn = $accountant->writeTransaction($txn, $chart, $journal);
+//or
+$accountant->writeTransaction($txn, $chart, $journal);
+</pre>
+
+The Transaction will now have its transaction id set, which you can recover via:
+
+<pre>
+$txnId = $txn->getId() //returns IntType
+</pre>
+
+You don't need to save the Journal, as it is inherently transactional, but don't forget to save your Chart once you 
+have finished writing transactions!
+
+### Class diagrams
+
+![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/ClassesForAccounts.png)
+![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/ClassesForJournals.png)
 
 ### Changing the library
 

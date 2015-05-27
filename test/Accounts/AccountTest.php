@@ -222,5 +222,4 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
         );
         $this->assertEquals(new StringType('foo'), $this->sut->getName());
     }
-
 }

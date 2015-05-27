@@ -1,6 +1,8 @@
 @startuml
 title Simple Accounts Classes
-
+legend top left
+    Showing support for Accounts only
+endlegend
 enum AccountType << IntType >> {
     ~DUMMY
     ~REAL
@@ -28,6 +30,7 @@ class Account {
     #acDr:Currency
     #acCr:Currency
     #chart:Chart
+    __construct(chart:Chart, id:Nominal, type:AccountType, name:StringType):Account
     debit(amount:Currency):Account
     credit(amount:Currency):Account
     getDebit():Currency
@@ -48,17 +51,21 @@ class Chart {
     #chartName:StringType
     #tree:Tree
     #org:Organisation
+    __construct(name:StringType, org:Organisation, tree:Node=null):Chart
     addAccount(ac:Account, parent:Nominal):Chart
     delAccount(id:Nominal):Chart
     getAccount(id:Nominal):Account
-    getParentId(id:Nominal):Nominal
     hasAccount(id:Nominal):boolean
+    getParentId(id:Nominal):Nominal
     getOrg():Organisation
     getTree():Tree
+    getName():StringType
 }
+
 
 class ChartDefinition {
     #xmlFileName:StringType
+    __construct(xmlFileName:StringType):ChartDefinition
     getDefinition():DOMDocument
 }
 
@@ -66,6 +73,7 @@ class Organisation {
     #id:IntType
     #name:StringType
     #crcy:Currency
+    __construct(id:IntType, name:StringType, crcy:Currency):Organisation
     getId():IntType
     getName():StringType
     getCurrency():Currency
@@ -74,6 +82,7 @@ class Organisation {
 
 class Accountant {
     #fileClerk:AccountStorageInterface
+    __construct(fileClerk:AccountStorageInterface):Accountant
     createChart(chartName:StringType, Org:Organisation, chart:ChartDefinition):Chart
     fileChart(chart:Chart):Accountant
     fetchChart(chartName:StringType):Chart

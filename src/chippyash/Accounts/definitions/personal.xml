@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<chart name="Personal">
+<chart  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="chart-definition.xsd"
+        name="Personal">
     <account nominal="0000" type="real" name="COA">
         <account nominal="1000" type="real" name="Balance Sheet">
             <account nominal="2000" type="asset" name="Assets">

@@ -9,11 +9,15 @@
 
 namespace chippyash\Test\Accounts;
 
+use chippyash\Accounts\Account;
 use chippyash\Accounts\Accountant;
+use chippyash\Accounts\AccountType;
 use chippyash\Accounts\Chart;
+use chippyash\Accounts\Journal;
 use chippyash\Accounts\Nominal;
 use chippyash\Accounts\Organisation;
-use chippyash\Currency\Factory;
+use chippyash\Accounts\Transaction;
+use chippyash\Currency\Factory as CurrencyFactory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
 
@@ -31,21 +35,43 @@ class AccountantTest extends \PHPUnit_Framework_TestCase {
      */
     protected $fileClerk;
 
+    /**
+     * Mock
+     * @var JournalStorageInterface
+     */
+    protected $journalist;
+
     protected function setUp()
     {
         $this->fileClerk = $this->getMock('chippyash\Accounts\AccountStorageInterface');
+        $this->journalist = $this->getMock('chippyash\Accounts\JournalStorageInterface');
         $this->sut = new Accountant($this->fileClerk);
     }
 
     public function testAnAccountantCanFileAChart()
     {
-        $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), Factory::create('gbp')));
+        $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), CurrencyFactory::create('gbp')));
+        $this->fileClerk->expects($this->once())
+            ->method('send')
+            ->will($this->returnValue(true));
         $this->assertInstanceOf('chippyash\Accounts\Accountant', $this->sut->fileChart($chart));
+    }
+
+    /**
+     * @expectedException \chippyash\Accounts\AccountsException
+     */
+    public function testAnAccountantWillThrowExceptionIfItCannotFileAChart()
+    {
+        $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), CurrencyFactory::create('gbp')));
+        $this->fileClerk->expects($this->once())
+            ->method('send')
+            ->will($this->returnValue(false));
+        $this->sut->fileChart($chart);
     }
 
     public function testAnAccountantCanFetchAChart()
     {
-        $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), Factory::create('gbp')));
+        $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), CurrencyFactory::create('gbp')));
         $this->fileClerk->expects($this->once())
             ->method('fetch')
             ->will($this->returnValue($chart));
@@ -54,7 +80,7 @@ class AccountantTest extends \PHPUnit_Framework_TestCase {
 
     public function testAnAccountantCanCreateANewChartOfAccounts()
     {
-        $org = new Organisation(new IntType(1), new StringType('Foo Org'), Factory::create('gbp'));
+        $org = new Organisation(new IntType(1), new StringType('Foo Org'), CurrencyFactory::create('gbp'));
         $def = $this->getMock('chippyash\Accounts\ChartDefinition',array(),array(),'',false);
         $xml = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
@@ -109,11 +135,102 @@ EOT;
         $this->assertEquals(0, $ret->getAccount($coaId)->getDebit()->get());
         $this->assertEquals(0, $ret->getAccount($coaId)->getCredit()->get());
 
-        $amount = Factory::create($org->getCurrencyCode()->get(), 12.26);
+        $amount = CurrencyFactory::create($org->getCurrencyCode()->get(), 12.26);
         $ret->getAccount($intExpId)->debit($amount);
         $ret->getAccount($bankId)->credit($amount);
         $this->assertEquals(1226, $ret->getAccount($coaId)->getDebit()->get());
         $this->assertEquals(1226, $ret->getAccount($coaId)->getCredit()->get());
     }
 
+    public function testYouCanSetAnOptionalJournalist()
+    {
+        $this->assertInstanceOf('chippyash\Accounts\Accountant', $this->sut->setJournalist($this->journalist));
+    }
+
+    public function testYouCanCreateAJournalIfJournalistIsSet()
+    {
+        $this->sut->setJournalist($this->journalist);
+        $crcy = CurrencyFactory::create('gbp');
+        $this->assertInstanceOf('chippyash\Accounts\Journal', $this->sut->createJournal(new StringType('Foo Bar'), $crcy));
+    }
+
+    /**
+     * @expectedException \chippyash\Accounts\JournalException
+     */
+    public function testCreatingAJournalWithoutAJournalistWillThrowException()
+    {
+        $crcy = CurrencyFactory::create('gbp');
+        $this->sut->createJournal(new StringType('Foo Bar'), $crcy);
+    }
+
+    public function testYouCanFileAJournalToStorage()
+    {
+        $this->sut->setJournalist($this->journalist);
+        $this->journalist->expects($this->once())
+            ->method('writeJournal')
+            ->will($this->returnValue(true));
+        $crcy = CurrencyFactory::create('gbp');
+        $journal = new Journal(new StringType('Foo Bar'), $crcy, $this->journalist);
+        $this->assertInstanceOf('chippyash\Accounts\Accountant', $this->sut->fileJournal($journal));
+    }
+
+    /**
+     * @expectedException \chippyash\Accounts\JournalException
+     */
+    public function testFilingAJournalToStorageWhenJournalistNotSetThrowsException()
+    {
+        $crcy = CurrencyFactory::create('gbp');
+        $journal = new Journal(new StringType('Foo Bar'), $crcy, $this->journalist);
+        $this->sut->fileJournal($journal);
+    }
+
+    /**
+     * @expectedException \chippyash\Accounts\JournalException
+     */
+    public function testFilingAJournalToStorageThrowsExceptionIfJournalistFailsToWrite()
+    {
+        $this->sut->setJournalist($this->journalist);
+        $this->journalist->expects($this->once())
+            ->method('writeJournal')
+            ->will($this->returnValue(false));
+        $crcy = CurrencyFactory::create('gbp');
+        $journal = new Journal(new StringType('Foo Bar'), $crcy, $this->journalist);
+        $this->sut->fileJournal($journal);
+    }
+
+    public function testYouCanFetchAJournalFromStorage()
+    {
+        $this->sut->setJournalist($this->journalist);
+        $crcy = CurrencyFactory::create('gbp');
+        $journal = new Journal(new StringType('Foo Bar'), $crcy, $this->journalist);
+        $this->journalist->expects($this->once())
+            ->method('readJournal')
+            ->will($this->returnValue($journal));
+        $this->assertInstanceOf('chippyash\Accounts\Journal', $this->sut->fetchJournal(new StringType('Foo bar')));
+    }
+
+    /**
+     * @expectedException \chippyash\Accounts\JournalException
+     */
+    public function testFetchingAJournalFromStorageWithNoJournalistSetWillThrowException()
+    {
+        $this->sut->fetchJournal(new StringType('Foo bar'));
+    }
+
+    public function testYouCanWriteATransactionToAJournalAndUpdateAChart()
+    {
+        $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), CurrencyFactory::create('gbp')));
+        $chart->addAccount(new Account($chart, new Nominal('0000'),AccountType::DR(), new StringType('Foo')));
+        $chart->addAccount(new Account($chart, new Nominal('0001'),AccountType::CR(), new StringType('Bar')));
+        $journal = new Journal(new StringType('Foo Journal'), CurrencyFactory::create('gbp'), $this->journalist);
+        $txn = new Transaction(new Nominal('0000'), new Nominal('0001'), CurrencyFactory::create('gbp', 12.26));
+        $this->journalist->expects($this->once())
+            ->method('writeTransaction')
+            ->will($this->returnValue(new IntType(1)));
+
+        $returnedTransaction = $this->sut->writeTransaction($txn, $chart, $journal);
+        $this->assertEquals(1, $returnedTransaction->getId()->get());
+        $this->assertEquals(1226, $chart->getAccount(new Nominal('0000'))->getDebit()->get());
+        $this->assertEquals(1226, $chart->getAccount(new Nominal('0001'))->getCredit()->get());
+    }
 }

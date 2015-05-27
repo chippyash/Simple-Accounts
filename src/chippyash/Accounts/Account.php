@@ -177,28 +177,4 @@ class Account
     {
         return $this->name;
     }
-
-//    /**
-//     * Check that the account balance is zero
-//     *
-//     * @return boolean True if zero else false
-//     */
-//    private function checkZeroBalance() {
-//    	$this->setBalance();
-//    	if ($this->acNetBal != 0) {
-//    		return false;
-//    	} else {
-//    		return true;
-//    	}
-//    }
-//
-//    /**
-//     * Can we post to this account
-//     *
-//     * @return boolean
-//     */
-//    public function isPostable() {
-//    	return ($this->postable === 1);
-//    }
-    
 }

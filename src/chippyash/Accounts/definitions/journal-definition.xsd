@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="journal" type="journalType"/>
+
+    <xs:complexType name="journalType">
+        <xs:sequence>
+            <xs:element type="definitionType" name="definition"/>
+            <xs:element type="transactionsType" name="transactions"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="definitionType">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute type="xs:token" name="name"/>
+                <xs:attribute type="currencyType" name="crcy"/>
+                <xs:attribute type="xs:integer" name="inc"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="transactionsType">
+        <xs:sequence>
+            <xs:element type="transactionType" name="transaction" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="transactionType">
+        <xs:simpleContent>
+            <xs:extension base="xs:token">
+                <xs:attribute type="xs:positiveInteger" name="id"/>
+                <xs:attribute type="nominalType" name="dr"/>
+                <xs:attribute type="nominalType" name="cr"/>
+                <xs:attribute type="xs:positiveInteger" name="amount"/>
+                <xs:attribute type="xs:dateTime" name="date"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:simpleType name="nominalType">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="currencyType">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[A-Z]{3}"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

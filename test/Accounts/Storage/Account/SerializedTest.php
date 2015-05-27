@@ -52,6 +52,14 @@ class SerializedTest extends \PHPUnit_Framework_TestCase {
         $this->assertEquals($test, $chart);
     }
 
+    /**
+     * @expectedException \chippyash\Accounts\AccountsException
+     */
+    public function testFetchingANonExistentChartWillThrowAnException()
+    {
+        $this->sut->fetch(new StringType('foo bar'));
+    }
+
     public function testYouCanFetchAChart()
     {
         $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), Factory::create('gbp')));

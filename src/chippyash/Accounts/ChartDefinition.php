@@ -53,7 +53,7 @@ class ChartDefinition
         $dom = new \DOMDocument();
         $dom->load($this->xmlFileName->get());
 
-        if (!$dom->schemaValidate(__DIR__ .'/definitions/account-definition.xsd')) {
+        if (!$dom->schemaValidate(__DIR__ .'/definitions/chart-definition.xsd')) {
             throw new AccountsException('Definition does not validate');
         }
 

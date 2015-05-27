@@ -1,0 +1,79 @@
+@startuml
+title Simple Accounts Classes
+legend top left
+    Showing support for Journals
+endlegend
+
+
+class Accountant {
+    #fileClerk:AccountStorageInterface
+    #journalist:JournalStorageInterface
+    __construct(fileClerk:AccountStorageInterface):Accountant
+    createChart(chartName:StringType, Org:Organisation, chart:ChartDefinition):Chart
+    fileChart(chart:Chart):Accountant
+    fetchChart(chartName:StringType):Chart
+    setJournalist(journalist:JournalStorageInterface):Accountant
+    createJournal(journalName:StringType, chart:Chart):Journal
+    fileJournal(journal:Journal):Accountant
+    fetchJournal(journalName:StringType):Journal
+    writeTransaction(txn:Transaction, chart:Chart, journal:Journal):Transaction
+}
+
+interface JournalStorageInterface {
+    setJournal(journalName:StringType):JournalStorageInterface
+    writeJournal(journal:Journal):bool
+    readJournal():Journal
+    writeTransaction(transaction:Transaction):IntType
+    readTransaction(id:IntType):Transaction
+    readTransactions(nominal:Nominal):array[Transaction]
+}
+
+class Currency << IntType >>
+
+class JournalStore << (O,#FF7700) >>
+
+class Journal {
+    #journalist:JournalStorageInterface
+    #journalName:StringType
+    #crcy:Currency
+    __construct(journalName:StringType, crcy:Currency,  journalist:JournalStorageInterface):Journal
+    getName():StringType
+    getCurrency():Currency
+    write(transaction:Transaction):Transaction
+    readTransaction(id:IntType):Transaction|null
+    readTransactions(id:Nominal):array[Transaction]
+}
+
+class Transaction {
+    #id:IntType=null
+    #drAc:Nominal
+    #crAc:Nominal
+    #amount:Currency
+    #date:DateTime
+    #note:StringType
+    __construct(drAc:Nominal, crAc:Nominal, amount:Currency,note:StringType=null, date:DateTime=null):Transaction
+    setId(id:IntType):Transaction
+    setChart(id:Chart):Transaction
+    getId():IntType
+    getChart():Chart
+    getDrAc():Nominal
+    getCrAc():Nominal
+    getAmount():Currency
+    getDate():DateTime
+    getNote():StringType
+}
+
+class Nominal <<DigitString>>
+
+Transaction <.. Journal
+Currency "1" --* "1" Journal : has
+JournalStorageInterface <-- JournalStore
+JournalStore "1" --* "1" Accountant : has
+JournalStore "1" --* "1" Journal : has
+Nominal <.. Journal
+Nominal "2" --* "1" Transaction : has
+Currency "1" --* "1" Transaction : has
+Nominal <.. JournalStorageInterface
+Journal <.. JournalStorageInterface
+Transaction <.. JournalStorageInterface
+@enduml

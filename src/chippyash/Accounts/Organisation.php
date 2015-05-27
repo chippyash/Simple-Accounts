@@ -1,7 +1,7 @@
 <?php
 /**
- * Accounts
- 
+ * Simple Double Entry Accounting
+ *
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md

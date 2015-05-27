@@ -3,3 +3,4 @@ vendor*
 composer.lock
 .directory
 .idea
+src/chippyash/Accounts/definitions/accounts.xpr

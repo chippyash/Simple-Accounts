@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="chart" type="chartType"/>
+
+    <xs:complexType name="chartType">
+        <xs:sequence>
+            <xs:element type="accountType" name="account"/>
+        </xs:sequence>
+        <xs:attribute type="xs:string" name="name"/>
+    </xs:complexType>
+
+    <xs:complexType name="accountType" mixed="true">
+        <xs:sequence>
+            <xs:element type="accountType" name="account" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+        <xs:attribute type="nominalType" name="nominal" use="required"/>
+        <xs:attribute type="accountBaseType" name="type" use="required"/>
+        <xs:attribute type="xs:token" name="name" use="required"/>
+    </xs:complexType>
+
+    <xs:simpleType name="nominalType">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="accountBaseType">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="dr"/>
+            <xs:enumeration value="cr"/>
+            <xs:enumeration value="real"/>
+            <xs:enumeration value="asset"/>
+            <xs:enumeration value="bank"/>
+            <xs:enumeration value="customer"/>
+            <xs:enumeration value="expense"/>
+            <xs:enumeration value="income"/>
+            <xs:enumeration value="equity"/>
+            <xs:enumeration value="liability"/>
+            <xs:enumeration value="supplier"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

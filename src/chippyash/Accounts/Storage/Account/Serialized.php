@@ -45,7 +45,12 @@ class Serialized implements AccountStorageInterface
      */
     public function fetch(StringType $name)
     {
-        return unserialize(file_get_contents($this->normalizeName($name)));
+        $fName = $this->normalizeName($name);
+        if (!file_exists($fName)) {
+            throw new AccountsException('Chart storage file does not exist: ' . $fName);
+        }
+
+        return unserialize(file_get_contents($fName));
     }
 
     /**

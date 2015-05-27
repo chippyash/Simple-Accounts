@@ -11,16 +11,30 @@ namespace chippyash\Accounts;
 
 use chippyash\Type\String\StringType;
 use Tree\Node\Node;
+use chippyash\Currency\Currency;
 
 /**
  * An Accountant helps with the accounts
  */
 class Accountant 
 {
+    /**@+
+     * Error strings
+     */
+    const ERR1 = 'Journalist not set';
+    const ERR2 = 'Cannot file the Journal';
+    const ERR3 = 'Cannot file the Chart';
+    /**@-*/
+
     /**
      * @var AccountStorageInterface
      */
     protected $fileClerk;
+
+    /**
+     * @var JournalStorageInterface
+     */
+    protected $journalist = null;
 
     public function __construct(AccountStorageInterface $fileClerk)
     {
@@ -56,10 +70,13 @@ class Accountant
      * @param Chart $chart
      *
      * @return $this
+     * @throws AccountsException
      */
     public function fileChart(Chart $chart)
     {
-        $this->fileClerk->send($chart);
+        if(!$this->fileClerk->send($chart)) {
+            throw new AccountsException(self::ERR3);
+        }
         return $this;
     }
 
@@ -73,6 +90,93 @@ class Accountant
     public function fetchChart(StringType $chartName)
     {
         return $this->fileClerk->fetch($chartName);
+    }
+
+    /**
+     * Set the Journalist to be used for managing Journal storage
+     *
+     * @param JournalStorageInterface $journalist
+     * @return $this
+     */
+    public function setJournalist(JournalStorageInterface $journalist)
+    {
+        $this->journalist = $journalist;
+        return $this;
+    }
+
+    /**
+     * Create and return a new Journal for a Chart
+     *
+     * @param StringType $journalName
+     * @param Currency $crcy
+     *
+     * @return Journal
+     * @throws JournalException
+     */
+    public function createJournal(StringType $journalName, Currency $crcy)
+    {
+        if (empty($this->journalist)) {
+            throw new JournalException(self::ERR1);
+        }
+
+        return new Journal($journalName, $crcy, $this->journalist);
+    }
+
+    /**
+     * Store a Journal
+     *
+     * @param Journal $journal
+     *
+     * @return $this
+     * @throws JournalException
+     */
+    public function fileJournal(Journal $journal)
+    {
+        if (empty($this->journalist)) {
+            throw new JournalException(self::ERR1);
+        }
+
+        if (!$this->journalist->writeJournal($journal)) {
+            throw new JournalException(self::ERR2);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Fetch Journal from store
+     *
+     * @param StringType $journalName
+     *
+     * @return Journal
+     * @throws JournalException
+     */
+    public function fetchJournal(StringType $journalName)
+    {
+        if (empty($this->journalist)) {
+            throw new JournalException(self::ERR1);
+        }
+
+        return $this->journalist->readJournal($journalName);
+    }
+
+    /**
+     * Write a Transaction to the Journal and update the Chart
+     *
+     * @param Transaction $txn
+     * @param Chart $chart
+     * @param Journal $journal
+     *
+     * @return Transaction Transaction with txn Id set
+     * @throws AccountsException
+     */
+    public function writeTransaction(Transaction $txn, Chart $chart, Journal $journal)
+    {
+        $txn = $journal->write($txn);
+        $chart->getAccount($txn->getDrAc())->debit($txn->getAmount());
+        $chart->getAccount($txn->getCrAc())->credit($txn->getAmount());
+
+        return $txn;
     }
 
     /**
