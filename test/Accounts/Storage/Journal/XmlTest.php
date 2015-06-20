@@ -1,18 +1,18 @@
 <?php
 /**
- * Accounts
+ * SAccounts
  *
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\Accounts\Storage\Journal;
+namespace chippyash\Test\SAccounts\Storage\Journal;
 
-use chippyash\Accounts\Journal;
-use chippyash\Accounts\Nominal;
-use chippyash\Accounts\Storage\Journal\Xml;
-use chippyash\Accounts\Transaction;
+use SAccounts\Journal;
+use SAccounts\Nominal;
+use SAccounts\Storage\Journal\Xml;
+use SAccounts\Transaction;
 use chippyash\Currency\Factory as CurrencyFactory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -47,7 +47,7 @@ class XmlTest extends \PHPUnit_Framework_TestCase {
 
     public function testConstructionTakesAnOptionalJournalName()
     {
-        $this->assertInstanceOf('chippyash\Accounts\Storage\Journal\Xml', new Xml(new StringType($this->root->url()), new StringType('Foo Journal')));
+        $this->assertInstanceOf('SAccounts\Storage\Journal\Xml', new Xml(new StringType($this->root->url()), new StringType('Foo Journal')));
     }
 
     public function testSuccessfulJournalWriteWillReturnTrue()
@@ -99,7 +99,7 @@ EOT;
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testNotSettingJournalNameBeforeAReadWillThrowAnException()
     {
@@ -107,7 +107,7 @@ EOT;
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testReadingAJournalDefinitionWillThrowExceptionIfFileDoesNotExist()
     {
@@ -117,7 +117,7 @@ EOT;
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testReadingAJournalDefinitionWillThrowExceptionIfFileIsNotAJournalDefinition()
     {
@@ -151,12 +151,12 @@ EOT;
             ->at($this->root);
 
         $this->assertInstanceOf(
-            'chippyash\Accounts\Journal',
+            'SAccounts\Journal',
             $this->sut->setJournalName(new StringType('Foo Journal'))->readJournal());
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testNotSettingJournalNameBeforeATransactionWriteWillThrowAnException()
     {
@@ -191,7 +191,7 @@ EOT;
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testNotSettingJournalNameBeforeATransactionReadWillThrowAnException()
     {
@@ -204,7 +204,7 @@ EOT;
         $txnId = $this->sut->setJournalName(new StringType('Foo Journal'))
             ->writeTransaction($this->createTransaction('0000','00001',12.26, 'foo bar'));
         $txn = $this->sut->readTransaction($txnId);
-        $this->assertInstanceOf('chippyash\Accounts\Transaction', $txn);
+        $this->assertInstanceOf('SAccounts\Transaction', $txn);
         $this->assertEquals(1, $txn->getId()->get());
         $this->assertEquals(1226, $txn->getAmount()->get());
         $this->assertEquals('0000', $txn->getDrAc()->get());
@@ -236,7 +236,7 @@ EOT;
         $this->assertEquals(4, count($transactions));
 
         foreach($transactions as $transaction) {
-            $this->assertInstanceOf('chippyash\Accounts\Transaction', $transaction);
+            $this->assertInstanceOf('SAccounts\Transaction', $transaction);
         }
     }
 

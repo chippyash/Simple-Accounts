@@ -6,11 +6,11 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Test\Accounts;
+namespace chippyash\Test\SAccounts;
 
-use chippyash\Accounts\Journal;
-use chippyash\Accounts\Nominal;
-use chippyash\Accounts\Transaction;
+use SAccounts\Journal;
+use SAccounts\Nominal;
+use SAccounts\Transaction;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -49,8 +49,8 @@ class JournalTest extends \PHPUnit_Framework_TestCase
             new \DateTime()
         );
 
-        $this->chart = $this->getMock('chippyash\Accounts\Chart', array(), array(), '', false);
-        $this->journalist = $this->getMock('chippyash\Accounts\JournalStorageInterface');
+        $this->chart = $this->getMock('SAccounts\Chart', array(), array(), '', false);
+        $this->journalist = $this->getMock('SAccounts\JournalStorageInterface');
 
         $this->sut = new Journal(new StringType('Foo Bar'), $this->chart, $this->journalist);
     }
@@ -67,7 +67,7 @@ class JournalTest extends \PHPUnit_Framework_TestCase
         $txn = $this->sut->write($this->transaction);
 
         //txn after the write
-        $this->assertInstanceOf('chippyash\Accounts\Transaction', $txn);
+        $this->assertInstanceOf('SAccounts\Transaction', $txn);
         $this->assertInstanceOf('chippyash\Type\Number\IntType', $txn->getId());
         $this->assertEquals(1, $txn->getId()->get());
     }
@@ -78,7 +78,7 @@ class JournalTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('readTransaction')
             ->will($this->returnValue($this->transaction));
-        $this->assertInstanceOf('chippyash\Accounts\Transaction', $this->sut->readTransaction(new IntType(1)));
+        $this->assertInstanceOf('SAccounts\Transaction', $this->sut->readTransaction(new IntType(1)));
     }
 
     public function testReadingTransactionsForAnAccountWillReturnAnArrayOfTransactions()

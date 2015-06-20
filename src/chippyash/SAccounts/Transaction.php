@@ -6,7 +6,7 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Accounts;
+namespace SAccounts;
 
 use chippyash\Currency\Currency;
 use chippyash\Type\Number\IntType;

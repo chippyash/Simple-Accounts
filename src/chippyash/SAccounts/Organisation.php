@@ -7,7 +7,7 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Accounts;
+namespace SAccounts;
 
 
 use chippyash\Currency\Currency;

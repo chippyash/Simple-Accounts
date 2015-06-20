@@ -6,7 +6,7 @@
  * @author 		Ashley Kitson
  * @license		GPL V3+
  */
-namespace chippyash\Accounts;
+namespace SAccounts;
 
 /**
  * Journal Exception Class

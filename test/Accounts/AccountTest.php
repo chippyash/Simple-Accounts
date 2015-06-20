@@ -1,19 +1,19 @@
 <?php
 /**
- * Accounts
+ * SAccounts
  
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\Accounts;
+namespace chippyash\Test\SAccounts;
 
-use chippyash\Accounts\Account;
-use chippyash\Accounts\AccountType;
-use chippyash\Accounts\Chart;
-use chippyash\Accounts\Nominal;
-use chippyash\Accounts\Organisation;
+use SAccounts\Account;
+use SAccounts\AccountType;
+use SAccounts\Chart;
+use SAccounts\Nominal;
+use SAccounts\Organisation;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -53,7 +53,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
             $acType,
             new StringType('foo')
         );
-        $this->assertInstanceOf('chippyash\Accounts\Account', $this->sut);
+        $this->assertInstanceOf('SAccounts\Account', $this->sut);
     }
 
     public function validAccountTypes()
@@ -120,7 +120,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testGettingBalanceOfARealAccountTypeWillThrowAnException()
     {
@@ -134,7 +134,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testGettingBalanceOfADummyAccountTypeWillThrowAnException()
     {

@@ -1,15 +1,15 @@
 <?php
 /**
- * Accounts
+ * SAccounts
  
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\Accounts;
+namespace chippyash\Test\SAccounts;
 
-use chippyash\Accounts\Organisation;
+use SAccounts\Organisation;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;

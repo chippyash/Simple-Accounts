@@ -7,9 +7,9 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Accounts;
+namespace SAccounts;
 
-use chippyash\Accounts\ChartDefinition;
+use SAccounts\ChartDefinition;
 use chippyash\Type\String\StringType;
 use org\bovigo\vfs\vfsStream;
 
@@ -35,11 +35,11 @@ EOT;
 
     public function testCanConstructWithValidFileName()
     {
-        $this->assertInstanceOf('chippyash\Accounts\ChartDefinition', new ChartDefinition(new StringType($this->filePath)));
+        $this->assertInstanceOf('SAccounts\ChartDefinition', new ChartDefinition(new StringType($this->filePath)));
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testConstructionWithInvalidFileNameWillThrowException()
     {
@@ -49,11 +49,11 @@ EOT;
     public function testConstructionWithValidFileNameWillReturnClass()
     {
         $sut = new ChartDefinition(new StringType($this->filePath));
-        $this->assertInstanceOf('chippyash\Accounts\ChartDefinition', $sut);
+        $this->assertInstanceOf('SAccounts\ChartDefinition', $sut);
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testGettingTheDefinitionWillThrowExceptionIfDefinitionFileIsInvalidXml()
     {
@@ -66,7 +66,7 @@ EOT;
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testGettingDefinitionWillThrowExceptionIfDefinitionFailsValidation()
     {

@@ -40,7 +40,7 @@
 *  Fetching a journal from storage with no journalist set will throw exception
 *  You can write a transaction to a journal and update a chart
 
-## chippyash\Accounts\ChartDefinition
+## SAccounts\ChartDefinition
 
 *  Can construct with valid file name
 *  Construction with invalid file name will throw exception

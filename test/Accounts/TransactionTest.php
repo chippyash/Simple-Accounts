@@ -7,10 +7,10 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\Accounts;
+namespace chippyash\Test\SAccounts;
 
-use chippyash\Accounts\Nominal;
-use chippyash\Accounts\Transaction;
+use SAccounts\Nominal;
+use SAccounts\Transaction;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;

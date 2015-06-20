@@ -1,18 +1,18 @@
 <?php
 /**
  * Simple Double Entry Accounting
-
+ *
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Accounts;
+namespace SAccounts;
 
 use chippyash\Currency\Currency;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
-use chippyash\Accounts\AccountType;
+use SAccounts\AccountType;
 use Monad\FTry;
 use Monad\Match;
 use Monad\Option;

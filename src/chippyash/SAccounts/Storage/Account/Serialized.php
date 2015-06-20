@@ -1,17 +1,17 @@
 <?php
 /**
- * Accounts
- 
+ * Simple Double Entry Accounting
+ *
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Accounts\Storage\Account;
+namespace SAccounts\Storage\Account;
 
-use chippyash\Accounts\AccountsException;
-use chippyash\Accounts\AccountStorageInterface;
-use chippyash\Accounts\Chart;
+use SAccounts\AccountsException;
+use SAccounts\AccountStorageInterface;
+use SAccounts\Chart;
 use chippyash\Type\String\StringType;
 
 /**

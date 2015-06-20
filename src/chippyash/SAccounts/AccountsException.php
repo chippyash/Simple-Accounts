@@ -6,9 +6,9 @@
  * @author 		Ashley Kitson
  * @license		GPL V3+
  */
-namespace chippyash\Accounts;
+namespace SAccounts;
 
 /**
- * Accounts Exception Class
+ * SAccounts Exception Class
  */
 class AccountsException extends \Exception {}

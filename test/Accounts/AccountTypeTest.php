@@ -1,17 +1,17 @@
 <?php
 /**
- * Accounts
+ * SAccounts
  
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\Accounts;
+namespace chippyash\Test\SAccounts;
 
 
-use chippyash\Accounts\AccountType;
-use chippyash\Accounts\AccountsException;
+use SAccounts\AccountType;
+use SAccounts\AccountsException;
 use chippyash\Currency\Currency;
 use chippyash\Currency\Factory;
 
@@ -35,17 +35,17 @@ class AccountTypeTest extends \PHPUnit_Framework_TestCase
 
     public function testCanGetValuesAsClassesUsingStaticMethods()
     {
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::REAL());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::CR());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::DR());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::ASSET());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::BANK());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::CUSTOMER());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::EXPENSE());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::INCOME());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::LIABILITY());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::EQUITY());
-        $this->assertInstanceOf('chippyash\Accounts\AccountType', AccountType::SUPPLIER());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::REAL());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::CR());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::DR());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::ASSET());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::BANK());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::CUSTOMER());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::EXPENSE());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::INCOME());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::LIABILITY());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::EQUITY());
+        $this->assertInstanceOf('SAccounts\AccountType', AccountType::SUPPLIER());
     }
 
     /**
@@ -58,7 +58,7 @@ class AccountTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testGetADebitColumnWithInvalidAccountTypeWillThrowException()
     {
@@ -67,7 +67,7 @@ class AccountTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testGetACreditColumnWithInvalidAccountTypeWillThrowException()
     {
@@ -127,7 +127,7 @@ class AccountTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testGetABalanceWithInvalidAccountTypeWillThrowException()
     {

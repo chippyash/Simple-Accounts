@@ -1,18 +1,18 @@
 <?php
 /**
  * Simple Double Entry Accounting
+ *
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Accounts;
+namespace SAccounts;
 
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
 use Monad\FTry;
 use Monad\FTry\Success;
-use Monad\Identity;
 use Monad\Match;
 use Monad\Option;
 use Tree\Node\Node;
@@ -80,7 +80,7 @@ class Chart
             ->Monad_FTry_Success(
                 Success::create(
                     Match::on($parent)
-                        ->chippyash_Accounts_Nominal(function ($p) {
+                        ->SAccounts_Nominal(function ($p) {
                             return $this->findNode($p);
                         })
                         ->null($this->tree)

@@ -73,8 +73,8 @@ See [The Matrix Packages](http://the-matrix.github.io/packages/) for other packa
 
 ##### Creating it manually
 <pre>
-use chippyash\Accounts\Chart;
-use chippyash\Accounts\Organisation;
+use SAccounts\Chart;
+use SAccounts\Organisation;
 use chippyash\Currency\Factory as Currency;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -90,8 +90,8 @@ example that allows saving of Charts as serialized PHP file is provided to get y
 your own.
 
 <pre>
-use chippyash\Accounts\Accountant;
-use chippyash\Accounts\Storage\Account\Serialized;
+use SAccounts\Accountant;
+use SAccounts\Storage\Account\Serialized;
 
 $fileClerk = new Serialized(new StringType('/path/To/My/Account/Store'));
 $accountant = new Accountant($fileClerk);
@@ -102,8 +102,8 @@ COA template you want to use. A simple 'personal accounts' template is provided,
 and supply your own.
 
 <pre>
-use chippyash\Accounts\ChartDefinition;
-use chippyash\Accounts\Organisation;
+use SAccounts\ChartDefinition;
+use SAccounts\Organisation;
 use chippyash\Type\String\StringType;
 use chippyash\Type\Number\IntType;
 use chippyash\Currency\Factory as Currency;
@@ -126,8 +126,8 @@ by calling the class constant as a method. See the link in the thanks section fo
 - add a root account
 
 <pre>
-use use chippyash\Accounts\Nominal;
-use chippyash\Accounts\AccountType;
+use use SAccounts\Nominal;
+use SAccounts\AccountType;
 
 ac1 = new Account($chart, new Nominal('2000'), AccountType::ASSET(), new StringType('Asset'));
 $chart->addAccount($ac)
@@ -218,7 +218,7 @@ Whilst an Account records the value state at any given point in time, and a Char
  storage mechanism that you want to use.
  
 <pre>
-use chippyash\Accounts\Storage\Journal\Xml as Journalist;
+use SAccounts\Storage\Journal\Xml as Journalist;
 
 $accountant->setJournalist(new Journalist(new StringType('/path/to/my/journal/store/folder')));
 </pre>
@@ -252,8 +252,8 @@ You can either manage the link between the Journal and the Chart yourself by cal
 need a Transaction:
 
 <pre>
-use chippyash\Accounts\Transaction;
-use chippyash\Accounts\Nominal;
+use SAccounts\Transaction;
+use SAccounts\Nominal;
 
 $drAc = new Nominal('0000');
 $crAc = new Nominal('1000');

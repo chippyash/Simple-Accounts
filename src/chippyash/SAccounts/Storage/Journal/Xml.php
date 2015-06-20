@@ -6,13 +6,13 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Accounts\Storage\Journal;
+namespace SAccounts\Storage\Journal;
 
-use chippyash\Accounts\AccountsException;
-use chippyash\Accounts\Journal;
-use chippyash\Accounts\JournalStorageInterface;
-use chippyash\Accounts\Nominal;
-use chippyash\Accounts\Transaction;
+use SAccounts\AccountsException;
+use SAccounts\Journal;
+use SAccounts\JournalStorageInterface;
+use SAccounts\Nominal;
+use SAccounts\Transaction;
 use chippyash\Currency\Factory as CurrencyFactory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -102,7 +102,7 @@ EOT;
      * Read journal definition from store
      *
      * @return Journal
-     * @throws \chippyash\Accounts\AccountsException
+     * @throws \SAccounts\AccountsException
      */
     public function readJournal()
     {
@@ -127,7 +127,7 @@ EOT;
      * @param Transaction $transaction
      *
      * @return IntType Transaction Unique Id
-     * @throws \chippyash\Accounts\AccountsException
+     * @throws \SAccounts\AccountsException
      */
     public function writeTransaction(Transaction $transaction)
     {
@@ -163,7 +163,7 @@ EOT;
      * @param IntType $id Transaction Unique Id
      *
      * @return Transaction|null
-     * @throws \chippyash\Accounts\AccountsException
+     * @throws \SAccounts\AccountsException
      */
     public function readTransaction(IntType $id)
     {

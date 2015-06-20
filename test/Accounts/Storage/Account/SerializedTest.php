@@ -1,17 +1,17 @@
 <?php
 /**
- * Accounts
- 
+ * Simple Double Entry Bookkeeping
+ *
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\Accounts\Storage\Account;
+namespace chippyash\Test\SAccounts\Storage\Account;
 
-use chippyash\Accounts\Chart;
-use chippyash\Accounts\Organisation;
-use chippyash\Accounts\Storage\Account\Serialized;
+use SAccounts\Chart;
+use SAccounts\Organisation;
+use SAccounts\Storage\Account\Serialized;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -36,7 +36,7 @@ class SerializedTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testConstructionWithNonExistentDirectoryThrowsAnException()
     {
@@ -53,7 +53,7 @@ class SerializedTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testFetchingANonExistentChartWillThrowAnException()
     {

@@ -1,18 +1,18 @@
 <?php
 /**
- * Accounts
+ * SAccounts
  
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Test\Accounts;
+namespace chippyash\Test\SAccounts;
 
-use chippyash\Accounts\Account;
-use chippyash\Accounts\AccountType;
-use chippyash\Accounts\Chart;
-use chippyash\Accounts\Organisation;
-use chippyash\Accounts\Nominal;
+use SAccounts\Account;
+use SAccounts\AccountType;
+use SAccounts\Chart;
+use SAccounts\Organisation;
+use SAccounts\Nominal;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -43,24 +43,24 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
 
     public function testConstructionCreatesChart()
     {
-        $this->assertInstanceOf('chippyash\Accounts\Chart', $this->sut);
+        $this->assertInstanceOf('SAccounts\Chart', $this->sut);
     }
 
     public function testYouCanGiveAChartAnOptionalTreeInConstruction()
     {
         $tree = new Node();
         $sut = new Chart(new StringType('Foo Chart'), $this->org, $tree);
-        $this->assertInstanceOf('chippyash\Accounts\Chart', $sut);
+        $this->assertInstanceOf('SAccounts\Chart', $sut);
     }
 
     public function testYouCanAddAnAccountIfItIsNotAlreadyInTheChart()
     {
         $ac = new Account($this->sut, new Nominal('9999'), AccountType::ASSET(), new StringType('Asset'));
-        $this->assertInstanceOf('chippyash\Accounts\Chart', $this->sut->addAccount($ac));
+        $this->assertInstanceOf('SAccounts\Chart', $this->sut->addAccount($ac));
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testAddingAnAccountThatAlreadyExistsInChartWillThrowException()
     {
@@ -96,7 +96,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testTryingToGetANonExistentAccountWillThrowAnException()
     {
@@ -104,7 +104,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException chippyash\Accounts\AccountsException
+     * @expectedException SAccounts\AccountsException
      */
     public function testDeletingANonExistentAccountWillThrowAnException()
     {
@@ -112,7 +112,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testYouCannotDeleteAnAccountIfItsBalanceIsNonZero()
     {
@@ -146,7 +146,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException \chippyash\Accounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testTryingToGetAParentIdOfANonExistentAccountWillThrowAnException()
     {
