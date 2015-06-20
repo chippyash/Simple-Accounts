@@ -13,6 +13,9 @@ use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
 use chippyash\Accounts\AccountType;
+use Monad\FTry;
+use Monad\Match;
+use Monad\Option;
 
 /**
  * An Account
@@ -83,14 +86,10 @@ class Account
     public function debit(Currency $amount)
     {
         $this->acDr->set($this->acDr->get() + $amount());
-        try {
-            $parentId = $this->chart->getParentId($this->id);
-        } catch (AccountsException $e) {
-            $parentId = null;
-        }
-        if (!is_null($parentId)) {
-            $this->chart->getAccount($parentId)->debit($amount);
-        }
+        Match::on($this->optGetParentId())
+            ->Monad_Option_Some(function($parentId) use($amount) {
+                $this->chart->getAccount($parentId->value())->debit($amount);
+            });
 
         return $this;
     }
@@ -105,14 +104,10 @@ class Account
     public function credit(Currency $amount)
     {
         $this->acCr->set($this->acCr->get() + $amount());
-        try {
-            $parentId = $this->chart->getParentId($this->id);
-        } catch (AccountsException $e) {
-            $parentId = null;
-        }
-        if (!is_null($parentId)) {
-            $this->chart->getAccount($parentId)->credit($amount);
-        }
+        Match::on($this->optGetParentId())
+            ->Monad_Option_Some(function($parentId) use($amount) {
+                $this->chart->getAccount($parentId->value())->credit($amount);
+            });
 
         return $this;
     }
@@ -176,5 +171,28 @@ class Account
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Get parent id as an Option
+     *
+     * @return Option
+     */
+    protected function optGetParentId()
+    {
+        return Match::on(
+            FTry::with(
+                function () {
+                    return $this->chart->getParentId($this->id);
+                }
+            )
+        )
+            ->Monad_FTry_Success(function ($id) {
+                return Option::create($id->flatten());
+            })
+            ->Monad_FTry_Failure(function () {
+                return Option::create(null);
+            })
+            ->value();
     }
 }

@@ -160,6 +160,8 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
         $ac2 = new Account($this->sut, new Nominal('9999'), AccountType::ASSET(), new StringType('Asset-2'));
         $this->sut->addAccount($ac2,$ac1->getId());
 
+        $f = $this->sut->getParentId($ac2->getId());
+        $b = $f->get();
         $this->assertEquals('9998', $this->sut->getParentId($ac2->getId())->get());
     }
 }

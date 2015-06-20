@@ -16,6 +16,7 @@
   "require": {
     "chippyash/strong-type": "~2.1.0",
     "chippyash/currency": "~1.0.0",
+    "chippyash/monad": "dev-master",
     "myclabs/php-enum": "~1.3.2",
     "nicmart/tree": "~0.2.5"
   },

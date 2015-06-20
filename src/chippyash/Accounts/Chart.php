@@ -1,7 +1,6 @@
 <?php
 /**
  * Simple Double Entry Accounting
-
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
@@ -11,15 +10,26 @@ namespace chippyash\Accounts;
 
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
-use chippyash\Accounts\Organisation;
+use Monad\FTry;
+use Monad\FTry\Success;
+use Monad\Identity;
+use Monad\Match;
+use Monad\Option;
 use Tree\Node\Node;
-use Tree\Visitor\YieldVisitor;
 
 /**
  * A Chart of Accounts
  */
-class Chart 
+class Chart
 {
+    /**@+
+     * Exception error messages
+     */
+    const ERR_INVALAC = 'Invalid account identifier';
+    const ERR_ACEXISTS = 'Account already exists in chart';
+    const ERR_NODELETE = 'Cannot delete account: Balance not zero';
+    /**@-*/
+
     /**
      * Tree of accounts
      * @var Node
@@ -49,11 +59,10 @@ class Chart
     {
         $this->chartName = $name;
         $this->org = $org;
-        if (is_null($tree)) {
-            $this->tree = new Node();
-        } else {
-            $this->tree = $tree;
-        }
+        $this->tree = Match::on($tree)
+            ->Tree_Node_Node($tree)
+            ->null(new Node())
+            ->value();
     }
 
     /**
@@ -67,17 +76,21 @@ class Chart
      */
     public function addAccount(Account $ac, Nominal $parent = null)
     {
-        if (!is_null($this->findNode($ac->getId()))) {
-            throw new AccountsException('Account already exists in chart');
-        }
-
-        if (is_null($parent)) {
-            $root = $this->tree;
-        } else {
-            $root = $this->findNode($parent);
-        }
-
-        $root->addChild(new Node($ac));
+        Match::on($this->tryHasNode($ac->getId(), self::ERR_ACEXISTS))
+            ->Monad_FTry_Success(
+                Success::create(
+                    Match::on($parent)
+                        ->chippyash_Accounts_Nominal(function ($p) {
+                            return $this->findNode($p);
+                        })
+                        ->null($this->tree)
+                        ->value()
+                )
+            )
+            ->value()
+            ->pass()
+            ->value()
+            ->addChild(new Node($ac));
 
         return $this;
     }
@@ -92,22 +105,24 @@ class Chart
      */
     public function delAccount(Nominal $id)
     {
-        $ac = $this->findNode($id);
-        if (is_null($ac)) {
-            throw new AccountsException('Invalid account identifier');
-        }
-        //@var Account
-        $account = $ac->getValue();
-        if ($account->getBalance()->get() !== 0) {
-            throw new AccountsException('Cannot delete account: Balance not zero');
-        }
+        $ac = $this->tryGetNode($id, self::ERR_INVALAC)
+            ->pass()
+            ->flatten();
 
-        $isDr = (($account->getType()->getValue() & AccountType::DR) == AccountType::DR);
-        if ($isDr) {
-            $account->debit($account->getDebit()->negate());
-        } else {
-            $account->credit($account->getCredit()->negate());
-        }
+        //@var Account
+        $account = FTry::with(function () use ($ac) {
+            $account = $ac->getValue();
+            if ($account->getBalance()->get() !== 0) {
+                throw new AccountsException(self::ERR_NODELETE);
+            }
+            return $account;
+        })
+            ->pass()
+            ->flatten();
+
+        Match::on(Option::create((($account->getType()->getValue() & AccountType::DR) == AccountType::DR), false))
+            ->Monad_Option_Some($account->debit($account->getDebit()->negate()))
+            ->Monad_Option_None($account->credit($account->getCredit()->negate()));
 
         $ac->getParent()->removeChild($ac);
 
@@ -124,12 +139,13 @@ class Chart
      */
     public function getAccount(Nominal $id)
     {
-        $ac = $this->findNode($id);
-        if (is_null($ac)) {
-            throw new AccountsException('Invalid account identifier');
-        }
-
-        return $ac->getValue();
+        return Match::on($this->tryGetNode($id, self::ERR_INVALAC))
+            ->Monad_FTry_Success(function ($ac) {
+                return FTry::with($ac->flatten()->getValue());
+            })
+            ->value()
+            ->pass()
+            ->value();
     }
 
     /**
@@ -140,12 +156,12 @@ class Chart
      */
     public function hasAccount(Nominal $id)
     {
-        try {
+        return Match::on(FTry::with(function () use ($id) {
             $this->getAccount($id);
-            return true;
-        } catch (AccountsException $e) {
-            return false;
-        }
+        }))
+            ->Monad_FTry_Success(true)
+            ->Monad_FTry_Failure(false)
+            ->value();
     }
 
     /**
@@ -153,21 +169,25 @@ class Chart
      *
      * @param Nominal $id
      * @return null|IntType
+     *
      * @throws AccountsException
      */
     public function getParentId(Nominal $id)
     {
-        $thisNode = $this->findNode($id);
-        if (is_null($thisNode)) {
-            throw new AccountsException('Invalid account identifier');
-        }
-
-        $prntNode = $thisNode->getParent();
-        if (is_null($prntNode) || is_null($prntNode->getValue())) {
-            return null;
-        } else {
-            return $prntNode->getValue()->getId();
-        }
+        return Match::on(
+            Match::on($this->tryGetNode($id, self::ERR_INVALAC))
+                ->Monad_FTry_Success(function ($node) {
+                    return Match::on($node->flatten()->getParent());
+                })
+                ->value()
+                ->pass()
+                ->value()
+        )
+            ->Tree_Node_Node(function ($node) {
+                $v = $node->getValue();
+                return is_null($v) ? null : $v->getId();
+            })
+            ->value();
     }
 
     /**
@@ -198,6 +218,38 @@ class Chart
     public function getName()
     {
         return $this->chartName;
+    }
+
+    /**
+     * @param Nominal $id
+     * @param $exceptionMessage
+     *
+     * @return FTry
+     */
+    protected function tryHasNode(Nominal $id, $exceptionMessage)
+    {
+        return FTry::with(function () use ($id, $exceptionMessage) {
+            if (!is_null($this->findNode($id))) {
+                throw new AccountsException($exceptionMessage);
+            }
+        });
+    }
+
+    /**
+     * @param Nominal $id
+     * @param $exceptionMessage
+     *
+     * @return FTry
+     */
+    protected function tryGetNode(Nominal $id, $exceptionMessage)
+    {
+        return FTry::with(function () use ($id, $exceptionMessage) {
+            $node = $this->findNode($id);
+            if (is_null($node)) {
+                throw new AccountsException($exceptionMessage);
+            }
+            return $node;
+        });
     }
 
     /**
