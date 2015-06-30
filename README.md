@@ -434,6 +434,7 @@ V1.1.0 Journals added
 
 V1.2.0
 
+- replaced chippyash\Accounts namespace with SAccounts
 - Transaction deprecated, use SimpleTransaction (Transaction proxies to SimpleTransaction and will be removed in next feature point release)
 - SplitTransactions introduced, use these for preference
 - BC break with XML Journal file format to accommodate split transactions 
