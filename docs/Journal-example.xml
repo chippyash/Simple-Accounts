@@ -3,7 +3,13 @@
  xsi:noNamespaceSchemaLocation="../src/chippyash/SAccounts/definitions/journal-definition.xsd">
     <definition name="Foo Journal" crcy="GBP" inc="2"/>
     <transactions>
-        <transaction id="1" dr="0000" cr="0001" amount="1226" date="2015-05-21T12:13:46Z"/>
-        <transaction id="2" dr="2020" cr="3001" amount="102614" date="2016-05-22T14:44:15Z">This is a note on the transaction</transaction>
+        <transaction id="1" date="2015-05-21T12:13:46Z">
+            <split type="DR" amount="1226" nominal="0000"/>
+            <split type="CR" amount="1226" nominal="0001"/>
+        </transaction>
+        <transaction id="2" date="2016-05-22T14:44:15Z" note="This is a note on the transaction">
+            <split type="DR" amount="102614" nominal="2020"/>
+            <split type="CR" amount="102614" nominal="3001"/>
+        </transaction>
     </transactions>
 </journal>

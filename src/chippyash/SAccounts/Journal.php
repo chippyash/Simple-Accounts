@@ -11,6 +11,7 @@ namespace SAccounts;
 use chippyash\Currency\Currency;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
+use SAccounts\Transaction\SplitTransaction;
 
 /**
  * A Journal records account Transactions for a Chart
@@ -74,10 +75,10 @@ class Journal
      * Write the transaction.
      * Returns transaction with Transaction Id set
      *
-     * @param Transaction $transaction
-     * @return Transaction
+     * @param SplitTransaction $transaction
+     * @return SplitTransaction
      */
-    public function write(Transaction $transaction)
+    public function write(SplitTransaction $transaction)
     {
         return $transaction->setId(
                 $this->journalist
@@ -89,7 +90,7 @@ class Journal
      * Read a specific transaction
      *
      * @param IntType $id
-     * @return Transaction
+     * @return SplitTransaction
      */
     public function readTransaction(IntType $id)
     {
@@ -100,7 +101,7 @@ class Journal
      * Read all transactions for an account
      *
      * @param Nominal $nominal
-     * @return array [Transaction,...]
+     * @return array [SplitTransaction,...]
      */
     public function readTransactions(Nominal $nominal)
     {

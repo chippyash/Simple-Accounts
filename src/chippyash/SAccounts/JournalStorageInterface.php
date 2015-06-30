@@ -12,6 +12,7 @@ namespace SAccounts;
 
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
+use SAccounts\Transaction\SplitTransaction;
 
 /**
  * Interface to save and fetch a Chart to/from storage
@@ -46,18 +47,18 @@ interface JournalStorageInterface
     /**
      * Write a transaction to store
      *
-     * @param Transaction $transaction
+     * @param SplitTransaction $transaction
      *
      * @return IntType Transaction Unique Id
      */
-    public function writeTransaction(Transaction $transaction);
+    public function writeTransaction(SplitTransaction $transaction);
 
     /**
      * Read a transaction from store
      *
      * @param IntType $id Transaction Unique Id
      *
-     * @return Transaction|null
+     * @return SplitTransaction|null
      */
     public function readTransaction(IntType $id);
 
@@ -66,7 +67,7 @@ interface JournalStorageInterface
      *
      * @param Nominal $nominal Account Nominal code
      *
-     * @return array[Transaction,...]
+     * @return array[SplitTransaction,...]
      */
     public function readTransactions(Nominal $nominal);
 }

@@ -9,6 +9,7 @@
 
 namespace SAccounts;
 
+use Assembler\Assembler;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
 use Monad\FTry;
@@ -105,26 +106,32 @@ class Chart
      */
     public function delAccount(Nominal $id)
     {
-        $ac = $this->tryGetNode($id, self::ERR_INVALAC)
-            ->pass()
-            ->flatten();
-
-        //@var Account
-        $account = FTry::with(function () use ($ac) {
-            $account = $ac->getValue();
-            if ($account->getBalance()->get() !== 0) {
-                throw new AccountsException(self::ERR_NODELETE);
-            }
-            return $account;
-        })
-            ->pass()
-            ->flatten();
-
-        Match::on(Option::create((($account->getType()->getValue() & AccountType::DR) == AccountType::DR), false))
-            ->Monad_Option_Some($account->debit($account->getDebit()->negate()))
-            ->Monad_Option_None($account->credit($account->getCredit()->negate()));
-
-        $ac->getParent()->removeChild($ac);
+        Assembler::create()
+            ->ac(function() use ($id){
+                return $this->tryGetNode($id, self::ERR_INVALAC)
+                    ->pass()
+                    ->flatten();
+            })
+            ->account(function($ac){
+                return FTry::with(function () use ($ac) {
+                    $account = $ac->getValue();
+                    if ($account->getBalance()->get() !== 0) {
+                        throw new AccountsException(self::ERR_NODELETE);
+                    }
+                    return $account;
+                })
+                    ->pass()
+                    ->flatten();
+            })
+            ->transact(function($account){
+                Match::on(Option::create((($account->getType()->getValue() & AccountType::DR) == AccountType::DR), false))
+                    ->Monad_Option_Some($account->debit($account->getDebit()->negate()))
+                    ->Monad_Option_None($account->credit($account->getCredit()->negate()));
+            })
+            ->removeChild(function($ac){
+                $ac->getParent()->removeChild($ac);
+            })
+            ->assemble();
 
         return $this;
     }

@@ -28,13 +28,20 @@
     </xs:complexType>
 
     <xs:complexType name="transactionType">
+        <xs:sequence>
+            <xs:element type="splitType" name="split" minOccurs="2" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:attribute type="xs:positiveInteger" name="id"/>
+        <xs:attribute type="xs:dateTime" name="date"/>
+        <xs:attribute type="xs:string" name="note" use="optional"/>
+    </xs:complexType>
+
+    <xs:complexType name="splitType">
         <xs:simpleContent>
             <xs:extension base="xs:token">
-                <xs:attribute type="xs:positiveInteger" name="id"/>
-                <xs:attribute type="nominalType" name="dr"/>
-                <xs:attribute type="nominalType" name="cr"/>
+                <xs:attribute type="dctype" name="type"/>
+                <xs:attribute type="nominalType" name="nominal"/>
                 <xs:attribute type="xs:positiveInteger" name="amount"/>
-                <xs:attribute type="xs:dateTime" name="date"/>
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
@@ -48,6 +55,12 @@
     <xs:simpleType name="currencyType">
         <xs:restriction base="xs:token">
             <xs:pattern value="[A-Z]{3}"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="dctype">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[DC]R"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

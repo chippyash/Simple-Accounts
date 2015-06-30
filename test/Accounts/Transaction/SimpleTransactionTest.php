@@ -1,30 +1,30 @@
 <?php
 /**
- * Simple Double Entry Accounting
+ * Accounts
  *
  * @author Ashley Kitson
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\SAccounts;
+namespace chippyash\Test\SAccounts\Transaction;
 
-use SAccounts\Nominal;
-use SAccounts\Transaction;
 use chippyash\Currency\Factory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
+use SAccounts\Nominal;
+use SAccounts\Transaction\SimpleTransaction;
 
-class TransactionTest extends \PHPUnit_Framework_TestCase
+class SimpleTransactionTest extends \PHPUnit_Framework_TestCase
 {
     /**
-     * @var Transaction
+     * @var SimpleTransaction
      */
     protected $sut;
 
     protected function setUp()
     {
-        $this->sut = new Transaction(new Nominal('0000'), new Nominal('1000'), Factory::create('gbp', 12.26));
+        $this->sut = new SimpleTransaction(new Nominal('0000'), new Nominal('1000'), Factory::create('gbp', 12.26));
     }
 
     public function testBasicConstructionSetsAnEmptyNoteOnTheTransaction()
@@ -43,7 +43,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
     public function testYouCanSetAnOptionalNoteOnConstruction()
     {
         $note = new StringType('foo bar');
-        $sut = new Transaction(new Nominal('0000'), new Nominal('1000'), Factory::create('gbp', 12.26), $note);
+        $sut = new SimpleTransaction(new Nominal('0000'), new Nominal('1000'), Factory::create('gbp', 12.26), $note);
         $this->assertEquals($note, $sut->getNote());
     }
 
@@ -51,7 +51,7 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
     {
         $note = new StringType('foo bar');
         $dt = new \DateTime();
-        $sut = new Transaction(new Nominal('0000'), new Nominal('1000'), Factory::create('gbp', 12.26), $note, $dt);
+        $sut = new SimpleTransaction(new Nominal('0000'), new Nominal('1000'), Factory::create('gbp', 12.26), $note, $dt);
         $this->assertEquals($dt, $sut->getDate());
     }
 
@@ -90,5 +90,4 @@ class TransactionTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertInstanceOf('DateTime', $this->sut->getDate());
     }
-
 }

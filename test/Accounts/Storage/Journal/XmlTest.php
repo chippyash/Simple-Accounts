@@ -204,11 +204,11 @@ EOT;
         $txnId = $this->sut->setJournalName(new StringType('Foo Journal'))
             ->writeTransaction($this->createTransaction('0000','00001',12.26, 'foo bar'));
         $txn = $this->sut->readTransaction($txnId);
-        $this->assertInstanceOf('SAccounts\Transaction', $txn);
+        $this->assertInstanceOf('SAccounts\Transaction\SplitTransaction', $txn);
         $this->assertEquals(1, $txn->getId()->get());
         $this->assertEquals(1226, $txn->getAmount()->get());
-        $this->assertEquals('0000', $txn->getDrAc()->get());
-        $this->assertEquals('0001', $txn->getCrAc()->get());
+        $this->assertEquals('0000', $txn->getDrAc()[0]->get());
+        $this->assertEquals('0001', $txn->getCrAc()[0]->get());
         $this->assertEquals('foo bar', $txn->getNote()->get());
     }
 
@@ -236,7 +236,7 @@ EOT;
         $this->assertEquals(4, count($transactions));
 
         foreach($transactions as $transaction) {
-            $this->assertInstanceOf('SAccounts\Transaction', $transaction);
+            $this->assertInstanceOf('SAccounts\Transaction\SplitTransaction', $transaction);
         }
     }
 

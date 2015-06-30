@@ -9,7 +9,10 @@
 
 namespace SAccounts;
 
+use Assembler\Assembler;
+use Assembler\FFor;
 use chippyash\Type\String\StringType;
+use SAccounts\Transaction\SplitTransaction;
 use Tree\Node\Node;
 use chippyash\Currency\Currency;
 
@@ -52,16 +55,26 @@ class Accountant
      */
     public function createChart(StringType $chartName, Organisation $org, ChartDefinition $def)
     {
-        $dom = $def->getDefinition();
-        $xpath = new \DOMXPath($dom);
-
-        $root = $xpath->query('/chart/account')->item(0);
-        $tree = new Node();
-        $chart = new Chart($chartName, $org, $tree);
-
-        $this->buildTree($tree, $root, $chart, AccountType::toArray());
-
-        return $chart;
+        return FFor::create()
+            ->dom(function() use($def) {
+                return $def->getDefinition();
+            })
+            ->xpath(function($dom){
+                return new \DOMXPath($dom);
+            })
+            ->root(function($xpath){
+                return $xpath->query('/chart/account')->item(0);
+            })
+            ->tree(function(){
+                return new Node();
+            })
+            ->chart(function($tree) use ($chartName, $org){
+                return new Chart($chartName, $org, $tree);
+            })
+            ->build(function($root, $tree, $chart){
+                $this->buildTree($tree, $root, $chart, AccountType::toArray());
+            })
+            ->fyield('chart');
     }
 
     /**
@@ -163,20 +176,22 @@ class Accountant
     /**
      * Write a Transaction to the Journal and update the Chart
      *
-     * @param Transaction $txn
+     * @param SplitTransaction $txn
      * @param Chart $chart
      * @param Journal $journal
      *
-     * @return Transaction Transaction with txn Id set
+     * @return SplitTransaction Transaction with txn Id set
      * @throws AccountsException
      */
-    public function writeTransaction(Transaction $txn, Chart $chart, Journal $journal)
+    public function writeTransaction(SplitTransaction $txn, Chart $chart, Journal $journal)
     {
-        $txn = $journal->write($txn);
-        $chart->getAccount($txn->getDrAc())->debit($txn->getAmount());
-        $chart->getAccount($txn->getCrAc())->credit($txn->getAmount());
-
-        return $txn;
+        return FFor::create()
+            ->txn(function() use ($journal, $txn) {return $journal->write($txn);})
+            ->chart(function($txn) use ($chart) {
+                $chart->getAccount($txn->getDrAc()[0])->debit($txn->getAmount());
+                $chart->getAccount($txn->getCrAc()[0])->credit($txn->getAmount());
+            })
+            ->fyield('txn');
     }
 
     /**
@@ -190,10 +205,13 @@ class Accountant
     protected function buildTree(Node $tree, \DOMNode $node, Chart $chart, array $accountTypes)
     {
         //create current node
-        $attributes = $node->attributes;
-        $nominal = new Nominal($attributes->getNamedItem('nominal')->nodeValue);
-        $type = new AccountType($accountTypes[strtoupper($attributes->getNamedItem('type')->nodeValue)]);
-        $name = new StringType($attributes->getNamedItem('name')->nodeValue);
+        list($nominal, $type, $name) = FFor::create()
+            ->attributes(function() use($node) {return $node->attributes;})
+            ->nominal(function($attributes){return new Nominal($attributes->getNamedItem('nominal')->nodeValue);})
+            ->name(function($attributes){return new StringType($attributes->getNamedItem('name')->nodeValue);})
+            ->type(function($attributes) use ($accountTypes){return new AccountType($accountTypes[strtoupper($attributes->getNamedItem('type')->nodeValue)]);})
+            ->fyield('nominal', 'type', 'name');
+
         $tree->setValue(new Account($chart, $nominal, $type, $name));
 
         //recurse through sub accounts

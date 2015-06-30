@@ -9,10 +9,12 @@
 namespace SAccounts\Storage\Journal;
 
 use SAccounts\AccountsException;
+use SAccounts\AccountType;
 use SAccounts\Journal;
 use SAccounts\JournalStorageInterface;
 use SAccounts\Nominal;
-use SAccounts\Transaction;
+use SAccounts\Transaction\Entry;
+use SAccounts\Transaction\SplitTransaction;
 use chippyash\Currency\Factory as CurrencyFactory;
 use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
@@ -124,12 +126,12 @@ EOT;
     /**
      * Write a transaction to store
      *
-     * @param Transaction $transaction
+     * @param SplitTransaction $transaction
      *
      * @return IntType Transaction Unique Id
      * @throws \SAccounts\AccountsException
      */
-    public function writeTransaction(Transaction $transaction)
+    public function writeTransaction(SplitTransaction $transaction)
     {
         if (!isset($this->journalName)) {
             throw new AccountsException('Missing Journal name');
@@ -143,15 +145,17 @@ EOT;
         $attribs->getNamedItem('inc')->nodeValue = $txnId;
 
         $transactions = $xpath->query('/journal/transactions')->item(0);
-        $newTxn = $dom->createElement('transaction', $transaction->getNote()->get());
+
+        $newTxn = $dom->createElement('transaction');
         $newTxn->setAttribute('id', $txnId);
-        $newTxn->setAttribute('dr', $transaction->getDrAc()->get());
-        $newTxn->setAttribute('cr', $transaction->getCrAc()->get());
-        $newTxn->setAttribute('amount', $transaction->getAmount()->get());
         //NB - although we are looking for an ISO801 format to match xs:datetime
         //the W3C format actually matches xsd datetime. PHP ISO8601 does not
         $newTxn->setAttribute('date', $transaction->getDate()->format(\DateTime::W3C));
+        $newTxn->setAttribute('note', $transaction->getNote()->get());
+
+        $this->writeSplitFromTransaction($transaction, $dom, $newTxn);
         $transactions->appendChild($newTxn);
+
         $dom->save($this->journalPath->get());
 
         return new IntType($txnId);
@@ -162,7 +166,7 @@ EOT;
      *
      * @param IntType $id Transaction Unique Id
      *
-     * @return Transaction|null
+     * @return SplitTransaction|null
      * @throws \SAccounts\AccountsException
      */
     public function readTransaction(IntType $id)
@@ -183,7 +187,7 @@ EOT;
 
         $crcy = $xpath->query('/journal/definition')->item(0)->attributes->getNamedItem('crcy')->nodeValue;
 
-        return $this->createTransactionFromElement($txn, $crcy);
+        return $this->createTransactionFromElement($txn, $crcy, $xpath);
     }
 
     /**
@@ -191,13 +195,13 @@ EOT;
      *
      * @param Nominal $nominal Account Nominal code
      *
-     * @return array[Transaction,...]
+     * @return array[SplitTransaction,...]
      */
     public function readTransactions(Nominal $nominal)
     {
         $dom = $this->getDom();
         $xpath = new \DOMXPath($dom);
-        $nodes = $xpath->query("/journal/transactions/transaction[@dr='{$nominal}' or @cr='{$nominal}']");
+        $nodes = $xpath->query("/journal/transactions/transaction/split[@nominal='{$nominal}']/..");
         if ($nodes->length === 0){
             return array();
         }
@@ -206,35 +210,55 @@ EOT;
         $transactions = array();
 
         foreach ($nodes as $node) {
-            $transactions[] = $this->createTransactionFromElement($node, $crcy);
+            $transactions[] = $this->createTransactionFromElement($node, $crcy, $xpath);
         }
 
         return $transactions;
     }
 
     /**
-     * Create transactionn from dom element
+     * Create transaction from dom element
      *
      * @param \DOMElement $txn
      * @param $crcyCode
-     * @return \DOMElement
+     * @param \DOMXPath
+     *
+     * @return SplitTransaction
      */
-    protected function createTransactionFromElement(\DOMElement $txn, $crcyCode)
+    protected function createTransactionFromElement(\DOMElement $txn, $crcyCode, \DOMXPath $xpath)
     {
-        $crcy = CurrencyFactory::create(
-            $crcyCode
+        $drNodes = $xpath->query("./split[@type='DR']", $txn);
+        $transaction = (new SplitTransaction(
+            new \DateTime($txn->attributes->getNamedItem('date')->nodeValue),
+            new StringType($txn->attributes->getNamedItem('note')->nodeValue)
+        ))
+            ->setId(
+                new IntType($txn->attributes->getNamedItem('id')->nodeValue)
         );
-        $crcy->set(intval($txn->attributes->getNamedItem('amount')->nodeValue));
+        foreach ($drNodes as $drNode) {
+            $transaction
+                ->addEntry(
+                    new Entry(
+                        new Nominal($drNode->attributes->getNamedItem('nominal')->nodeValue),
+                        CurrencyFactory::create($crcyCode)
+                            ->set(intval($drNode->attributes->getNamedItem('amount')->nodeValue)),
+                        AccountType::DR()
+                    )
+                );
+        }
 
-        $transaction = new Transaction(
-            new Nominal($txn->attributes->getNamedItem('dr')->nodeValue),
-            new Nominal($txn->attributes->getNamedItem('cr')->nodeValue),
-            $crcy,
-            new StringType($txn->nodeValue),
-            new \DateTime($txn->attributes->getNamedItem('date')->nodeValue)
-        );
-
-        $transaction->setId(new IntType($txn->attributes->getNamedItem('id')->nodeValue));
+        $crNodes = $xpath->query("./split[@type='CR']", $txn);
+        foreach ($crNodes as $crNode) {
+            $transaction
+                ->addEntry(
+                    new Entry(
+                        new Nominal($crNode->attributes->getNamedItem('nominal')->nodeValue),
+                        CurrencyFactory::create($crcyCode)
+                            ->set(intval($crNode->attributes->getNamedItem('amount')->nodeValue)),
+                        AccountType::CR()
+                    )
+                );
+        }
 
         return $transaction;
     }
@@ -329,5 +353,43 @@ EOT;
         libxml_use_internal_errors(false);
 
         return $dom;
+    }
+
+    /**
+     * Break transaction into its splits and write them out
+     *
+     * @param SplitTransaction $transaction
+     * @param \DOMDocument $dom
+     * @param \DOMElement $newTxn
+     */
+    protected function writeSplitFromTransaction(SplitTransaction $transaction, \DOMDocument $dom, \DOMElement $newTxn)
+    {
+        foreach ($transaction->getEntries() as $entry) {
+            $this->writeSplit(
+                $dom,
+                $newTxn,
+                ($entry->getType()->getValue() == AccountType::CR ? 'CR' : 'DR'),
+                $entry->getAmount()->get(),
+                $entry->getId()->get()
+            );
+        }
+    }
+
+    /**
+     * Write a transaction split to dom
+     *
+     * @param \DOMDocument $dom
+     * @param \DOMElement $txn
+     * @param string $type
+     * @param int $amount
+     * @param string $nominal
+     */
+    protected function writeSplit(\DOMDocument $dom, \DOMElement $txn, $type, $amount, $nominal)
+    {
+        $split = $dom->createElement('split');
+        $split->setAttribute('type', $type);
+        $split->setAttribute('amount', $amount);
+        $split->setAttribute('nominal', $nominal);
+        $txn->appendChild($split);
     }
 }
