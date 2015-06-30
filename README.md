@@ -250,7 +250,7 @@ You can also store a journal via the accountant if you amend its definition
 You can either manage the link between the Journal and the Chart yourself by calling their appropriate store mechanisms
 (see the code, tests and diagrams for that,) or more simply, ask the accountant to do it for you.  In either case, you first of all
 need a Transaction. Transactions are provided by way of the `SAccounts\Transaction\SplitTransaction`
-and `SAccounts\Transaction\SimpleTransaction`.  `SimpleTransaction is provided as helper
+and `SAccounts\Transaction\SimpleTransaction`.  `SimpleTransaction` is provided as helper
 for creating and writing out transactions that consist of a pair of balanced debit and credit
 amounts.
 
