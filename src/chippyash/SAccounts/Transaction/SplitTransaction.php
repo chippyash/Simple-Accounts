@@ -14,6 +14,7 @@ use chippyash\Type\Number\IntType;
 use chippyash\Type\String\StringType;
 use Monad\Match;
 use Monad\Option;
+use SAccounts\AccountsException;
 use SAccounts\AccountType;
 
 /**
@@ -127,7 +128,10 @@ class SplitTransaction
     }
 
     /**
-     * @return Currency|null
+     * Get amount if the account is balanced
+     *
+     * @return Currency
+     * @throw AccountsException
      */
     public function getAmount()
     {
@@ -140,7 +144,7 @@ class SplitTransaction
                 }
                 return CFactory::create($entry->getAmount()->getCode()->get())->set($tot / 2);
             })
-            ->Monad_Option_None(null)
+            ->Monad_Option_None(function(){throw new AccountsException('No amount for unbalanced transaction');})
             ->value();
     }
 
@@ -187,8 +191,8 @@ class SplitTransaction
      */
     public function isSimple()
     {
-        return (count($this->getDrAc() == 1)
-            && count($this->getCrAc() == 1));
+        return (count($this->getDrAc()) == 1
+            && count($this->getCrAc()) == 1);
     }
 
 }
