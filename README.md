@@ -249,29 +249,32 @@ You can also store a journal via the accountant if you amend its definition
 
 You can either manage the link between the Journal and the Chart yourself by calling their appropriate store mechanisms
 (see the code, tests and diagrams for that,) or more simply, ask the accountant to do it for you.  In either case, you first of all
-need a Transaction:
+need a Transaction. Transactions are provided by way of the `SAccounts\Transaction\SplitTransaction`
+and `SAccounts\Transaction\SimpleTransaction`.  `SimpleTransaction is provided as helper
+for creating and writing out transactions that consist of a pair of balanced debit and credit
+amounts.
 
 <pre>
-use SAccounts\Transaction;
+use SAccounts\Transaction\SimpleTransaction;
 use SAccounts\Nominal;
 
 $drAc = new Nominal('0000');
 $crAc = new Nominal('1000');
 $amount = Currency::create($chart->getOrg()->getCurrencyCode(), 12.26);
-$txn = new  Transaction($drAc, $crAc, $amount);
+$txn = new  SimpleTransaction($drAc, $crAc, $amount);
 </pre>
 
-You can set an optional 4th parameter when creating a Transaction:
+You can set an optional 4th parameter when creating a SimpleTransaction:
  
 <pre>
-$txn = new  Transaction($drAc, $crAc, $amount, new StringType('This is a note'));
+$txn = new  SimpleTransaction($drAc, $crAc, $amount, new StringType('This is a note'));
 </pre>
 
 By default the date and time for the transaction is set to now().  You can set an optional 5th parameter when creating
-a Transaction and supply a DateTime object of your own choosing.
+a SimpleTransaction and supply a DateTime object of your own choosing.
 
 <pre>
-$txn = new  Transaction($drAc, $crAc, $amount, new StringType(''), new \DateTime('2015-12-03T12:14:30Z));
+$txn = new  SimpleTransaction($drAc, $crAc, $amount, new StringType(''), new \DateTime('2015-12-03T12:14:30Z));
 </pre>
 
 To record a transaction and update the chart of accounts you can now use the Accountant again:
@@ -290,6 +293,74 @@ $txnId = $txn->getId() //returns IntType
 
 You don't need to save the Journal, as it is inherently transactional, but don't forget to save your Chart once you 
 have finished writing transactions!
+
+The full power of the transaction is provided by the `SplitTransaction`. And remember,
+ that when you read transactions back from the journal they will be in SplitTransaction
+ format.  A split transaction allows you to have, say, one debit entry and three credit
+ entries.  As long as the total debit entry amounts equal the total credit entry 
+ amounts, you have a balanced transaction, i.e. valid double entry transaction.
+ 
+With power comes a little more complexity, as you'd expect! 
+
+<pre>
+use SAccounts\Transaction\SimpleTransaction;
+use SAccounts\Transaction\Entry;
+use SAccounts\Nominal;
+use chippyash\Type\String\StringType;
+use chippyash\Currency\Factory as Currency;
+
+$txn = new SplitTransaction() // date == now(), note == ''
+$txn = new SplitTransaction(new DateTime());
+$txn = new SplitTransaction(null, new StringType('foo'));
+$txn = new SplitTransaction(new DateTime(), new StringType('foo'));
+
+//the following is analogous to a SimpleTransaction
+$note = new StringType('foo bar');
+$dt = new \DateTime();
+$amount = Currency::create('gbp', 12.26);
+$txn = (new SplitTransaction($dt, $note))
+    ->addEntry(new Entry(new Nominal('0000'), $amount, AccountType::DR()))
+    ->addEntry(new Entry(new Nominal('1000'), $amount, AccountType::CR()));
+    
+</pre>
+
+When creating an Entry, you need to tell it:
+- which account to use
+- how much 
+- whether to debit or credit
+
+To create true split transaction, lets use the following example:
+- bank account: 3001
+- vat account: 6007
+- items account: 9056
+- total transaction £120.00, £100 for the item, £20 as VAT
+
+<pre>
+$txn = (new SplitTransaction($dt, $note))
+    ->addEntry(new Entry(new Nominal('3001'), Currency::create('gbp', 120), AccountType::DR()))
+    ->addEntry(new Entry(new Nominal('6007'), Currency::create('gbp', 20), AccountType::CR()))
+    ->addEntry(new Entry(new Nominal('9056'), Currency::create('gbp', 100), AccountType::CR()));
+</pre>
+
+On the whole it is a really bad idea to create an unbalanced transaction and you can
+check this with `checkBalance()` which returns true if the transaction is balanced else false.
+
+You can also do a simple check to see if the transaction conforms to being simple
+using the `isSimple()` method:
+
+<pre>
+$drAc = $txn->getDrAc();
+if ($txn->isSimple()) {
+    $actualDrAc = $drAc[0];
+} else {
+    //you have an array of debit accounts, so process them
+}
+</pre>
+
+`getCrAc()` gets the credit accounts on a transaction.
+
+The `getEntries()` method of a SplitTransaction returns a SAccounts\Transaction\Entries
+collection of entries.
 
 ### Class diagrams
 
@@ -325,7 +396,7 @@ Install [Composer](https://getcomposer.org/)
 #### For production
 
 <pre>
-    "chippyash/simple-accounts": "~1.1.0"
+    "chippyash/simple-accounts": "~1.2.0"
 </pre>
 
 #### For development
@@ -360,4 +431,10 @@ I'd like to highlight some others:
 V1.0.0 Original release
 
 V1.1.0 Journals added
+
+V1.2.0
+
+- Transaction deprecated, use SimpleTransaction (Transaction proxies to SimpleTransaction and will be removed in next feature point release)
+- SplitTransactions introduced, use these for preference
+- BC break with XML Journal file format to accommodate split transactions 
 

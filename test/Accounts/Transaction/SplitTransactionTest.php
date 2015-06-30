@@ -77,34 +77,18 @@ class SplitTransactionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($id, $this->sut->setId($id)->getId());
     }
 
-    public function testYouCanGetTheDebitAccountCode()
+    public function testGettingTheDebitAccountForASplitTransactionWillReturnAnArrayOfNominals()
     {
-        $this->assertEquals('0000', $this->sut->getDrAc()[0]->get());
-    }
-
-    public function testGettingTheDebitAccountForAMultiDebitEntrySplitTransactionWillReturnAnArrayOfNominals()
-    {
-        $amount = Factory::create('gbp', 0.1);
-        $codes = $this->sut->addEntry(new Entry(new Nominal('2000'), $amount, AccountType::DR()))
-            ->getDrAc();
+        $codes = $this->sut->getDrAc();
         $this->assertInternalType('array', $codes);
         $this->assertInstanceOf('SAccounts\Nominal', $codes[0]);
-        $this->assertInstanceOf('SAccounts\Nominal', $codes[1]);
     }
 
-    public function testYouCanGetTheCreditAccountCode()
+    public function testGettingTheCreditAccountForASplitTransactionWillReturnAnArrayOfNominals()
     {
-        $this->assertEquals('1000', $this->sut->getCrAc()[0]->get());
-    }
-
-    public function testGettingTheCreditAccountForAMultiCreditEntrySplitTransactionWillReturnAnArrayOfNominals()
-    {
-        $amount = Factory::create('gbp', 0.1);
-        $codes = $this->sut->addEntry(new Entry(new Nominal('2000'), $amount, AccountType::CR()))
-            ->getCrAc();
+        $codes = $this->sut->getCrAc();
         $this->assertInternalType('array', $codes);
         $this->assertInstanceOf('SAccounts\Nominal', $codes[0]);
-        $this->assertInstanceOf('SAccounts\Nominal', $codes[1]);
     }
 
     public function testCheckingIfASplitTransactionIsBalancedWillReturnTrueIfBalanced()

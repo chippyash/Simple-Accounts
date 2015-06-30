@@ -16,21 +16,38 @@ class Accountant {
     createJournal(journalName:StringType, chart:Chart):Journal
     fileJournal(journal:Journal):Accountant
     fetchJournal(journalName:StringType):Journal
-    writeTransaction(txn:Transaction, chart:Chart, journal:Journal):Transaction
+    writeTransaction(txn:SplitTransaction, chart:Chart, journal:Journal):SplitTransaction
 }
 
 interface JournalStorageInterface {
     setJournal(journalName:StringType):JournalStorageInterface
     writeJournal(journal:Journal):bool
     readJournal():Journal
-    writeTransaction(transaction:Transaction):IntType
-    readTransaction(id:IntType):Transaction
-    readTransactions(nominal:Nominal):array[Transaction]
+    writeTransaction(transaction:SplitTransaction):IntType
+    readTransaction(id:IntType):SplitTransaction
+    readTransactions(nominal:Nominal):array[SplitTransaction]
 }
 
 class Currency << IntType >>
 
 class JournalStore << (O,#FF7700) >>
+
+class Entry {
+    #id:Nominal
+    #amount:Currency
+    #type:AccountType
+    __construct(id:Nominal, amount:Currency,  type:AccountType):Entry
+    getId():Nominal
+    getAmount():Currency
+    getType():AccountType
+
+}
+
+class Entries << Monad\Collection >> {
+    __construct(value:array = []):Entries
+    addEntry(entry:Entry):Entries
+    checkBalance():bool
+}
 
 class Journal {
     #journalist:JournalStorageInterface
@@ -39,41 +56,45 @@ class Journal {
     __construct(journalName:StringType, crcy:Currency,  journalist:JournalStorageInterface):Journal
     getName():StringType
     getCurrency():Currency
-    write(transaction:Transaction):Transaction
-    readTransaction(id:IntType):Transaction|null
-    readTransactions(id:Nominal):array[Transaction]
+    write(transaction:SplitTransaction):SplitTransaction
+    readTransaction(id:IntType):SplitTransaction|null
+    readTransactions(id:Nominal):array[SplitTransaction]
 }
 
-class Transaction {
+class SplitTransaction {
     #id:IntType=null
-    #drAc:Nominal
-    #crAc:Nominal
-    #amount:Currency
     #date:DateTime
     #note:StringType
-    __construct(drAc:Nominal, crAc:Nominal, amount:Currency,note:StringType=null, date:DateTime=null):Transaction
-    setId(id:IntType):Transaction
-    setChart(id:Chart):Transaction
+    #entries:Entries
+    __construct(date:DateTime=null, note:StringType=null):SplitTransaction
+    setId(id:IntType):SplitTransaction
     getId():IntType
-    getChart():Chart
-    getDrAc():Nominal
-    getCrAc():Nominal
+    addEntry(entry:Entry):SplitTransaction
+    getDrAc():Array[Nominal]
+    getCrAc():Array[Nominal]
     getAmount():Currency
     getDate():DateTime
     getNote():StringType
+    checkBalance():bool
+    isSimple():bool
+}
+
+class SimpleTransaction {
+    __construct(drAc:Nominal, crAc:Nominal, amount:Currency, note:StringType = null,  date:DateTime = null):SimpleTransaction
 }
 
 class Nominal <<DigitString>>
 
-Transaction <.. Journal
+SplitTransaction <.. Journal
 Currency "1" --* "1" Journal : has
 JournalStorageInterface <-- JournalStore
 JournalStore "1" --* "1" Accountant : has
 JournalStore "1" --* "1" Journal : has
 Nominal <.. Journal
-Nominal "2" --* "1" Transaction : has
-Currency "1" --* "1" Transaction : has
 Nominal <.. JournalStorageInterface
 Journal <.. JournalStorageInterface
-Transaction <.. JournalStorageInterface
+Entry "*" *-- "1" Entries : has
+Entries "1" *-- "1" SplitTransaction : has
+SplitTransaction <.. JournalStorageInterface
+SplitTransaction <-- SimpleTransaction
 @enduml
