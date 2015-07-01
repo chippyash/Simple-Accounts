@@ -54,7 +54,6 @@ The current library support Organisations, Charts of Account and Journals.
 ### Roadmap
 
 - Accounting
-    - control accounts
     - closing accounts
 - Reporting
     - balance sheet
@@ -362,10 +361,59 @@ if ($txn->isSimple()) {
 The `getEntries()` method of a SplitTransaction returns a SAccounts\Transaction\Entries
 collection of entries.
 
+#### Control Accounts
+
+In the sense of an [accounting definition](https://en.wikipedia.org/wiki/Controlling_account) of Control
+Accounts, the Simple Accounts `Control Account` can certainly be used to point to an adjustment account
+in your Chart. However, in practical use, Control Accounts have a more broadly defined 
+use; that of pointing to specific accounts within the Chart.  So in this sense, the
+Simple Accounts Control Account is simply a pointer to another account.
+
+In programming terms, we set up a Collection (`Control\Links`) of Control Accounts (`Control\Link`). 
+Let's use an example:
+
+You have a system in which you want generic cash transactions to go to specific
+accounts:
+
+- cash to/from the 'bank' account
+- purchases to the 'sundries' account
+- sales to the 'cash sales' account
+
+The problem is, that as your COA (or business) grows, the actual account in the COA
+that you want to use may change.  By dereferencing the actual account with a Control
+Account, your main code can remain the same, yet allowing you to reconfigure at will.
+
+<pre>
+use SAccounts\Control;
+
+$linkArray = [
+    new Control\Link(new StringType('bank'), new Nominal('1000')),
+    new Control\Link(new StringType('sundries'), new Nominal('2000')),
+    new Control\Link(new StringType('cash sales'), new Nominal('3000')),
+];
+$ctrlAcs = (new Control\Links($linkArray));
+
+$txn = (new SplitTransaction($dt, $note))
+    ->addEntry($ctrlAcs->getLinkId(new StringType('bank')), Currency::create('gbp', 120), AccountType::DR()))
+    ->addEntry($ctrlAcs->getLinkId(new StringType('cash sales')), Currency::create('gbp', 120), AccountType::CR()));
+
+$txn2 = (new SplitTransaction($dt, $note))
+    ->addEntry($ctrlAcs->getLinkId(new StringType('bank')), Currency::create('gbp', 90), AccountType::CR()))
+    ->addEntry($ctrlAcs->getLinkId(new StringType('sundries')), Currency::create('gbp', 90), AccountType::DR()));
+
+</pre>
+
+It is really as simple as that.  I've not included a storage mechanism for Control Accounts
+on the basis, that it is likely that you'll dependency inject them into your application,
+ however there is an XML XSD in the definitions folder, with an example XML file in the 
+ docs directory.  In practice you may find yourself using a number of Control Account
+ Collections in an application.
+ 
 ### Class diagrams
 
 ![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/ClassesForAccounts.png)
 ![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/ClassesForJournals.png)
+![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/ClassesForControlAccounts.png)
 
 ### Changing the library
 
@@ -435,7 +483,8 @@ V1.1.0 Journals added
 V1.2.0
 
 - replaced chippyash\Accounts namespace with SAccounts
-- Transaction deprecated, use SimpleTransaction (Transaction proxies to SimpleTransaction and will be removed in next feature point release)
+- Transaction deprecated, use SimpleTransaction (Transaction proxies to SimpleTransaction and will be removed in the future)
 - SplitTransactions introduced, use these for preference
 - BC break with XML Journal file format to accommodate split transactions 
 
+V1.3.0 Added Control Accounts

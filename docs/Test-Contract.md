@@ -65,6 +65,21 @@
 *  Trying to get a parent id of a non existent account will throw an exception
 *  Getting the parent id of an account that has a parent will return the parent id
 
+## chippyash\Test\SAccounts\Control\Link
+
+*  You can get the name
+*  You can get the id of the associated account
+
+## chippyash\Test\SAccounts\Control\Links
+
+*  You can get the name
+*  You can set the name
+*  You can add another link
+*  You can retrieve a control link by name
+*  Retrieving a non existent control link by name will return null
+*  You can retrieve a control link id by name
+*  Retrieving a non existent control link id by name will return null
+
 ## chippyash\Test\SAccounts\Journal
 
 *  Writing a transaction will return transaction with id set

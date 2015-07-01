@@ -1,0 +1,26 @@
+@startuml
+title Simple Accounts Classes
+legend top left
+    Showing support for Control Accounts
+endlegend
+
+class Nominal <<DigitString>>
+
+class Link {
+    __construct(name:StringType, id:Nominal):Link
+    getName():StringType
+    getId():Nominal
+}
+
+class Links << Monad\Collection >> {
+    __construct(values:array[Link]):Links
+    addEntry(link:Link):Links
+    setName(name:StringType):Links
+    getName():StringType
+    getLink(name:StringType):Link|null
+    getLinkId(name:StringType):Nominal|null
+}
+
+Nominal <.. Link
+Link "*" --* "1" Links : has
+@enduml
