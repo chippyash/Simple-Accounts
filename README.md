@@ -444,7 +444,7 @@ Install [Composer](https://getcomposer.org/)
 #### For production
 
 <pre>
-    "chippyash/simple-accounts": "~1.2.0"
+    "chippyash/simple-accounts": "~1.3.0"
 </pre>
 
 #### For development
