@@ -10,8 +10,8 @@
 namespace SAccounts;
 
 
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use SAccounts\Transaction\SplitTransaction;
 
 /**

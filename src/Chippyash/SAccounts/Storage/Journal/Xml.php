@@ -15,9 +15,9 @@ use SAccounts\JournalStorageInterface;
 use SAccounts\Nominal;
 use SAccounts\Transaction\Entry;
 use SAccounts\Transaction\SplitTransaction;
-use chippyash\Currency\Factory as CurrencyFactory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory as CurrencyFactory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 
 /**
  * Xml File Storage for a Journal

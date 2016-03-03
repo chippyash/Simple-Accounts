@@ -9,7 +9,7 @@
 
 namespace SAccounts\Control;
 
-use chippyash\Type\String\StringType;
+use Chippyash\Type\String\StringType;
 use SAccounts\Nominal;
 
 /**

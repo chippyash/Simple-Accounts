@@ -10,7 +10,7 @@
 namespace SAccounts;
 
 
-use chippyash\Type\String\StringType;
+use Chippyash\Type\String\StringType;
 
 /**
  * Helper to retrieve chart definition xml

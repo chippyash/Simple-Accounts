@@ -7,11 +7,11 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\SAccounts\Transaction;
+namespace Chippyash\Test\SAccounts\Transaction;
 
-use chippyash\Currency\Factory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use SAccounts\AccountType;
 use SAccounts\Nominal;
 use SAccounts\Transaction\Entry;
@@ -120,7 +120,7 @@ class SplitTransactionTest extends \PHPUnit_Framework_TestCase
 
     public function testYouCanGetTheTransactionNote()
     {
-        $this->assertInstanceOf('chippyash\Type\String\StringType', $this->sut->getNote());
+        $this->assertInstanceOf('Chippyash\Type\String\StringType', $this->sut->getNote());
     }
 
     public function testYouCanGetTheTransactionDatetime()

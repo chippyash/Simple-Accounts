@@ -7,12 +7,12 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\SAccounts;
+namespace Chippyash\Test\SAccounts;
 
 use SAccounts\Organisation;
-use chippyash\Currency\Factory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 
 class OrganisationTest extends \PHPUnit_Framework_TestCase {
 

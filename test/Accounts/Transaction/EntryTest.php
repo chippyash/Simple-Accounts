@@ -7,9 +7,9 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\SAccounts\Transaction;
+namespace Chippyash\Test\SAccounts\Transaction;
 
-use chippyash\Currency\Factory;
+use Chippyash\Currency\Factory;
 use SAccounts\AccountType;
 use SAccounts\Nominal;
 use SAccounts\Transaction\Entry;

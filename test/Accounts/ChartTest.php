@@ -6,16 +6,16 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Test\SAccounts;
+namespace Chippyash\Test\SAccounts;
 
 use SAccounts\Account;
 use SAccounts\AccountType;
 use SAccounts\Chart;
 use SAccounts\Organisation;
 use SAccounts\Nominal;
-use chippyash\Currency\Factory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use Tree\Node\Node;
 
 class ChartTest extends \PHPUnit_Framework_TestCase {

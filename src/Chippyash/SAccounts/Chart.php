@@ -10,8 +10,8 @@
 namespace SAccounts;
 
 use Assembler\Assembler;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use Monad\FTry;
 use Monad\FTry\Success;
 use Monad\Match;

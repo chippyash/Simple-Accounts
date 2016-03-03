@@ -7,15 +7,15 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\SAccounts\Storage\Journal;
+namespace Chippyash\Test\SAccounts\Storage\Journal;
 
 use SAccounts\Journal;
 use SAccounts\Nominal;
 use SAccounts\Storage\Journal\Xml;
 use SAccounts\Transaction;
-use chippyash\Currency\Factory as CurrencyFactory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory as CurrencyFactory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 

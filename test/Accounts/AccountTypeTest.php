@@ -7,13 +7,13 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\SAccounts;
+namespace Chippyash\Test\SAccounts;
 
 
 use SAccounts\AccountType;
 use SAccounts\AccountsException;
-use chippyash\Currency\Currency;
-use chippyash\Currency\Factory;
+use Chippyash\Currency\Currency;
+use Chippyash\Currency\Factory;
 
 class AccountTypeTest extends \PHPUnit_Framework_TestCase
 {

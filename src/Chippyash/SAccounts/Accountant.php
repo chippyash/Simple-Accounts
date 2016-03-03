@@ -11,10 +11,10 @@ namespace SAccounts;
 
 use Assembler\Assembler;
 use Assembler\FFor;
-use chippyash\Type\String\StringType;
+use Chippyash\Type\String\StringType;
 use SAccounts\Transaction\SplitTransaction;
 use Tree\Node\Node;
-use chippyash\Currency\Currency;
+use Chippyash\Currency\Currency;
 
 /**
  * An Accountant helps with the accounts

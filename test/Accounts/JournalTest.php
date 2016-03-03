@@ -6,14 +6,14 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Test\SAccounts;
+namespace Chippyash\Test\SAccounts;
 
 use SAccounts\Journal;
 use SAccounts\Nominal;
 use SAccounts\Transaction;
-use chippyash\Currency\Factory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 
 class JournalTest extends \PHPUnit_Framework_TestCase
 {
@@ -68,7 +68,7 @@ class JournalTest extends \PHPUnit_Framework_TestCase
 
         //txn after the write
         $this->assertInstanceOf('SAccounts\Transaction', $txn);
-        $this->assertInstanceOf('chippyash\Type\Number\IntType', $txn->getId());
+        $this->assertInstanceOf('Chippyash\Type\Number\IntType', $txn->getId());
         $this->assertEquals(1, $txn->getId()->get());
     }
 

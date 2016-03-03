@@ -49,7 +49,7 @@ the customer by way of discounts and prizes.
    
 ## When
 
-The current library support Organisations, Charts of Account and Journals.  
+The current library support Organisations, Charts of Account, Journals and Control Accounts.  
 
 ### Roadmap
 
@@ -62,7 +62,7 @@ The current library support Organisations, Charts of Account and Journals.
     
 If you want more, either suggest it, or better still, fork it and provide a pull request.
 
-See [The Matrix Packages](http://the-matrix.github.io/packages/) for other packages from chippyash
+See [The Matrix Packages](http://the-matrix.github.io/packages/) for other packages from Chippyash
 
 ## How
 
@@ -74,9 +74,9 @@ See [The Matrix Packages](http://the-matrix.github.io/packages/) for other packa
 <pre>
 use SAccounts\Chart;
 use SAccounts\Organisation;
-use chippyash\Currency\Factory as Currency;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory as Currency;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 
 $org = new Organisation(new IntType(1), new StringType('Foo'), Currency::create('gbp'));
 $chart = new Chart(new StringType('Foo Chart'), $org);
@@ -103,9 +103,9 @@ and supply your own.
 <pre>
 use SAccounts\ChartDefinition;
 use SAccounts\Organisation;
-use chippyash\Type\String\StringType;
-use chippyash\Type\Number\IntType;
-use chippyash\Currency\Factory as Currency;
+use Chippyash\Type\String\StringType;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Currency\Factory as Currency;
 
 $def = new ChartDefinition(new StringType('/path/to/definitions/personal.xml'));
 $org = new Organisation(new IntType(1), new StringType('Foo'), Currency::create('gbp'));
@@ -125,7 +125,7 @@ by calling the class constant as a method. See the link in the thanks section fo
 - add a root account
 
 <pre>
-use use SAccounts\Nominal;
+usegit statusg SAccounts\Nominal;
 use SAccounts\AccountType;
 
 ac1 = new Account($chart, new Nominal('2000'), AccountType::ASSET(), new StringType('Asset'));
@@ -225,7 +225,7 @@ $accountant->setJournalist(new Journalist(new StringType('/path/to/my/journal/st
 #### Creating a Journal
 
 <pre>
-use chippyash\Currency\Factory as Currency;
+use Chippyash\Currency\Factory as Currency;
 
 $journal = $accountant->createJournal(new StringType('My Journal'), Currency::create('gbp'));
 </pre>
@@ -305,8 +305,8 @@ With power comes a little more complexity, as you'd expect!
 use SAccounts\Transaction\SimpleTransaction;
 use SAccounts\Transaction\Entry;
 use SAccounts\Nominal;
-use chippyash\Type\String\StringType;
-use chippyash\Currency\Factory as Currency;
+use Chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory as Currency;
 
 $txn = new SplitTransaction() // date == now(), note == ''
 $txn = new SplitTransaction(new DateTime());
@@ -444,7 +444,7 @@ Install [Composer](https://getcomposer.org/)
 #### For production
 
 <pre>
-    "chippyash/simple-accounts": "~1.3.0"
+    "chippyash/simple-accounts": "~1"
 </pre>
 
 #### For development
@@ -474,6 +474,16 @@ I'd like to highlight some others:
 * [PHP Enum](https://github.com/myclabs/php-enum) : a neat implementation of enums for PHP
 * [Tree](https://github.com/nicmart/Tree) : A simple tree component that supports the visitor pattern allowing for easy extension
 
+## License
+
+This software library is released under the [GNU GPL V3 or later license](http://www.gnu.org/copyleft/gpl.html)
+
+This software library is Copyright (c) 2015-2016, Ashley Kitson, UK
+
+A commercial license is available for this software library, please contact the author. 
+It is normally free to deserving causes, but gets you around the limitation of the GPL
+license, which does not allow unrestricted inclusion of this code in commercial works.
+
 ## History
 
 V1.0.0 Original release
@@ -488,3 +498,5 @@ V1.2.0
 - BC break with XML Journal file format to accommodate split transactions 
 
 V1.3.0 Added Control Accounts
+
+V1.4.0 Update dependencies

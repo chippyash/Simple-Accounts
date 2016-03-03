@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <journal xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:noNamespaceSchemaLocation="../src/chippyash/SAccounts/definitions/journal-definition.xsd">
+ xsi:noNamespaceSchemaLocation="../src/Chippyash/SAccounts/definitions/journal-definition.xsd">
     <definition name="Foo Journal" crcy="GBP" inc="2"/>
     <transactions>
         <transaction id="1" date="2015-05-21T12:13:46Z">

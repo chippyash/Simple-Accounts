@@ -12,7 +12,7 @@ namespace SAccounts\Storage\Account;
 use SAccounts\AccountsException;
 use SAccounts\AccountStorageInterface;
 use SAccounts\Chart;
-use chippyash\Type\String\StringType;
+use Chippyash\Type\String\StringType;
 
 /**
  * Serialized PHP Account storage method

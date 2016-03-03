@@ -8,10 +8,10 @@
  */
 namespace SAccounts;
 
-use chippyash\Currency\Currency;
-use chippyash\Currency\Factory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Currency;
+use Chippyash\Currency\Factory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use SAccounts\AccountType;
 use Monad\FTry;
 use Monad\Match;

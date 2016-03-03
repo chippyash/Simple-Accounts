@@ -7,14 +7,14 @@
  * @license GPL V3+ See LICENSE.md
  */
 
-namespace chippyash\Test\SAccounts\Storage\Account;
+namespace Chippyash\Test\SAccounts\Storage\Account;
 
 use SAccounts\Chart;
 use SAccounts\Organisation;
 use SAccounts\Storage\Account\Serialized;
-use chippyash\Currency\Factory;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Factory;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use org\bovigo\vfs\vfsStream;
 
 class SerializedTest extends \PHPUnit_Framework_TestCase {

@@ -6,9 +6,9 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace chippyash\Test\SAccounts\Control;
+namespace Chippyash\Test\SAccounts\Control;
 
-use chippyash\Type\String\StringType;
+use Chippyash\Type\String\StringType;
 use SAccounts\Control\Link;
 use SAccounts\Nominal;
 

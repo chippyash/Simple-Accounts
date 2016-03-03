@@ -8,9 +8,9 @@
  */
 
 namespace SAccounts;
-use chippyash\Currency\Currency;
-use chippyash\Type\Number\IntType;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Currency;
+use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
 use SAccounts\Transaction\SplitTransaction;
 
 /**

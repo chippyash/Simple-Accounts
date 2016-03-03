@@ -10,7 +10,7 @@
 namespace SAccounts;
 
 use SAccounts\ChartDefinition;
-use chippyash\Type\String\StringType;
+use Chippyash\Type\String\StringType;
 use org\bovigo\vfs\vfsStream;
 
 class ChartDefinitionTest extends \PHPUnit_Framework_TestCase {

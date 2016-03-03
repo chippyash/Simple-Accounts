@@ -11,8 +11,8 @@ namespace SAccounts\Transaction;
 
 use SAccounts\AccountType;
 use SAccounts\Nominal;
-use chippyash\Currency\Currency;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Currency;
+use Chippyash\Type\String\StringType;
 
 /**
  * Simple two entry balanced transaction

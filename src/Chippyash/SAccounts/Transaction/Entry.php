@@ -9,7 +9,7 @@
 
 namespace SAccounts\Transaction;
 
-use chippyash\Currency\Currency;
+use Chippyash\Currency\Currency;
 use Monad\FTry;
 use Monad\Match;
 use SAccounts\AccountsException;

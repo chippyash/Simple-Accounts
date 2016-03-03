@@ -10,8 +10,8 @@
 namespace SAccounts;
 
 
-use chippyash\Currency\Currency;
-use chippyash\Type\String\StringType;
+use Chippyash\Currency\Currency;
+use Chippyash\Type\String\StringType;
 use MyCLabs\Enum\Enum;
 
 /**

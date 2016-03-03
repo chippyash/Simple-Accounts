@@ -8,7 +8,7 @@
  */
 namespace SAccounts;
 
-use chippyash\Type\String\DigitType;
+use Chippyash\Type\String\DigitType;
 
 /**
  * An Account Nominal code or Id
