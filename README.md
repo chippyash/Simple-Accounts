@@ -62,7 +62,7 @@ The current library support Organisations, Charts of Account, Journals and Contr
     
 If you want more, either suggest it, or better still, fork it and provide a pull request.
 
-See [The Matrix Packages](http://the-matrix.github.io/packages/) for other packages from Chippyash
+Check out [ZF4 Packages](http://zf4.biz/packages?utm_source=github&utm_medium=web&utm_campaign=blinks&utm_content=accounts) for more packages
 
 ## How
 
@@ -125,7 +125,7 @@ by calling the class constant as a method. See the link in the thanks section fo
 - add a root account
 
 <pre>
-usegit statusg SAccounts\Nominal;
+use SAccounts\Nominal;
 use SAccounts\AccountType;
 
 ac1 = new Account($chart, new Nominal('2000'), AccountType::ASSET(), new StringType('Asset'));
@@ -500,3 +500,5 @@ V1.2.0
 V1.3.0 Added Control Accounts
 
 V1.4.0 Update dependencies
+
+V1.4.1 Add link to packages
