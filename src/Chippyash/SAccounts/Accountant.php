@@ -9,7 +9,6 @@
 
 namespace SAccounts;
 
-use Assembler\Assembler;
 use Assembler\FFor;
 use Chippyash\Type\String\StringType;
 use SAccounts\Transaction\SplitTransaction;
@@ -159,18 +158,16 @@ class Accountant
     /**
      * Fetch Journal from store
      *
-     * @param StringType $journalName
-     *
      * @return Journal
      * @throws JournalException
      */
-    public function fetchJournal(StringType $journalName)
+    public function fetchJournal()
     {
         if (empty($this->journalist)) {
             throw new JournalException(self::ERR1);
         }
 
-        return $this->journalist->readJournal($journalName);
+        return $this->journalist->readJournal();
     }
 
     /**

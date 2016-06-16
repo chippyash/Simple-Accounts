@@ -41,7 +41,10 @@ class Serialized implements AccountStorageInterface
      * Fetch a chart from storage
      *
      * @param StringType $name
+     * 
      * @return Chart
+     * 
+     * @throws AccountsException
      */
     public function fetch(StringType $name)
     {

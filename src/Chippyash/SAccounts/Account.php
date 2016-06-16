@@ -10,9 +10,7 @@ namespace SAccounts;
 
 use Chippyash\Currency\Currency;
 use Chippyash\Currency\Factory;
-use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
-use SAccounts\AccountType;
 use Monad\FTry;
 use Monad\Match;
 use Monad\Option;

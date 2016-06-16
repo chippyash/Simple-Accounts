@@ -10,7 +10,7 @@ namespace Chippyash\Test\SAccounts;
 
 use SAccounts\Journal;
 use SAccounts\Nominal;
-use SAccounts\Transaction;
+use SAccounts\Transaction\SimpleTransaction;
 use Chippyash\Currency\Factory;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
@@ -42,17 +42,18 @@ class JournalTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->transaction = new Transaction(
+        $this->transaction = new SimpleTransaction(
             new Nominal('0000'),
             new Nominal('0001'),
             Factory::create('gbp', 12.26),
+            new StringType('a note'),
             new \DateTime()
         );
 
         $this->chart = $this->getMock('SAccounts\Chart', array(), array(), '', false);
         $this->journalist = $this->getMock('SAccounts\JournalStorageInterface');
 
-        $this->sut = new Journal(new StringType('Foo Bar'), $this->chart, $this->journalist);
+        $this->sut = new Journal(new StringType('Foo Bar'), Factory::create('gbp'), $this->journalist);
     }
 
     public function testWritingATransactionWillReturnTransactionWithIdSet()
@@ -67,7 +68,7 @@ class JournalTest extends \PHPUnit_Framework_TestCase
         $txn = $this->sut->write($this->transaction);
 
         //txn after the write
-        $this->assertInstanceOf('SAccounts\Transaction', $txn);
+        $this->assertInstanceOf('SAccounts\Transaction\SimpleTransaction', $txn);
         $this->assertInstanceOf('Chippyash\Type\Number\IntType', $txn->getId());
         $this->assertEquals(1, $txn->getId()->get());
     }
@@ -78,7 +79,7 @@ class JournalTest extends \PHPUnit_Framework_TestCase
             ->expects($this->once())
             ->method('readTransaction')
             ->will($this->returnValue($this->transaction));
-        $this->assertInstanceOf('SAccounts\Transaction', $this->sut->readTransaction(new IntType(1)));
+        $this->assertInstanceOf('SAccounts\Transaction\SimpleTransaction', $this->sut->readTransaction(new IntType(1)));
     }
 
     public function testReadingTransactionsForAnAccountWillReturnAnArrayOfTransactions()

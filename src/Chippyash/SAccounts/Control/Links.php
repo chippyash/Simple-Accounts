@@ -10,6 +10,7 @@
 namespace SAccounts\Control;
 
 use Chippyash\Type\String\StringType;
+use SAccounts\Nominal;
 use Monad\Collection;
 use Monad\Match;
 use Monad\Option;
@@ -30,16 +31,21 @@ class Links extends Collection
      * Takes array of Links and creates internal structure of associated array using
      * each Entry name as the key
      *
-     * @param array $values Array[Control] of initial control account entries
+     * @param array $values Array[Link,...] of initial control account entries
      */
     public function __construct(array $values = [])
     {
-        parent::__construct($values, 'SAccounts\Control\Link');
-        $assocValues = [];
-        foreach ($this->value as $value) {
-            $assocValues[$value->getName()->get()] = $value;
-        }
-        $this->value =$assocValues;
+        parent::__construct(
+            \array_combine(
+                \array_map(function (Link $link) {
+                    return $link->getName()->get();
+                },
+                    $values
+                ),
+                $values
+            ),
+            'SAccounts\Control\Link'
+        );
     }
 
     /**
@@ -56,7 +62,8 @@ class Links extends Collection
 
     /**
      * @param StringType $name
-     * @return $this
+     * 
+     * @return Links
      */
     public function setName(StringType $name)
     {
@@ -66,6 +73,7 @@ class Links extends Collection
 
     /**
      * Return name of this Control Links Collection
+     * 
      * @return StringType
      */
     public function getName()

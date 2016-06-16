@@ -10,7 +10,6 @@
 namespace SAccounts\Transaction;
 
 use Monad\Collection;
-use Monad\Match;
 use SAccounts\AccountType;
 
 /**
@@ -49,14 +48,12 @@ class Entries extends Collection
      */
     public function checkBalance()
     {
-        $balance = 0;
-        foreach($this->value as $entry) {
-            if ($entry->getType()->getValue() == AccountType::DR) {
-                $balance -= $entry->getAmount()->get();
-            } else {
-                $balance += $entry->getAmount()->get();
-            }
-        }
+        $balance = $this->reduce(function($carry, Entry $entry) {
+            $amount = $entry->getAmount()->get();
+            return ($entry->getType()->getValue() == AccountType::DR ? $carry - $amount : $carry + $amount);
+        },
+            0
+        );
 
         return ($balance == 0);
     }

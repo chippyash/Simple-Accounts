@@ -10,6 +10,7 @@ namespace SAccounts;
 
 use Tree\Visitor\Visitor;
 use Tree\Node\NodeInterface;
+use Tree\Node\Node;
 
 /**
  * Find an account node in the chart tree
@@ -42,6 +43,7 @@ class NodeFinder implements Visitor
         }
 
         foreach ($node->getChildren() as $child) {
+            /** @noinspection PhpVoidFunctionResultUsedInspection */
             $found = $child->accept($this);
             if (!is_null($found)) {
                 return $found;

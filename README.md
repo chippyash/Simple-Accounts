@@ -2,10 +2,12 @@
 
 ## Quality Assurance
 
-Certified for PHP 5.5
-
+![PHP 5.5](https://img.shields.io/badge/PHP-5.5-blue.svg)
+![PHP 5.6](https://img.shields.io/badge/PHP-5.6-blue.svg)
+![PHP 7](https://img.shields.io/badge/PHP-7-blue.svg)
 [![Build Status](https://travis-ci.org/chippyash/Simple-Accounts.svg?branch=master)](https://travis-ci.org/chippyash/Simple-Accounts)
-[![Coverage Status](https://coveralls.io/repos/chippyash/Simple-Accounts/badge.svg?branch=master)](https://coveralls.io/r/chippyash/Simple-Accounts?branch=master)
+[![Test Coverage](https://codeclimate.com/github/chippyash/Simple-Accounts/badges/coverage.svg)](https://codeclimate.com/github/chippyash/Simple-Accounts/coverage)
+[![Code Climate](https://codeclimate.com/github/chippyash/Simple-Accounts/badges/gpa.svg)](https://codeclimate.com/github/chippyash/Simple-Accounts)
 
 See the [Test Contract](https://github.com/chippyash/Simple-Accounts/blob/master/docs/Test-Contract.md)
 
@@ -239,7 +241,10 @@ $journal = $accountant->createJournal(new StringType('My Journal'), $chart->getO
 #### Fetching a Journal that you already made
 
 <pre>
-$journal = $accountant->fetchJournal(new StringType('My Journal'));
+use SAccounts\Storage\Journal\Xml as Journalist;
+
+$accountant->setJournalist(new Journalist(new StringType('/path/to/my/journal/store/folder')));
+$journal = $accountant->fetchJournal();
 </pre>
 
 You can also store a journal via the accountant if you amend its definition
@@ -502,3 +507,5 @@ V1.3.0 Added Control Accounts
 V1.4.0 Update dependencies
 
 V1.4.1 Add link to packages
+
+V1.4.2 Verify PHP 7 compatibility

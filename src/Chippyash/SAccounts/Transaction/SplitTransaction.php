@@ -142,6 +142,8 @@ class SplitTransaction
                 foreach($this->entries as $entry) {
                     $tot += $entry->getAmount()->get();
                 }
+                //use last entry to grab currency code from
+                /** @noinspection PhpUndefinedVariableInspection */
                 return CFactory::create($entry->getAmount()->getCode()->get())->set($tot / 2);
             })
             ->Monad_Option_None(function(){throw new AccountsException('No amount for unbalanced transaction');})
@@ -152,7 +154,7 @@ class SplitTransaction
      * Return debit account ids
      * return zero, one or more Nominals in an array
      *
-     * @return Array[Nominal]
+     * @return array [Nominal]
      */
     public function getDrAc()
     {
@@ -170,7 +172,7 @@ class SplitTransaction
      * Return credit account ids
      * return zero, one or more Nominals in an array
      *
-     * @return Array[Nominal]
+     * @return array [Nominal]
      */
     public function getCrAc()
     {
