@@ -509,3 +509,5 @@ V1.4.0 Update dependencies
 V1.4.1 Add link to packages
 
 V1.4.2 Verify PHP 7 compatibility
+
+V1.4.3 Code cleanup

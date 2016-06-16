@@ -95,12 +95,6 @@
 *  Retrieving a non existent control link id by name will return null
 
 ## 
-      Chippyash\Test\SAccounts\Helper\AccountCloser
-    
-
-*  You can close an account with a chart
-
-## 
       Chippyash\Test\SAccounts\Journal
     
 
