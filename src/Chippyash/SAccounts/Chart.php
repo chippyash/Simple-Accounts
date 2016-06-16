@@ -69,15 +69,15 @@ class Chart
     /**
      * Add an account
      *
-     * @param Account $ac Account to add
+     * @param Account $account Account to add
      * @param Nominal $parent Optional id of account parent
      *
      * @return $this
      * @throws AccountsException
      */
-    public function addAccount(Account $ac, Nominal $parent = null)
+    public function addAccount(Account $account, Nominal $parent = null)
     {
-        Match::on($this->tryHasNode($ac->getId(), self::ERR_ACEXISTS))
+        Match::on($this->tryHasNode($account->getId(), self::ERR_ACEXISTS))
             ->Monad_FTry_Success(
                 Success::create(
                     Match::on($parent)
@@ -91,7 +91,7 @@ class Chart
             ->value()
             ->pass()
             ->value()
-            ->addChild(new Node($ac));
+            ->addChild(new Node($account));
 
         return $this;
     }
@@ -99,22 +99,22 @@ class Chart
     /**
      * Delete an account
      *
-     * @param Nominal $id Id of account
+     * @param Nominal $nId Id of account
      *
      * @return $this
      * @throws AccountsException
      */
-    public function delAccount(Nominal $id)
+    public function delAccount(Nominal $nId)
     {
         Assembler::create()
-            ->ac(function() use ($id){
-                return $this->tryGetNode($id, self::ERR_INVALAC)
+            ->accnt(function () use ($nId){
+                return $this->tryGetNode($nId, self::ERR_INVALAC)
                     ->pass()
                     ->flatten();
             })
-            ->account(function($ac){
-                return FTry::with(function () use ($ac) {
-                    $account = $ac->getValue();
+            ->account( function ($accnt) {
+                return FTry::with(function () use ($accnt) {
+                    $account = $accnt->getValue();
                     if ($account->getBalance()->get() !== 0) {
                         throw new AccountsException(self::ERR_NODELETE);
                     }
@@ -123,13 +123,15 @@ class Chart
                     ->pass()
                     ->flatten();
             })
-            ->transact(function($account){
-                Match::on(Option::create((($account->getType()->getValue() & AccountType::DR) == AccountType::DR), false))
+            ->transact(function ($account) {
+                Match::on(Option::create(
+                    (($account->getType()->getValue() & AccountType::DR) == AccountType::DR), false)
+                )
                     ->Monad_Option_Some($account->debit($account->getDebit()->negate()))
                     ->Monad_Option_None($account->credit($account->getCredit()->negate()));
             })
-            ->removeChild(function($ac){
-                $ac->getParent()->removeChild($ac);
+            ->removeChild(function ($accnt) {
+                $accnt->getParent()->removeChild($accnt);
             })
             ->assemble();
 
@@ -139,16 +141,16 @@ class Chart
     /**
      * Get an account from the chart
      *
-     * @param Nominal $id
+     * @param Nominal $nId
      *
      * @return Account|null
      * @throws AccountsException
      */
-    public function getAccount(Nominal $id)
+    public function getAccount(Nominal $nId)
     {
-        return Match::on($this->tryGetNode($id, self::ERR_INVALAC))
-            ->Monad_FTry_Success(function ($ac) {
-                return FTry::with($ac->flatten()->getValue());
+        return Match::on($this->tryGetNode($nId, self::ERR_INVALAC))
+            ->Monad_FTry_Success(function ($account) {
+                return FTry::with($account->flatten()->getValue());
             })
             ->value()
             ->pass()
@@ -158,13 +160,13 @@ class Chart
     /**
      * Does this chart have specified account
      *
-     * @param Nominal $id
+     * @param Nominal $nId
      * @return bool
      */
-    public function hasAccount(Nominal $id)
+    public function hasAccount(Nominal $nId)
     {
-        return Match::on(FTry::with(function () use ($id) {
-            $this->getAccount($id);
+        return Match::on(FTry::with(function () use ($nId) {
+            $this->getAccount($nId);
         }))
             ->Monad_FTry_Success(true)
             ->Monad_FTry_Failure(false)
@@ -174,15 +176,15 @@ class Chart
     /**
      * Get Id of parent for an account
      *
-     * @param Nominal $id
+     * @param Nominal $nId
      * @return null|IntType
      *
      * @throws AccountsException
      */
-    public function getParentId(Nominal $id)
+    public function getParentId(Nominal $nId)
     {
         return Match::on(
-            Match::on($this->tryGetNode($id, self::ERR_INVALAC))
+            Match::on($this->tryGetNode($nId, self::ERR_INVALAC))
                 ->Monad_FTry_Success(function ($node) {
                     return Match::on($node->flatten()->getParent());
                 })
@@ -228,30 +230,30 @@ class Chart
     }
 
     /**
-     * @param Nominal $id
+     * @param Nominal $nId
      * @param $exceptionMessage
      *
      * @return FTry
      */
-    protected function tryHasNode(Nominal $id, $exceptionMessage)
+    protected function tryHasNode(Nominal $nId, $exceptionMessage)
     {
-        return FTry::with(function () use ($id, $exceptionMessage) {
-            if (!is_null($this->findNode($id))) {
+        return FTry::with(function () use ($nId, $exceptionMessage) {
+            if (!is_null($this->findNode($nId))) {
                 throw new AccountsException($exceptionMessage);
             }
         });
     }
 
     /**
-     * @param Nominal $id
+     * @param Nominal $nId
      * @param $exceptionMessage
      *
      * @return FTry
      */
-    protected function tryGetNode(Nominal $id, $exceptionMessage)
+    protected function tryGetNode(Nominal $nId, $exceptionMessage)
     {
-        return FTry::with(function () use ($id, $exceptionMessage) {
-            $node = $this->findNode($id);
+        return FTry::with(function () use ($nId, $exceptionMessage) {
+            $node = $this->findNode($nId);
             if (is_null($node)) {
                 throw new AccountsException($exceptionMessage);
             }
@@ -262,11 +264,11 @@ class Chart
     /**
      * Find an account node using its id
      *
-     * @param Nominal $id
+     * @param Nominal $nId
      * @return node|null
      */
-    protected function findNode(Nominal $id)
+    protected function findNode(Nominal $nId)
     {
-        return $this->tree->accept(new NodeFinder($id));
+        return $this->tree->accept(new NodeFinder($nId));
     }
 }

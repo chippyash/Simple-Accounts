@@ -25,7 +25,7 @@ class SplitTransaction
     /**
      * @var IntType
      */
-    protected $id = null;
+    protected $txnId = null;
 
     /**
      * @var \DateTime
@@ -51,23 +51,31 @@ class SplitTransaction
     public function __construct(\DateTime $date = null, StringType $note = null)
     {
         Match::on(Option::create($date))
-            ->Monad_Option_Some(function($opt){$this->date = $opt->value();})
-            ->Monad_Option_None(function(){$this->date = new \DateTime();});
+            ->Monad_Option_Some(function ($opt) {
+                $this->date = $opt->value();
+            })
+            ->Monad_Option_None(function () {
+                $this->date = new \DateTime();
+            });
 
         Match::on(Option::create($note))
-            ->Monad_Option_Some(function($opt){$this->note = $opt->value();})
-            ->Monad_Option_None(function(){$this->note = new StringType('');});
+            ->Monad_Option_Some(function ($opt) {
+                $this->note = $opt->value();
+            })
+            ->Monad_Option_None(function () {
+                $this->note = new StringType('');
+            });
 
         $this->entries = new Entries();
     }
 
     /**
-     * @param IntType $id
+     * @param IntType $txnId
      * @return $this
      */
-    public function setId(IntType $id)
+    public function setId(IntType $txnId)
     {
-        $this->id = $id;
+        $this->txnId = $txnId;
         return $this;
     }
 
@@ -76,7 +84,7 @@ class SplitTransaction
      */
     public function getId()
     {
-        return $this->id;
+        return $this->txnId;
     }
 
     /**
@@ -137,16 +145,18 @@ class SplitTransaction
     {
         return Match::create(Option::create($this->entries->checkBalance(), false))
             ->Monad_Option_Some(
-            function(){
-                $tot = 0;
-                foreach($this->entries as $entry) {
-                    $tot += $entry->getAmount()->get();
-                }
-                //use last entry to grab currency code from
-                /** @noinspection PhpUndefinedVariableInspection */
-                return CFactory::create($entry->getAmount()->getCode()->get())->set($tot / 2);
+                function () {
+                    $tot = 0;
+                    foreach ($this->entries as $entry) {
+                        $tot += $entry->getAmount()->get();
+                    }
+                    //use last entry to grab currency code from
+                    /** @noinspection PhpUndefinedVariableInspection */
+                    return CFactory::create($entry->getAmount()->getCode()->get())->set($tot / 2);
+                })
+            ->Monad_Option_None(function () {
+                throw new AccountsException('No amount for unbalanced transaction');
             })
-            ->Monad_Option_None(function(){throw new AccountsException('No amount for unbalanced transaction');})
             ->value();
     }
 
@@ -159,7 +169,7 @@ class SplitTransaction
     public function getDrAc()
     {
         $acs = [];
-        foreach($this->getEntries() as $entry) {
+        foreach ($this->getEntries() as $entry) {
             if ($entry->getType()->getValue() == AccountType::DR) {
                 $acs[] = $entry->getId();
             }
@@ -177,7 +187,7 @@ class SplitTransaction
     public function getCrAc()
     {
         $acs = [];
-        foreach($this->getEntries() as $entry) {
+        foreach ($this->getEntries() as $entry) {
             if ($entry->getType()->getValue() == AccountType::CR) {
                 $acs[] = $entry->getId();
             }

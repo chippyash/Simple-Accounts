@@ -19,7 +19,7 @@ use SAccounts\Nominal;
 /**
  * Records a transaction value entry for a ledger
  */
-class Entry 
+class Entry
 {
     /**
      * Exception error message
@@ -29,7 +29,7 @@ class Entry
     /**
      * @var Nominal
      */
-    protected $id;
+    protected $entryId;
 
     /**
      * @var Currency
@@ -42,15 +42,15 @@ class Entry
     protected $type;
 
     /**
-     * @param Nominal $id
+     * @param Nominal $entryId
      * @param Currency $amount
      * @param AccountType $type
      *
      * @throws AccountsException
      */
-    public function __construct(Nominal $id, Currency $amount, AccountType $type)
+    public function __construct(Nominal $entryId, Currency $amount, AccountType $type)
     {
-        $this->id = $id;
+        $this->entryId = $entryId;
         $this->amount = $amount;
         $this->type = $this->checkType($type)
             ->pass()
@@ -62,7 +62,7 @@ class Entry
      */
     public function getId()
     {
-        return $this->id;
+        return $this->entryId;
     }
 
     /**
@@ -88,13 +88,13 @@ class Entry
     protected function checkType(AccountType $type)
     {
         return Match::on($type->getValue())
-            ->test(AccountType::CR, function() {
+            ->test(AccountType::CR, function () {
                 return FTry::with(AccountType::CR());
             })
-            ->test(AccountType::DR, function() {
+            ->test(AccountType::DR, function () {
                 return FTry::with(AccountType::DR());
             })
-            ->any(function() {
+            ->any(function () {
                 return FTry::with(new AccountsException(self::ERR_NOTYPE));
             })
             ->value();

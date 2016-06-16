@@ -9,5 +9,8 @@ ratings:
 engines:
   phpmd:
     enabled: true
+  checks:
+    CleanCode/StaticAccess:
+      enabled: false
   phpcodesniffer:
     enabled: true

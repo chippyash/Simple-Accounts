@@ -10,10 +10,10 @@
 namespace SAccounts\Control;
 
 use Chippyash\Type\String\StringType;
-use SAccounts\Nominal;
 use Monad\Collection;
 use Monad\Match;
 use Monad\Option;
+use SAccounts\Nominal;
 
 /**
  * A Collection of Control Account Links
@@ -62,7 +62,7 @@ class Links extends Collection
 
     /**
      * @param StringType $name
-     * 
+     *
      * @return Links
      */
     public function setName(StringType $name)
@@ -73,7 +73,7 @@ class Links extends Collection
 
     /**
      * Return name of this Control Links Collection
-     * 
+     *
      * @return StringType
      */
     public function getName()
@@ -91,7 +91,9 @@ class Links extends Collection
     {
         return Match::create(Option::create(isset($this[$name()]), false))
             ->Monad_Option_Some($this[$name()])
-            ->Monad_Option_None(function(){return null;})
+            ->Monad_Option_None(function () {
+                return null;
+            })
             ->value();
     }
 
@@ -104,8 +106,12 @@ class Links extends Collection
     public function getLinkId(StringType $name)
     {
         return Match::create(Option::create($this->getLink($name)))
-            ->Monad_Option_Some(function($val){return $val->value()->getId();})
-            ->Monad_Option_None(function(){return null;})
+            ->Monad_Option_Some(function ($val) {
+                return $val->value()->getId();
+            })
+            ->Monad_Option_None(function () {
+                return null;
+            })
             ->value();
     }
 }

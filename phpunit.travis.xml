@@ -38,7 +38,7 @@ testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"
      !-->
     <filter>
         <blacklist>
-            <directory>../vendor</directory>
+            <directory>./vendor</directory>
             <!-- don't cover interfaces -->
             <file>./src/chippyash/Accounts/AccountStorageInterface</file>
             <!-- don't cover empty files -->
