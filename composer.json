@@ -14,12 +14,12 @@
   "minimum-stability": "stable",
 
   "require": {
-    "chippyash/strong-type": "~3",
-    "chippyash/currency": "~2",
-    "chippyash/monad": "~1.3.0",
-    "chippyash/assembly-builder": "~1",
-    "myclabs/php-enum": "~1.3.2",
-    "nicmart/tree": "~0.2.5"
+    "chippyash/strong-type": ">=3,<4",
+    "chippyash/currency": ">=2,<3",
+    "chippyash/monad": ">=1,<2",
+    "chippyash/assembly-builder": ">=1,<2",
+    "myclabs/php-enum": ">=1.3.2,<2",
+    "nicmart/tree": ">=0.2.5,<1"
   },
 
   "require-dev": {
