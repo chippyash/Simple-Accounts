@@ -43,8 +43,8 @@ class AccountantTest extends \PHPUnit_Framework_TestCase {
 
     protected function setUp()
     {
-        $this->fileClerk = $this->getMock('SAccounts\AccountStorageInterface');
-        $this->journalist = $this->getMock('SAccounts\JournalStorageInterface');
+        $this->fileClerk = $this->createMock('SAccounts\AccountStorageInterface');
+        $this->journalist = $this->createMock('SAccounts\JournalStorageInterface');
         $this->sut = new Accountant($this->fileClerk);
     }
 
@@ -81,7 +81,7 @@ class AccountantTest extends \PHPUnit_Framework_TestCase {
     public function testAnAccountantCanCreateANewChartOfAccounts()
     {
         $org = new Organisation(new IntType(1), new StringType('Foo Org'), CurrencyFactory::create('gbp'));
-        $def = $this->getMock('SAccounts\ChartDefinition',array(),array(),'',false);
+        $def = $this->createMock('SAccounts\ChartDefinition',array(),array(),'',false);
         $xml = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <chart name="Personal">
