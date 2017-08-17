@@ -44,12 +44,13 @@ class sa_journal_entry << (T, red >> {
 	---
 	id: int
 	jrnId: int
-	---
-	id PK
-	jrnId FK
 	nominal: Nominal
 	acDr: Currency
 	acCr: Currency
+	---
+	id PK auto
+	jrnId FK
+	nominal IDX
 }
 
 enum AccountType << int >> {
