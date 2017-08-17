@@ -6,7 +6,7 @@
  * @copyright Freetimers Communications Ltd, 2017, UK
  * @license   Proprietary See LICENSE.md
  */
-namespace chippyash\Chippyash\SAccounts\Storage\Account;
+namespace SAccounts\Storage\Account;
 
 use Chippyash\Type\String\StringType;
 use SAccounts\AccountStorageInterface;
@@ -31,7 +31,7 @@ class ZendDb implements AccountStorageInterface
     /**
      * Fetch a chart from storage
      *
-     * @param StringType $name
+     * @param StringType $name Name of chart
      *
      * @return Chart
      */
@@ -49,6 +49,7 @@ class ZendDb implements AccountStorageInterface
      */
     public function send(Chart $chart)
     {
-        // TODO: Implement send() method.
+        $orgId = $chart->getOrg()->getId()->get();
+        $chartName = $chart->getName()->get();
     }
 }
