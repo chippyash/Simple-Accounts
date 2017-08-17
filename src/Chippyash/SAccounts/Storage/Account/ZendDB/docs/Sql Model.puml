@@ -1,0 +1,98 @@
+@startuml
+
+class sa_org << (T,red) >> {
+	An organisation
+	---
+	id: int
+	name: varchar
+	crcyCode: char 3
+	---
+	id: PK
+	name: IDX
+}
+
+class sa_coa << (T,red) >> {
+	Chart of Account Structure
+	---
+	id: int
+	prntId: int
+	orgId: int
+	nominal: Nominal
+	name: varchar
+	type: AccountType
+	acDr: Currency
+	acCr: Currency
+	---
+    id PK auto
+	orgId FK
+}
+
+class sa_journal << (T, red) >> {
+	Transaction Journal
+	---
+	id: int
+	orgId: int
+	date: datetime
+	note: varchar
+	---
+	id PK auto
+	orgId FK
+}
+
+class sa_journal_entry << (T, red >> {
+	A Transaction journal entry
+	---
+	id: int
+	jrnId: int
+	---
+	id PK
+	jrnId FK
+	nominal: Nominal
+	acDr: Currency
+	acCr: Currency
+}
+
+enum AccountType << int >> {
+	DUMMY = 0
+	REAL = 1
+	DR = 3
+	ASSET = 11
+	BANK = 27
+	CUSTOMER = 44
+	EXPENSE 77
+	CR = 5
+	LIABILITY = 133
+	INCOME = 389
+	EQUITY = 645
+	SUPPLIER = 1157
+}
+
+class Currency << (D,plum) int >> {
+	Integer based currency
+	---
+	int: amount
+	code:char 3
+}
+class Nominal << (D,plum) string >> {
+	digit string
+}
+
+class "Journal Trigger" << (Ͳ,blue) >> {
+	Triggered when new journal
+	entry is made
+	---
+	updateCoaBalance(orgId, nominal, acDr, acCr)
+}
+
+sa_org "(1) id" --{ "(n) orgId" sa_coa
+sa_coa  "prntId" }-- "id" sa_coa
+sa_org "(1) id" --{ "(n) orgId" sa_journal
+sa_journal "(1) id" --{ "(n) jrnId" sa_journal_entry
+sa_journal_entry --> "Journal Trigger"
+sa_coa <.. "Journal Trigger"
+AccountType <.. sa_coa
+Currency <.. sa_coa
+Nominal <.. sa_coa
+Nominal <.. sa_journal_entry
+Currency <.. sa_journal_entry
+@enduml

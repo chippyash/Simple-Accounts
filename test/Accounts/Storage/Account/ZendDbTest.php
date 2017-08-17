@@ -16,6 +16,7 @@ use SAccounts\Chart;
 use SAccounts\ChartDefinition;
 use SAccounts\Organisation;
 use SAccounts\Storage\Account\ZendDb;
+use SAccounts\Storage\Account\ZendDB\OrgTableGateway;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use Chippyash\Currency\Factory as Crcy;
 
@@ -60,15 +61,22 @@ class ZendDbTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        $ddl = 'create table if not exists sa_org (id INTEGER PRIMARY KEY ASC, name TEXT)';
+        //Organisation table
+        $ddl = 'create table if not exists sa_org (id INTEGER PRIMARY KEY ASC, name TEXT, crcyCode TEXT)';
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
         $db->query('delete from sa_org', DbAdapter::QUERY_MODE_EXECUTE);
         $db->query("insert into sa_org (id, name) values (1, 'Test')");
 
-        $ddl = 'create table if not exists sa_coa (id INTEGER PRIMARY KEY ASC, name TEXT)';
+        //Chart of accounts table
+        $ddl = 'create table if not exists sa_coa (id INTEGER, name TEXT, orgId INTEGER, PRIMARY KEY (name, orgId))';
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
-        $db->query('delete from sa_org', DbAdapter::QUERY_MODE_EXECUTE);
-        $db->query("insert into sa_org (id, name) values (1, 'Test')");
+        $db->query('delete from sa_coa', DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query("insert into sa_coa (id, name, orgId) values (1, 'Test', 1)");
+
+        //Chart of Accounts Ledger table
+        $ddl = 'create table if not exists sa_coa_ledger (chartId INTEGER, name TEXT, orgId INTEGER, PRIMARY KEY (name, orgId))';
+        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+
     }
 
     /**
@@ -82,7 +90,7 @@ class ZendDbTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->sut = new ZendDb(self::$zendAdapter);
+        $this->sut = new ZendDb(new OrgTableGateway(self::$zendAdapter));
         $this->org = new Organisation(new IntType(1), new StringType('Test'), Crcy::create('gbp'));
         $this->accountant= new Accountant($this->sut);
 
