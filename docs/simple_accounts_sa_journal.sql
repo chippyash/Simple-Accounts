@@ -1,1 +1,0 @@
-INSERT INTO simple_accounts.sa_journal (orgId, note, date, rowDt, rowUid, rowSts) VALUES (1, 'foo', '2017-08-18 11:26:03', '2017-08-18 11:26:03', 0, 'active');
