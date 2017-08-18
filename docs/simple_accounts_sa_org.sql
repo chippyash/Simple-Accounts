@@ -1,0 +1,1 @@
+INSERT INTO simple_accounts.sa_org (name, crcyCode, rowDt, rowUid, rowSts) VALUES ('Test', 'GBP', '2017-08-18 08:20:12', 0, 'active');

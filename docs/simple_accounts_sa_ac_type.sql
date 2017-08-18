@@ -1,0 +1,12 @@
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('ASSET', 11);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('BANK', 27);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('CR', 5);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('CUSTOMER', 44);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('DR', 3);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('DUMMY', 0);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('EQUITY', 645);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('EXPENSE', 77);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('INCOME', 389);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('LIABILITY', 133);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('REAL', 1);
+INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('SUPPLIER', 1157);
