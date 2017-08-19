@@ -1,52 +1,91 @@
 @startuml
 
-class sa_org << (T,red) >> {
+abstract class StatusTable {
+	rowDt: timestamp on update current_timestamp
+	rowUid: int unsigned default 0
+	rowSts: enum('active','suspended','defunct') default 'active'
+	---
+}
+
+class sa_org<? extends StatusTable> << (T,red)>> {
 	An organisation
 	---
-	id: int
-	name: varchar
-	crcyCode: char 3
+	id: int unsigned
+	name: varchar(30)
+	crcyCode: char(3)
 	---
 	id: PK
 	name: IDX
 }
 
-class sa_coa << (T,red) >> {
+class sa_coa<? extends StatusTable> << (T,red) >> {
 	Chart of Account Structure
 	---
-	id: int
-	prntId: int
-	orgId: int
+	id: int unsigned
+	orgId: int unsigned
 	nominal: Nominal
-	name: varchar
+	name: varchar(20)
 	type: AccountType
-	acDr: Currency
-	acCr: Currency
+	crcyCode: char(3)
+	acDr: bigint unsigned
+	acCr: bigint unsigned
 	---
     id PK auto
 	orgId FK
 }
 
-class sa_journal << (T, red) >> {
+class sa_coa_link<? extends StatusTable> << (T,red) >> {
+	Graph link backing table for
+	sa_coa
+	---
+	prnt: int unsigned
+	child: int unsigned
+	---
+	prnt PK
+	child PK
+	child IDX
+	prnt FK
+	child FK
+}
+
+class sa_coa_graph << (T,lightblue) >> {
+	OQ Graph readonly table
+	---
+	latch: varchar(32),
+  	origid bigint unsigned,
+  	destid bigint unsigned,
+  	weight double,
+  	seq bigint unsigned,
+  	linkid bigint unsigned
+  	---
+  	KEY (latch, origid, destid) USING HASH,
+  	KEY (latch, destid, origid) USING HASH
+  	---
+  	ENGINE=OQGRAPH
+    data_table='sa_coa_link' origid='prnt' destid='child'
+}
+
+class sa_journal<? extends StatusTable> << (T, red) >> {
 	Transaction Journal
 	---
-	id: int
-	orgId: int
+	id: bigint unsigned
+	orgId: bigint unsigned
 	date: datetime
+	crcyCode: char(3)
 	note: varchar
 	---
 	id PK auto
 	orgId FK
 }
 
-class sa_journal_entry << (T, red >> {
+class sa_journal_entry<? extends StatusTable> << (T, red >> {
 	A Transaction journal entry
 	---
-	id: int
-	jrnId: int
-	nominal: Nominal
-	acDr: Currency
-	acCr: Currency
+	id: bigint unsigned
+	jrnId: bigint unsigned
+	nominal: char(6)
+	acDr: bigint unsigned
+	acCr: bigint unsigned
 	---
 	id PK auto
 	jrnId FK
@@ -71,11 +110,13 @@ enum AccountType << int >> {
 class Currency << (D,plum) int >> {
 	Integer based currency
 	---
-	int: amount
-	code:char 3
+	int: bigint unsigned
+	code:char(3)
 }
 class Nominal << (D,plum) string >> {
-	digit string
+	DigitString
+	---
+	char(6)
 }
 
 class "Journal Trigger" << (Ͳ,blue) >> {
@@ -86,14 +127,17 @@ class "Journal Trigger" << (Ͳ,blue) >> {
 }
 
 sa_org "(1) id" --{ "(n) orgId" sa_coa
-sa_coa  "prntId" }-- "id" sa_coa
 sa_org "(1) id" --{ "(n) orgId" sa_journal
+sa_coa "(1) id" --{ "(n) prnt" sa_coa_link
+sa_coa "(1) id" --{ "(n) child" sa_coa_link
+sa_coa_link <|.. sa_coa_graph
 sa_journal "(1) id" --{ "(n) jrnId" sa_journal_entry
 sa_journal_entry --> "Journal Trigger"
 sa_coa <.. "Journal Trigger"
 AccountType <.. sa_coa
 Currency <.. sa_coa
 Nominal <.. sa_coa
+Nominal <.. sa_journal
 Nominal <.. sa_journal_entry
 Currency <.. sa_journal_entry
 @enduml
