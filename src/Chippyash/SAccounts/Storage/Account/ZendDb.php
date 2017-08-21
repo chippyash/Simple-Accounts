@@ -13,6 +13,7 @@ use SAccounts\Account;
 use SAccounts\AccountStorageInterface;
 use SAccounts\Chart;
 use SAccounts\Organisation;
+use SAccounts\Storage\Account\ZendDB\ChartLedgerTableGateway;
 use SAccounts\Storage\Account\ZendDB\ChartTableGateway;
 use SAccounts\Storage\Account\ZendDB\OrgTableGateway;
 use Tree\Node\NodeInterface;
@@ -37,6 +38,10 @@ class ZendDb implements AccountStorageInterface, Visitor
      * @var ChartTableGateway
      */
     protected $chartGW;
+    /**
+     * @var ChartLedgerTableGateway
+     */
+    protected $chartLedgerGW;
 
     /**
      * Are we visiting the chart tree for Update?
@@ -47,10 +52,12 @@ class ZendDb implements AccountStorageInterface, Visitor
 
     public function __construct(
         OrgTableGateway $orgGW,
-        ChartTableGateway $chartGW
+        ChartTableGateway $chartGW,
+        ChartLedgerTableGateway $chartLedgerGW
     ) {
         $this->orgGW = $orgGW;
         $this->chartGW = $chartGW;
+        $this->chartLedgerGW = $chartLedgerGW;
     }
 
     /**

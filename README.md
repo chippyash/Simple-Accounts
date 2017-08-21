@@ -445,7 +445,7 @@ installed in your IDE, you can view the DB structure by opening
 /src/Chippyash/SAccounts/Storage/Account/ZendDB/docs/Sql Model.puml
 
 ##### StatusTable Template
-All tables holding real data support the StatusTable template which is defined as
+Some tables holding real data support the StatusTable template which is defined as
 ```
 rowDt: timestamp default current_timestamp on update current_timestamp
 rowUid: int unsigned default 0
@@ -468,6 +468,19 @@ The rules for rowSts are:
 You can optionally enforce this at the database level by implementing the triggers
 contained in /src/Chippyash/SAccounts/Storage/Account/ZendDB/docs/table-status-support.sql
 
+The tables supporting TableStatus are:
+- sa_org : organisations
+- sa_coa : chart of accounts for organisations
+- sa_coa_ledger: ledger balances for charts of of account
+- sa_coa_link: parent-child links between COA accounts
+
+The following tables do not support TableStatus as there is no use case for suspending
+or defuncting their entries:
+
+- sa_journal: journal header records
+- sa_journal_entry: nominal account entries for a journal record  
+	
+	
 ### Class diagrams
 
 ![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/ClassesForAccounts.png)

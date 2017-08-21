@@ -71,7 +71,6 @@ create index sa_coa_sa_crcy_code_fk
   on sa_coa (crcyCode)
 ;
 
-
 create table IF NOT EXISTS sa_coa_ledger
 (
   id int(10) unsigned auto_increment
@@ -102,7 +101,6 @@ CREATE UNIQUE INDEX sa_coa_ledger_chartId_nominal_index
   ON sa_coa_ledger (chartId, nominal)
 ;
 
-
 create table IF NOT EXISTS sa_journal
 (
   id int(10) unsigned auto_increment
@@ -111,9 +109,6 @@ create table IF NOT EXISTS sa_journal
   note text not null,
   date DATETIME default CURRENT_TIMESTAMP null,
   ref int UNSIGNED null,
-  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
-  rowUid int(10) unsigned default '0',
-  rowSts enum('active', 'suspended', 'defunct') default 'active' null,
   CONSTRAINT sa_journal_sa_coa_id_fk
   FOREIGN KEY (chartId) REFERENCES sa_coa (id)
 )
@@ -131,9 +126,6 @@ create table IF NOT EXISTS sa_journal_entry
   nominal char(6) not null,
   acDr bigint default '0' null,
   acCr bigint default '0' null,
-  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
-  rowUid int(10) unsigned default '0' null,
-  rowSts enum('active', 'suspended', 'defunct') default 'active' null,
   constraint sa_journal_entry_sa_jrn_id_fk
   foreign key (jrnId) references sa_journal (id)
 )

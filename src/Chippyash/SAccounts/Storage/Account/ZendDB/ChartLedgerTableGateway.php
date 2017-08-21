@@ -8,17 +8,11 @@
  */
 namespace SAccounts\Storage\Account\ZendDB;
 
-use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\AccountType;
-use SAccounts\Chart;
 use SAccounts\Nominal;
-use Tree\Node\NodeInterface;
-use Tree\Visitor\Visitor;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\ResultSet\ResultSetInterface;
-use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
 /**
@@ -26,6 +20,7 @@ use Zend\Db\TableGateway\TableGateway;
  *
  * Table name = sa_coa_ledger
  * Columns:
+ *   id: int internal id
  *   chartId: int Chart id PK
  *   nominal: string nominal account code PK
  *   type: int account type
@@ -33,8 +28,13 @@ use Zend\Db\TableGateway\TableGateway;
  *   acCr: int Credit amount
  *   acDr: int Debit amount
  */
-class ChartLedgerTableGateway extends TableGateway implements Visitor
+class ChartLedgerTableGateway extends TableGateway
 {
+    /**
+     * @var ChartLedgerLinkTableGateway
+     */
+    protected $linkGW;
+
     /**
      * Constructor.
      *
@@ -49,8 +49,8 @@ class ChartLedgerTableGateway extends TableGateway implements Visitor
         $resultSetPrototype = null,
         $sql = null
     ) {
-
         parent::__construct('sa_coa_ledger', $adapter, $features, $resultSetPrototype, $sql);
+        $this->linkGW = new ChartLedgerLinkTableGateway($adapter, $features, $resultSetPrototype, $sql);
     }
 
     /**
@@ -74,51 +74,38 @@ class ChartLedgerTableGateway extends TableGateway implements Visitor
     /**
      * Create a new COA ledger record
      *
-     * @param IntType $chartId Chart internal id
+     * If $prnt is null, then this ledger record is assumed to be the root node
+     *
+     * @param IntType $chartId Owning chart internal id
      * @param Nominal $nominal Nominal account code
      * @param AccountType $type Type of account
      * @param StringType $name Name of account
-     * @param Currency $acDr Debit balance of account
-     * @param Currency $acCr Credit balance of account
+     * @param IntType|null $prntId Internal id of parent of this ledger account
      *
-     * @return bool  Was the record created?
+     * @return int Internal id
      */
     public function createLedger(
         IntType $chartId,
         Nominal $nominal,
         AccountType $type,
         StringType $name,
-        Currency $acDr,
-        Currency $acCr
+        IntType $prntId = null
     ) {
         $this->insert(
             [
                 'chartId' => $chartId(),
                 'nominal' => $nominal(),
                 'type' => $type->getValue(),
-                'name' => $name(),
-                'acDr' => $acDr(),
-                'acCr' => $acCr()
+                'name' => $name()
             ]
         );
 
-        return true;
+        if (is_null($prntId)) {
+            return $this->lastInsertValue;
+        }
+
+        $this->linkGW->createLedgerLink($prntId, new IntType($this->lastInsertValue));
+
+        return $this->lastInsertValue;
     }
-
-    public function createForChart(Chart $chart)
-    {
-        $chart->getTree()->accept($this);
-    }
-
-    /**
-     * @param NodeInterface $node
-     *
-     * @return mixed
-     */
-    public function visit(NodeInterface $node)
-    {
-        // TODO: Implement visit() method.
-    }
-
-
 }
