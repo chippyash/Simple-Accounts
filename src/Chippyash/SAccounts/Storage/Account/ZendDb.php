@@ -1,10 +1,10 @@
 <?php
 /**
- * Freetimers Web Application Framework
+ * Simple Double Entry Bookkeeping
  *
- * @author    Ashley Kitson
- * @copyright Freetimers Communications Ltd, 2017, UK
- * @license   Proprietary See LICENSE.md
+ * @author Ashley Kitson
+ * @copyright Ashley Kitson, 2017, UK
+ * @license GPL V3+ See LICENSE.md
  */
 namespace SAccounts\Storage\Account;
 
