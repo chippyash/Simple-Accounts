@@ -16,6 +16,7 @@ use SAccounts\Chart;
 use SAccounts\ChartDefinition;
 use SAccounts\Organisation;
 use SAccounts\Storage\Account\ZendDb;
+use SAccounts\Storage\Account\ZendDB\ChartTableGateway;
 use SAccounts\Storage\Account\ZendDB\OrgTableGateway;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use Chippyash\Currency\Factory as Crcy;
@@ -61,6 +62,33 @@ class ZendDbTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
+        //account type table
+        $ddl = 'create table IF NOT EXISTS sa_ac_type (type TEXT primary key, value INTEGER)';
+        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_ac_type', DbAdapter::QUERY_MODE_EXECUTE);
+        $sql = <<<EOF
+INSERT INTO sa_ac_type (type, value) VALUES 
+  ('ASSET', 11),
+  ('BANK', 27),
+  ('CR', 5),
+  ('CUSTOMER', 44),
+  ('DR', 3),
+  ('DUMMY', 0),
+  ('EQUITY', 645),
+  ('EXPENSE', 77),
+  ('INCOME', 389),
+  ('LIABILITY', 133),
+  ('REAL', 1),
+  ('SUPPLIER', 1157);
+EOF;
+        $db->query($sql);
+
+        //Available Currency table
+        $ddl = 'create table IF NOT EXISTS sa_crcy (id INTEGER primary key,  code TEXT UNIQUE)';
+        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_crcy', DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query("INSERT INTO sa_crcy (code) VALUES ('GBP'), ('EUR'), ('USD')");
+
         //Organisation table
         $ddl = 'create table if not exists sa_org (id INTEGER PRIMARY KEY ASC, name TEXT, crcyCode TEXT)';
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
@@ -68,10 +96,22 @@ class ZendDbTest extends \PHPUnit_Framework_TestCase
         $db->query("insert into sa_org (id, name) values (1, 'Test')");
 
         //Chart of accounts table
-        $ddl = 'create table if not exists sa_coa (id INTEGER, name TEXT, orgId INTEGER, PRIMARY KEY (name, orgId))';
+        $ddl = <<<EOF
+create table IF NOT EXISTS sa_coa
+(
+  id INTEGER primary key,
+  orgId INTEGER,
+  nominal TEXT,
+  type TEXT,
+  name TEXT,
+  crcyCode TEXT,
+  acDr INTEGER,
+  acCr INTEGER
+)
+EOF;
+
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
         $db->query('delete from sa_coa', DbAdapter::QUERY_MODE_EXECUTE);
-        $db->query("insert into sa_coa (id, name, orgId) values (1, 'Test', 1)");
 
         //Chart of Accounts Ledger table
         $ddl = 'create table if not exists sa_coa_ledger (chartId INTEGER, name TEXT, orgId INTEGER, PRIMARY KEY (name, orgId))';
@@ -90,7 +130,10 @@ class ZendDbTest extends \PHPUnit_Framework_TestCase
 
     protected function setUp()
     {
-        $this->sut = new ZendDb(new OrgTableGateway(self::$zendAdapter));
+        $this->sut = new ZendDb(
+            new OrgTableGateway(self::$zendAdapter),
+            new ChartTableGateway(self::$zendAdapter)
+        );
         $this->org = new Organisation(new IntType(1), new StringType('Test'), Crcy::create('gbp'));
         $this->accountant= new Accountant($this->sut);
 

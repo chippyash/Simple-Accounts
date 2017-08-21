@@ -172,6 +172,27 @@ class Account
     }
 
     /**
+     * Return Organisation that this account belongs to
+     *
+     * @return Organisation
+     */
+    public function getOrg()
+    {
+        return $this->chart->getOrg();
+    }
+
+    /**
+     * Return Chart that this account belongs to
+     *
+     * @return Chart
+     */
+    public function getChart()
+    {
+        return $this->chart;
+    }
+
+
+    /**
      * Get parent id as an Option
      *
      * @return Option

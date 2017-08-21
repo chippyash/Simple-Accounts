@@ -414,6 +414,60 @@ on the basis, that it is likely that you'll dependency inject them into your app
  docs directory.  In practice you may find yourself using a number of Control Account
  Collections in an application.
  
+### Database support
+Version 1.5 brings support for MariaDb via the Zend Framework DB library. If you need
+another DB library supported or another database supported, please consider forking 
+this package and issuing a pull request back,to enhance this library.  Hopefully by
+studying the Storage/../ZendDb classes and related files, you'll have enough information
+to create your own flavours.
+
+MariaDb V10+ is supported (or at least that is what the code is tested on,) and was
+chosen as it is the natural successor to MySql in Open Source.  
+
+#### OQGraph plugin requirements
+You will require the
+[OQGraph plugin](https://mariadb.com/kb/en/mariadb/oqgraph-overview/) which in most 
+flavours of Linux, is available in your distribution repositories. Having installed the
+plugin onto your server, don't forget to instruct MariaDb to install the plugin. 
+[Instructions here](https://mariadb.com/kb/en/mariadb/installing-oqgraph/)
+
+The OQGraph plugin greatly reduces the effort (for both programmer and DB server,) of
+dealing with the hiearchical nature of a chart of accounts. I highly recommend that
+you study it's (albeit sparse,) documentation, particularly if you want to any form
+of directed graph work.  Search the web for additional how-tos and the like. 
+
+#### Creating your database tables
+To create the supporting DB tables, edit and run the contents of 
+src/Chippyash/SAccounts/Storage/Account/ZendDB/docs/db-support.sql into your database.
+Please note that the script contains a set of triggers. The 'journal_trigger' is required
+for proper operation of the Chart of Accounts.  If you have [PlantUml](http://plantuml.com/) 
+installed in your IDE, you can view the DB structure by opening 
+/src/Chippyash/SAccounts/Storage/Account/ZendDB/docs/Sql Model.puml
+
+##### StatusTable Template
+All tables holding real data support the StatusTable template which is defined as
+```
+rowDt: timestamp default current_timestamp on update current_timestamp
+rowUid: int unsigned default 0
+rowSts: enum('active','suspended','defunct') default 'active'
+``` 
+
+- rowDt always holds the timestamp of the last update to the row
+- rowUid is intended for you to store the id of the user making the last update
+- rowSts is a flag indicating that the row is:
+	- active: In use
+	- suspended: Temporarily out of use
+	- defunct: Permanently out of use
+
+The rules for rowSts are:
+
+- You can change from active to suspended or defunct
+- You can change from suspended to active or defunct
+- You cannot change from defunct to anything
+
+You can optionally enforce this at the database level by implementing the triggers
+contained in /src/Chippyash/SAccounts/Storage/Account/ZendDB/docs/table-status-support.sql
+
 ### Class diagrams
 
 ![UML Diagram](https://github.com/chippyash/Simple-Accounts/blob/master/docs/ClassesForAccounts.png)

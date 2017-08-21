@@ -66,12 +66,11 @@ class ChartTableGateway extends TableGateway
     /**
      * Create a new COA
      *
-     * @param StringType $coaName
-     * @param IntType $orgId
+     * @param Chart $chart
      *
-     * @return int The id chart record
+     * @return int The root chart record id
      */
-    public function create(StringType $coaName, IntType $orgId)
+    public function create(Chart $chart)
     {
         $this->insert(
             [
@@ -82,4 +81,17 @@ class ChartTableGateway extends TableGateway
 
         return $this->lastInsertValue();
     }
+
+    /**
+     * Fetch chart defintion from DB
+     *
+     * @param StringType $name
+     *
+     * @return Chart
+     */
+    public function fetchChart(StringType $name)
+    {
+
+    }
+
 }

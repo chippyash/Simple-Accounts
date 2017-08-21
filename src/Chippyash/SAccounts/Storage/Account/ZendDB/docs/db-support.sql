@@ -1,7 +1,5 @@
 # Installation script for database support of ZendDB
-# Mysql 5.6
-
-DELIMITER //
+# MariaDb 10
 
 create DATABASE IF NOT EXISTS simple_accounts;
 
@@ -21,7 +19,7 @@ create table IF NOT EXISTS sa_crcy
   id int(10) unsigned auto_increment
     primary key,
   code char(3) not null,
-  rowDt timestamp default CURRENT_TIMESTAMP null,
+  rowDt timestamp default CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP null,
   rowUid int(10) unsigned default '0' null,
   rowSts enum('active', 'suspended', 'defunct') default 'active' null,
   constraint sa_crcy_code_uindex
@@ -36,7 +34,7 @@ create table IF NOT EXISTS sa_org
     primary key,
   name varchar(30) not null,
   crcyCode char(3) default 'GBP' null,
-  rowDt timestamp default CURRENT_TIMESTAMP not null,
+  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
   rowUid int(10) unsigned default '0' not null,
   rowSts enum('active', 'suspended', 'defunct') default 'active' null,
   constraint sa_org_name_uindex
@@ -46,44 +44,84 @@ create table IF NOT EXISTS sa_org
 )
   comment 'An Organisation'
 ;
+create index sa_org_sa_crcy_code_fk
+  on sa_org (crcyCode)
+;
 
-create table IF NOT EXISTS sa_coa
+
+create table IF NOT EXISTS sa_coa (
+  id INT(10) UNSIGNED auto_increment primary key,
+  orgId INT(10) UNSIGNED not null,
+  name VARCHAR (20) not null,
+  crcyCode char(3) default 'GBP' not null,
+  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
+  rowUid int(10) unsigned default '0' not null,
+  rowSts enum('active', 'suspended', 'defunct') default 'active' null,
+  CONSTRAINT sa_coa_sa_org_id_fk
+  FOREIGN KEY (orgId) REFERENCES sa_org (id),
+  CONSTRAINT sa_coa_sa_crcy_code_fk
+  FOREIGN KEY (crcyCode) REFERENCES sa_crcy (code)
+)
+  comment 'A Chart of Account for an Organisation'
+;
+create index sa_coa_sa_org_id_fk
+  on sa_coa (orgId)
+;
+create index sa_coa_sa_crcy_code_fk
+  on sa_coa (crcyCode)
+;
+
+
+create table IF NOT EXISTS sa_coa_ledger
 (
   id int(10) unsigned auto_increment
     primary key,
-  prntId int(10) unsigned null,
-  orgId int(10) unsigned null,
+  chartId int(10) unsigned,
   nominal char(6) not null,
   type varchar(10) null,
   name varchar(30) not null,
-  crcyCode char(3) default 'GBP' null,
-  acDr bigint default '0' null,
+  acDr bigint default '0' not null,
   acCr bigint default '0' not null,
-  rowDt timestamp default CURRENT_TIMESTAMP not null,
-  rowUid int(10) unsigned default '0' null,
-  rowSts enum('active', 'suspended', 'defunct') default 'active' null,
-  constraint sa_coa_sa_coa_id_fk
-  foreign key (prntId) references sa_coa (id),
-  constraint sa_coa_sa_ac_type_type_fk
-  foreign key (type) references sa_ac_type (type)
+  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
+  rowUid int(10) unsigned default '0',
+  rowSts enum('active', 'suspended', 'defunct') default 'active',
+  CONSTRAINT sa_coa_ledger_sa_ac_type_type_fk
+  FOREIGN KEY (type) REFERENCES sa_ac_type (type),
+  CONSTRAINT sa_coa_ledger_sa_coa_fk
+  FOREIGN KEY (chartId) REFERENCES sa_coa (id)
 )
-  comment 'Chart of Account'
+  comment 'Chart of Account structure'
 ;
+create index sa_coa_ledger_sa_ac_type_type_fk
+  on sa_coa_ledger (type)
+;
+create index sa_coa_ledger_sa_coa_fk
+  on sa_coa_ledger (chartId)
+;
+CREATE UNIQUE INDEX sa_coa_ledger_chartId_nominal_index
+  ON sa_coa_ledger (chartId, nominal)
+;
+
 
 create table IF NOT EXISTS sa_journal
 (
   id int(10) unsigned auto_increment
     primary key,
-  orgId int(10) unsigned not null,
+  chartId int(10) unsigned not null,
   note text not null,
   date DATETIME default CURRENT_TIMESTAMP null,
-  rowDt timestamp default CURRENT_TIMESTAMP not null,
+  ref int UNSIGNED null,
+  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
   rowUid int(10) unsigned default '0',
-  rowSts enum('active', 'suspended', 'defunct') default 'active' null
+  rowSts enum('active', 'suspended', 'defunct') default 'active' null,
+  CONSTRAINT sa_journal_sa_coa_id_fk
+  FOREIGN KEY (chartId) REFERENCES sa_coa (id)
 )
   comment 'Transaction Journal'
 ;
-
+create index sa_journal_sa_coa_id_fk
+  on sa_journal (chartId)
+;
 
 create table IF NOT EXISTS sa_journal_entry
 (
@@ -91,154 +129,149 @@ create table IF NOT EXISTS sa_journal_entry
     primary key,
   jrnId int(10) unsigned null,
   nominal char(6) not null,
-  crcyCode char(3) not null,
   acDr bigint default '0' null,
   acCr bigint default '0' null,
-  rowDt timestamp default CURRENT_TIMESTAMP not null,
+  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
   rowUid int(10) unsigned default '0' null,
   rowSts enum('active', 'suspended', 'defunct') default 'active' null,
-  constraint sa_journal_entry_sa_org_id_fk
-  foreign key (jrnId) references sa_journal (id),
-  constraint sa_journal_entry_sa_crcy_code_fk
-  foreign key (crcyCode) references sa_crcy (code)
+  constraint sa_journal_entry_sa_jrn_id_fk
+  foreign key (jrnId) references sa_journal (id)
 )
   comment 'Transaction Journal'
 ;
-
-INSERT INTO simple_accounts.sa_org (name, crcyCode, rowDt, rowUid, rowSts) VALUES ('Test', 'GBP', '2017-08-18 08:20:12', 0, 'active');
-
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('ASSET', 11);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('BANK', 27);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('CR', 5);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('CUSTOMER', 44);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('DR', 3);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('DUMMY', 0);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('EQUITY', 645);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('EXPENSE', 77);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('INCOME', 389);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('LIABILITY', 133);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('REAL', 1);
-INSERT INTO simple_accounts.sa_ac_type (type, value) VALUES ('SUPPLIER', 1157);
-
-INSERT INTO simple_accounts.sa_crcy (code, rowDt, rowUid, rowSts) VALUES ('GBP', '2017-08-18 10:03:31', 0, 'active');
-INSERT INTO simple_accounts.sa_crcy (code, rowDt, rowUid, rowSts) VALUES ('EUR', '2017-08-18 10:04:10', 0, 'active');
-INSERT INTO simple_accounts.sa_crcy (code, rowDt, rowUid, rowSts) VALUES ('USD', '2017-08-18 10:04:10', 0, 'active');
-
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (null, 1, '000000', 'REAL', 'COA', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (1, 1, '001000', 'REAL', 'Balance Sheet', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (1, 1, '005000', 'REAL', 'Profit And Loss', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (2, 1, '002000', 'REAL', 'Assets', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (4, 1, '002100', 'BANK', 'At Bank', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (5, 1, '002110', 'BANK', 'Current Account', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (5, 1, '002120', 'BANK', 'Savings Account', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (4, 1, '003000', 'LIABILITY', 'Liabilities', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (8, 1, '003100', 'EQUITY', 'Equity', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (9, 1, '003110', 'EQUITY', 'Opening Balance', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (8, 1, '003200', 'LIABILITY', 'Loans', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (11, 1, '003210', 'LIABILITY', 'Mortgage', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (3, 1, '006000', 'INCOME', 'Income', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (13, 1, '006100', 'INCOME', 'Salary', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (13, 1, '006200', 'INCOME', 'Interest Received', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (3, 1, '007000', 'EXPENSE', 'Expenses', 'GBP', 0, 0, '2017-08-18 12:46:01', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (16, 1, '007100', 'EXPENSE', 'House', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (16, 1, '007200', 'EXPENSE', 'Travel', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (16, 1, '007300', 'EXPENSE', 'Insurance', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (16, 1, '007400', 'EXPENSE', 'Food', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (16, 1, '007500', 'EXPENSE', 'Leisure', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-INSERT INTO simple_accounts.sa_coa (prntId, orgId, nominal, type, name, crcyCode, acDr, acCr, rowDt, rowUid, rowSts) VALUES (16, 1, '007600', 'EXPENSE', 'Interest Payments', 'GBP', 0, 0, '2017-08-18 09:00:38', 0, 'active');
-
-
-create index sa_org_sa_crcy_code_fk
-  on sa_org (crcyCode)
-;
-
-create index sa_coa_sa_coa_id_fk
-  on sa_coa (prntId)
-;
-
-create index sa_coa_sa_org_id_fk
-  on sa_coa (orgId)
-;
-
-create index sa_coa_sa_ac_type_type_fk
-  on sa_coa (type)
-;
-
-create index sa_coa_sa_crcy_code_fk
-  on sa_coa (crcyCode)
-;
-
-create index sa_journal_sa_org_id_fk
-  on sa_journal (orgId)
-;
-
-create index sa_journal_entry_sa_crcy_code_fk
-  on sa_journal_entry (crcyCode)
-;
-
 create index sa_journal_entry_sa_org_id_fk
   on sa_journal_entry (jrnId)
 ;
 
-alter table sa_coa
-  add constraint sa_coa_sa_crcy_code_fk
-foreign key (crcyCode) references sa_crcy (code)
+create table if not exists sa_coa_link
+(
+  prnt int(10) unsigned default '0' not null,
+  child int(10) unsigned default '0' not null,
+  rowDt timestamp default CURRENT_TIMESTAMP on UPDATE CURRENT_TIMESTAMP,
+  rowUid int(10) unsigned default '0' null,
+  rowSts enum('active', 'suspended', 'defunct') default 'active' null,
+  primary key (prnt, child)
+)
+  comment 'Graph link backing table for sa_coa'
+;
+create index sa_coa_link_child_index
+  on sa_coa_link (child)
 ;
 
-alter table sa_coa
-  add constraint sa_coa_sa_org_id_fk
-foreign key (orgId) references sa_org (id)
+CREATE TABLE sa_coa_graph (
+  latch VARCHAR(32) NULL,
+  origid BIGINT UNSIGNED NULL,
+  destid BIGINT UNSIGNED NULL,
+  weight DOUBLE NULL,
+  seq BIGINT UNSIGNED NULL,
+  linkid BIGINT UNSIGNED NULL,
+  KEY (latch, origid, destid) USING HASH,
+  KEY (latch, destid, origid) USING HASH
+)
+  ENGINE=OQGRAPH data_table='sa_coa_link' origid='prnt' destid='child'
 ;
 
-alter table sa_journal
-  add constraint sa_journal_sa_org_id_fk
-foreign key (orgId) references sa_org (id)
-;
+INSERT INTO sa_ac_type (type, value) VALUES
+  ('ASSET', 11),
+  ('BANK', 27),
+  ('CR', 5),
+  ('CUSTOMER', 44),
+  ('DR', 3),
+  ('DUMMY', 0),
+  ('EQUITY', 645),
+  ('EXPENSE', 77),
+  ('INCOME', 389),
+  ('LIABILITY', 133),
+  ('REAL', 1),
+  ('SUPPLIER', 1157);
 
-create procedure update_coa (IN orgId int(10) unsigned, IN nominal char(6), IN dr bigint, IN cr bigint)
-  BEGIN
-    DECLARE parent BIGINT UNSIGNED;
-    DECLARE prntNom char(6);
+INSERT INTO sa_crcy (code) VALUES ('GBP'), ('EUR'), ('USD');
 
-    # Update the nominal account entry
-    UPDATE sa_coa c SET acDr = acDr + dr, acCr = acCr + cr
-    WHERE c.orgId = orgId
-          AND c.nominal = nominal;
+INSERT INTO sa_org (id, name, crcyCode, rowDt, rowUid, rowSts) VALUES
+  (1, 'Test', 'GBP', '2017-08-18 08:20:12', 0, 'active');
 
-    #
-    SELECT prntId from sa_coa c
-    WHERE c.orgId = orgId
-          AND c.nominal = nominal
-    INTO parent;
+ALTER TABLE sa_org AUTO_INCREMENT=2;
 
-    IF parent != 0 THEN
-      SELECT nominal FROM sa_coa c
-      WHERE c.id = parent
-      INTO prntNom;
+INSERT INTO sa_coa (id, orgId, name, crcyCode) VALUES
+  (1, 1, 'Test', 'GBP');
 
-      CALL update_coa(orgId, prntNom, dr, cr);
+ALTER TABLE sa_coa AUTO_INCREMENT=2;
 
-    END IF;
-  END;
+INSERT INTO sa_coa_ledger (id, chartId, nominal, type, name) VALUES
+  (1, 1, '000000', 'REAL', 'COA'),
+  (2, 1, '001000', 'REAL', 'Balance Sheet'),
+  (3, 1, '005000', 'REAL', 'Profit And Loss'),
+  (4, 1, '002000', 'REAL', 'Assets'),
+(5, 1, '002100', 'BANK', 'At Bank'),
+(6, 1, '002110', 'BANK', 'Current Account'),
+(7, 1, '002120', 'BANK', 'Savings Account'),
+(8, 1, '003000', 'LIABILITY', 'Liabilities'),
+(9, 1, '003100', 'EQUITY', 'Equity'),
+(10, 1, '003110', 'EQUITY', 'Opening Balance'),
+(11, 1, '003200', 'LIABILITY', 'Loans'),
+(12, 1, '003210', 'LIABILITY', 'Mortgage'),
+(13, 1, '006000', 'INCOME', 'Income'),
+(14, 1, '006100', 'INCOME', 'Salary'),
+(15, 1, '006200', 'INCOME', 'Interest Received'),
+(16, 1, '007000', 'EXPENSE', 'Expenses'),
+(17, 1, '007100', 'EXPENSE', 'House'),
+(18, 1, '007200', 'EXPENSE', 'Travel'),
+(19, 1, '007300', 'EXPENSE', 'Insurance'),
+(20, 1, '007400', 'EXPENSE', 'Food'),
+(21, 1, '007500', 'EXPENSE', 'Leisure'),
+(22, 1, '007600', 'EXPENSE', 'Interest Payments');
 
-# drop TRIGGER journal_trigger;
+ALTER TABLE sa_coa_ledger AUTO_INCREMENT=23;
 
-SET @@GLOBAL.max_sp_recursion_depth = 255;
-SET @@session.max_sp_recursion_depth = 10;
+INSERT INTO sa_coa_link (prnt, child) VALUES
+  (1,2),
+  (1,3),
+  (2,4),
+  (4,5),
+  (4,8),
+  (5,6),
+  (5,7),
+  (8,9),
+  (8,11),
+  (9,10),
+  (11,12),
+  (3,13),
+  (3,16),
+  (13,14),
+  (13,15),
+  (16,17),
+  (16,18),
+  (16,19),
+  (16,20),
+  (16,21),
+  (16,22);
+
+
+drop TRIGGER IF EXISTS journal_trigger;
 
 create TRIGGER journal_trigger
 AFTER INSERT
   ON sa_journal_entry FOR EACH ROW
 
   BEGIN
-    DECLARE vOrgId INT UNSIGNED;
+    DECLARE vCoa INT UNSIGNED;
 
-    SELECT orgId from sa_journal j where NEW.jrnId = j.id INTO vOrgId;
+    SELECT l.id FROM sa_coa_ledger l
+      LEFT JOIN sa_journal j ON l.chartId = j.chartId
+      WHERE j.id = NEW.jrnId
+      AND l.nominal = NEW.nominal
+      INTO vCoa;
 
-    SET @@GLOBAL.max_sp_recursion_depth = 255;
-    SET @@session.max_sp_recursion_depth = 10;
-    call update_coa(vOrgId, NEW.nominal, NEW.acDr, NEW.acCr);
-
-  END; //
-
-DELIMITER ;
+    update sa_coa_ledger set
+      acDr = acDr + NEW.acDr,
+      acCr = acCr + NEW.acCr,
+      rowUid = NEW.rowUid
+    where id IN (
+      SELECT linkid
+      FROM sa_coa_graph
+      WHERE
+        latch = 'breadth_first'
+        AND origid = 1
+        AND destid = vCoa
+    );
+  END;

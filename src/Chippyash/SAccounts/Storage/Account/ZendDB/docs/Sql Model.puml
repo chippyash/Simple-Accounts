@@ -19,24 +19,37 @@ class sa_org<? extends StatusTable> << (T,red)>> {
 }
 
 class sa_coa<? extends StatusTable> << (T,red) >> {
-	Chart of Account Structure
+	A Chart of Account for an Organisation
 	---
 	id: int unsigned
 	orgId: int unsigned
+	name: varchar(20)
+	crcyCode: char(3)
+	---
+	id PK auto
+	name IDX
+	orgId FK
+	crcyCode FK
+}
+
+class sa_coa_ledger<? extends StatusTable> << (T,red) >> {
+	Chart of Account Structure
+	---
+	id: int unsigned
+	chartId: int unsigned
 	nominal: Nominal
 	name: varchar(20)
 	type: AccountType
-	crcyCode: char(3)
 	acDr: bigint unsigned
 	acCr: bigint unsigned
 	---
     id PK auto
-	orgId FK
+	chartId FK
 }
 
 class sa_coa_link<? extends StatusTable> << (T,red) >> {
 	Graph link backing table for
-	sa_coa
+	sa_coa_ledger
 	---
 	prnt: int unsigned
 	child: int unsigned
@@ -68,20 +81,19 @@ class sa_coa_graph << (T,lightblue) >> {
 class sa_journal<? extends StatusTable> << (T, red) >> {
 	Transaction Journal
 	---
-	id: bigint unsigned
-	orgId: bigint unsigned
+	id: int unsigned
+	chartId: int unsigned
 	date: datetime
-	crcyCode: char(3)
 	note: varchar
 	---
 	id PK auto
-	orgId FK
+	chartId FK
 }
 
 class sa_journal_entry<? extends StatusTable> << (T, red >> {
 	A Transaction journal entry
 	---
-	id: bigint unsigned
+	id: int unsigned
 	jrnId: bigint unsigned
 	nominal: char(6)
 	acDr: bigint unsigned
@@ -110,7 +122,7 @@ enum AccountType << int >> {
 class Currency << (D,plum) int >> {
 	Integer based currency
 	---
-	int: bigint unsigned
+	int: int unsigned
 	code:char(3)
 }
 class Nominal << (D,plum) string >> {
@@ -127,17 +139,18 @@ class "Journal Trigger" << (Ͳ,blue) >> {
 }
 
 sa_org "(1) id" --{ "(n) orgId" sa_coa
-sa_org "(1) id" --{ "(n) orgId" sa_journal
-sa_coa "(1) id" --{ "(n) prnt" sa_coa_link
-sa_coa "(1) id" --{ "(n) child" sa_coa_link
+sa_coa "(1) id" --{ "(n) chartId" sa_coa_ledger
+sa_coa_ledger "(1) id" --{ "(n) prnt" sa_coa_link
+sa_coa_ledger "(1) id" --{ "(n) child" sa_coa_link
 sa_coa_link <|.. sa_coa_graph
+sa_coa "(1) id" --{ "(n) chartId" sa_journal
 sa_journal "(1) id" --{ "(n) jrnId" sa_journal_entry
 sa_journal_entry --> "Journal Trigger"
-sa_coa <.. "Journal Trigger"
-AccountType <.. sa_coa
-Currency <.. sa_coa
-Nominal <.. sa_coa
-Nominal <.. sa_journal
+sa_coa_ledger <.. "Journal Trigger"
+AccountType <.. sa_coa_ledger
+Currency <.. sa_coa_ledger
+Nominal <.. sa_coa_ledger
 Nominal <.. sa_journal_entry
+Currency <.. sa_journal
 Currency <.. sa_journal_entry
 @enduml
