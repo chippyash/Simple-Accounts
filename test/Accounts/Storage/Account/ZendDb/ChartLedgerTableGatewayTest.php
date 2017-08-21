@@ -12,7 +12,6 @@ use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\AccountType;
 use SAccounts\Nominal;
-use SAccounts\Storage\Account\ZendDB\RecordStatus;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use SAccounts\Storage\Account\ZendDB\ChartLedgerLinkTableGateway;
 use SAccounts\Storage\Account\ZendDB\ChartLedgerTableGateway;
@@ -170,7 +169,7 @@ EOF;
         $this->assertEquals(0, $this->linkGw->select(['prnt' => $id])->count());
     }
 
-    public function testCreatingANewLedgerRecordWillCreateALedgerLinkIfAParentIsGiven()
+    public function testCreatingANewLedgerRecordWillCreateALedgerLinkIfAParentIsGivenAndExists()
     {
         $prnt = $this->sut->createLedger(
             new IntType(1),

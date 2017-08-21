@@ -8,6 +8,7 @@
  */
 namespace SAccounts\Storage\Account\ZendDB;
 
+use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\Chart;
@@ -68,19 +69,21 @@ class ChartTableGateway extends TableGateway
      *
      * @param StringType $coaName
      * @param IntType $orgId
+     * @param Currency $currency
      *
-     * @return int The root chart record id
+     * @return int The chart record id
      */
-    public function create(StringType $coaName, IntType $orgId)
+    public function create(StringType $coaName, IntType $orgId, Currency $currency)
     {
         $this->insert(
             [
                 'name' => $coaName(),
-                'orgId' => $orgId()
+                'orgId' => $orgId(),
+                'crcyCode' => $currency->getCode()->get()
             ]
         );
 
-        return $this->lastInsertValue();
+        return (int) $this->lastInsertValue;
     }
 
     /**
