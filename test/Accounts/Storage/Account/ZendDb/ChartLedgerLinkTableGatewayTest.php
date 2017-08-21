@@ -6,7 +6,6 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-
 namespace Chippyash\Test\SAccounts\Storage\Account\ZendDB;
 
 
@@ -14,7 +13,6 @@ use Chippyash\Type\Number\IntType;
 use SAccounts\Storage\Account\ZendDB\RecordStatus;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use SAccounts\Storage\Account\ZendDB\ChartLedgerLinkTableGateway;
-use Zend\Db\Sql\Ddl\Column\Datetime;
 
 class ChartLedgerLinkTableGatewayTest extends \PHPUnit_Framework_TestCase
 {

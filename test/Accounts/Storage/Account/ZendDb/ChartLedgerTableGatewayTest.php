@@ -9,10 +9,13 @@
 namespace Chippyash\Test\SAccounts\Storage\Account\ZendDB;
 
 use Chippyash\Type\Number\IntType;
+use Chippyash\Type\String\StringType;
+use SAccounts\AccountType;
+use SAccounts\Nominal;
 use SAccounts\Storage\Account\ZendDB\RecordStatus;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use SAccounts\Storage\Account\ZendDB\ChartLedgerLinkTableGateway;
-use Zend\Db\Sql\Ddl\Column\Datetime;
+use SAccounts\Storage\Account\ZendDB\ChartLedgerTableGateway;
 
 class ChartLedgerTableGatewayTest extends \PHPUnit_Framework_TestCase
 {
@@ -20,9 +23,12 @@ class ChartLedgerTableGatewayTest extends \PHPUnit_Framework_TestCase
      * @var DbAdapter
      */
     static protected $zendAdapter;
-
     /**
      * @var ChartLedgerLinkTableGateway
+     */
+    protected $linkGw;
+    /**
+     * @var ChartLedgerTableGateway
      */
     protected $sut;
 
@@ -40,6 +46,24 @@ class ChartLedgerTableGatewayTest extends \PHPUnit_Framework_TestCase
                 'database' => __DIR__ . '/../resources/sqlite.db'
             ]
         );
+
+        //COA Ledger table
+        $ddl = <<<EOF
+create table IF NOT EXISTS sa_coa_ledger ( 
+  id INTEGER primary key,
+  chartId INTEGER NOT NULL ,
+  nominal TEXT NOT NULL ,
+  type TEXT NOT NULL ,
+  name TEXT NOT NULL ,
+  acDr INTEGER DEFAULT 0 NOT NULL ,
+  acCr INTEGER default 0 NOT NULL ,
+  rowDt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  rowSts TEXT DEFAULT 'active',
+  rowUid INTEGER DEFAULT 0
+)
+EOF;
+        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_coa_ledger', DbAdapter::QUERY_MODE_EXECUTE);
 
         //COA Ledger Link table
         $ddl =<<<EOF
@@ -67,32 +91,60 @@ EOF;
 
     protected function setUp()
     {
-        $this->sut = new ChartLedgerLinkTableGateway(self::$zendAdapter);
+        $this->linkGw = new ChartLedgerLinkTableGateway(self::$zendAdapter);
+        $this->sut = new ChartLedgerTableGateway(self::$zendAdapter);
     }
 
     protected function tearDown()
     {
         $this->sut->delete([]);
+        $this->linkGw->delete([]);
     }
 
-    public function testYouCanAddALedgerLinkRecord()
+    public function testYouCanTestIfALedgerRecordExistsForAChartIdAndNominalCode()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $this->assertFalse($this->sut->has(
             new IntType(1),
-            new IntType(2)
+            new Nominal('000000')
         ));
 
-        $this->assertEquals(1, $this->sut->select(['prnt'=>1,'child'=>2])->count());
+        $this->sut->insert(
+            [
+                'chartId' => 1,
+                'nominal' => '000000',
+                'type' => 1,
+                'name' => 'foo'
+            ]
+        );
+
+        $this->assertTrue($this->sut->has(
+            new IntType(1),
+            new Nominal('000000')
+        ));
     }
 
-    public function testAddingALedgerLinkRecordWillSetDefaultValuesForTheTableStatusFields()
+    public function testCreatingANewLedgerRecordWillReturnTheInternalId()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $id = $this->sut->createLedger(
             new IntType(1),
-            new IntType(2)
-        ));
+            new Nominal('000000'),
+            AccountType::REAL(),
+            new StringType('COA')
+        );
 
-        $test = $this->sut->select(['prnt'=>1,'child'=>2]);
+        $this->assertEquals(1, $id);
+    }
+
+    public function testCreatingANewLedgerRecordWillSetDefaultValuesForTheTableStatusFields()
+    {
+        $id = $this->sut->createLedger(
+            new IntType(1),
+            new Nominal('000000'),
+            AccountType::REAL(),
+            new StringType('COA')
+        );
+
+        $test = $this->sut->select(['id' => $id]);
         $this->assertEquals(
             'active',
             $test->current()->offsetGet('rowSts')
@@ -106,71 +158,49 @@ EOF;
         $this->assertEquals($now, $dt);
     }
 
-    public function testSettingTheRecordStatusWillReturnTrueIfSuccessful()
+    public function testCreatingANewLedgerRecordWillNotCreateALedgerLinkIfNoParentIsGiven()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $id = $this->sut->createLedger(
             new IntType(1),
-            new IntType(2)
-        ));
-
-        $this->assertTrue(
-            $this->sut->setStatus(
-                new IntType(1),
-                new IntType(2),
-                RecordStatus::SUSPENDED()
-            )
+            new Nominal('000000'),
+            AccountType::REAL(),
+            new StringType('COA')
         );
 
-        $this->assertEquals(
-            'suspended',
-            $this->sut->select(['prnt'=>1,'child'=>2])
-                ->current()
-                ->offsetGet('rowSts')
-        );
+        $this->assertEquals(0, $this->linkGw->select(['prnt' => $id])->count());
     }
 
-    public function testSettingTheRecordStatusWillReturnFalseIfNotSuccessful()
+    public function testCreatingANewLedgerRecordWillCreateALedgerLinkIfAParentIsGiven()
     {
-        $this->assertFalse(
-            $this->sut->setStatus(
-                new IntType(1),
-                new IntType(2),
-                RecordStatus::SUSPENDED()
-            )
+        $prnt = $this->sut->createLedger(
+            new IntType(1),
+            new Nominal('000000'),
+            AccountType::REAL(),
+            new StringType('COA')
         );
+
+        $this->sut->createLedger(
+            new IntType(1),
+            new Nominal('100000'),
+            AccountType::REAL(),
+            new StringType('COA Sub ledger'),
+            new IntType($prnt)
+        );
+
+        $this->assertEquals(1, $this->linkGw->select(['prnt' => $prnt])->count());
     }
 
-    public function testYouCanGetTheRecordStatus()
+    public function testCreatingANewLedgerRecordWillNotCreateALedgerLinkIfAParentIsGivenButParentDoesNotExist()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $this->sut->createLedger(
             new IntType(1),
-            new IntType(2)
-        ));
+            new Nominal('000000'),
+            AccountType::REAL(),
+            new StringType('COA'),
+            new IntType(0)
+        );
 
-        $this->sut->setStatus(
-            new IntType(1),
-            new IntType(2),
-            RecordStatus::DEFUNCT()
-        );
-        $test = $this->sut->getStatus(
-            new IntType(1),
-            new IntType(2)
-        );
-        $this->assertInstanceOf(
-            '\SAccounts\Storage\Account\ZendDB\RecordStatus',
-            $test
-        );
-        $this->assertEquals('defunct', $test->getValue());
+        $this->assertEquals(0, $this->linkGw->select(['prnt' => 0])->count());
     }
 
-    /**
-     * @expectedException \SAccounts\Storage\Exceptions\StorageException
-     */
-    public function testGettingTheStatusForAnUnknownRecordWillThrowAnException()
-    {
-        $this->sut->getStatus(
-            new IntType(1),
-            new IntType(2)
-        );
-    }
 }

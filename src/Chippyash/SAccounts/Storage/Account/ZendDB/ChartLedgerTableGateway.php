@@ -101,11 +101,15 @@ class ChartLedgerTableGateway extends TableGateway
         );
 
         if (is_null($prntId)) {
-            return $this->lastInsertValue;
+            return (int) $this->lastInsertValue;
+        }
+
+        if ($this->select(['id'=>$prntId()])->count() == 0) {
+            return (int) $this->lastInsertValue;
         }
 
         $this->linkGW->createLedgerLink($prntId, new IntType($this->lastInsertValue));
 
-        return $this->lastInsertValue;
+        return (int) $this->lastInsertValue;
     }
 }
