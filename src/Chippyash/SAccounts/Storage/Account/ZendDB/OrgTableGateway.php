@@ -8,6 +8,7 @@
  */
 namespace SAccounts\Storage\Account\ZendDB;
 
+use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use Zend\Db\Adapter\AdapterInterface;
@@ -58,26 +59,22 @@ class OrgTableGateway extends TableGateway
      * Create a new organisation record
      *
      * @param StringType   $name
-     * @param StringType   $crcyCode
+     * @param Currency   $crcy
      * @param IntType|null $id
      *
      * @return int
      */
-    public function create(StringType $name, StringType $crcyCode, IntType $id = null)
+    public function create(StringType $name, Currency $crcy, IntType $id = null)
     {
         $id = is_null($id) ? null : $id();
         $this->insert(
             [
                 'id' => $id,
                 'name' => $name(),
-                'crcyCode' => $crcyCode()
+                'crcyCode' => $crcy->getCode()
             ]
         );
 
-        if ($this->getLastInsertValue() !== $id) {
-            return $this->getLastInsertValue();
-        }
-
-        return $id;
+        return $this->lastInsertValue;
     }
 }
