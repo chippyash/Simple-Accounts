@@ -13,8 +13,6 @@ use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\Chart;
 use Zend\Db\Adapter\AdapterInterface;
-use Zend\Db\ResultSet\ResultSetInterface;
-use Zend\Db\Sql\Sql;
 use Zend\Db\TableGateway\TableGateway;
 
 /**
@@ -79,7 +77,7 @@ class ChartTableGateway extends TableGateway
             [
                 'name' => $coaName(),
                 'orgId' => $orgId(),
-                'crcyCode' => $currency->getCode()->get()
+                'crcyCode' => $currency->getCode()
             ]
         );
 
