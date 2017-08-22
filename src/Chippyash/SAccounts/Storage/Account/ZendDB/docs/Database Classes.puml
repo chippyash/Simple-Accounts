@@ -17,6 +17,11 @@ package SAccounts\Storage\Account {
 			DEFUNCT
 		}
 
+		interface RecordStatusRecordable {
+			getStatus(array $key)
+			setStatus(RecordStatus $status, array $key)
+		}
+		class RecordStatusRecording << (T, olive)>>
 		class OrgTableGateway<sa_org>
 		class ChartTableGateway<sa_coa>
 		class ChartLedgerTableGateway<sa_coa_ledger>
@@ -29,10 +34,11 @@ TableGateway <|-- ChartTableGateway
 TableGateway <|-- ChartLedgerTableGateway
 TableGateway <|-- ChartLedgerLinkTableGateway
 ChartLedgerLinkTableGateway *-- ChartLedgerTableGateway
-RecordStatus <.. OrgTableGateway
-RecordStatus <.. ChartTableGateway
-RecordStatus <. ChartLedgerTableGateway
-RecordStatus <.. ChartLedgerLinkTableGateway
-
+RecordStatus <.. RecordStatusRecording
+RecordStatusRecordable <|-- RecordStatusRecording
+RecordStatusRecording *-- OrgTableGateway
+RecordStatusRecording *-- ChartTableGateway
+RecordStatusRecording *-- ChartLedgerTableGateway
+RecordStatusRecording *-- ChartLedgerLinkTableGateway
 
 @enduml
