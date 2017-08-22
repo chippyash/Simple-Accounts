@@ -6,15 +6,15 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace Chippyash\Test\SAccounts\Storage\Account\ZendDB;
+namespace Chippyash\Test\SAccounts\Storage\Account\ZendDBAccount;
 
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\AccountType;
 use SAccounts\Nominal;
 use Zend\Db\Adapter\Adapter as DbAdapter;
-use SAccounts\Storage\Account\ZendDB\ChartLedgerLinkTableGateway;
-use SAccounts\Storage\Account\ZendDB\ChartLedgerTableGateway;
+use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerLinkTableGateway;
+use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerTableGateway;
 
 class ChartLedgerTableGatewayTest extends \PHPUnit_Framework_TestCase
 {

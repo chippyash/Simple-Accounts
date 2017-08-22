@@ -6,7 +6,7 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license   GPL V3+ See LICENSE.md
  */
-namespace SAccounts\Storage\Account\ZendDB;
+namespace SAccounts\Storage\Account\ZendDBAccount;
 
 use SAccounts\Storage\Exceptions\StorageException;
 use Zend\Db\ResultSet\ResultSet;

@@ -6,13 +6,13 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace Chippyash\Test\SAccounts\Storage\Account\ZendDB;
+namespace Chippyash\Test\SAccounts\Storage\Account\ZendDBAccount;
 
 
 use Chippyash\Type\Number\IntType;
-use SAccounts\Storage\Account\ZendDB\RecordStatus;
+use SAccounts\Storage\Account\ZendDBAccount\RecordStatus;
 use Zend\Db\Adapter\Adapter as DbAdapter;
-use SAccounts\Storage\Account\ZendDB\ChartLedgerLinkTableGateway;
+use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerLinkTableGateway;
 
 class ChartLedgerLinkTableGatewayTest extends \PHPUnit_Framework_TestCase
 {
@@ -165,7 +165,7 @@ EOF;
             ]
         );
         $this->assertInstanceOf(
-            '\SAccounts\Storage\Account\ZendDB\RecordStatus',
+            '\SAccounts\Storage\Account\ZendDBAccount\RecordStatus',
             $test
         );
         $this->assertEquals('defunct', $test->getValue());

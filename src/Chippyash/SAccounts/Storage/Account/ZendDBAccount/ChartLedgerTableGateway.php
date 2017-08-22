@@ -6,7 +6,7 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace SAccounts\Storage\Account\ZendDB;
+namespace SAccounts\Storage\Account\ZendDBAccount;
 
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
@@ -117,4 +117,25 @@ class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecord
 
         return (int) $this->lastInsertValue;
     }
+
+    /**
+     * Return internal id for a ledger account
+     *
+     * @param IntType $chartId
+     * @param Nominal $nominal
+     *
+     * @return int
+     */
+    public function getIdForLedger(IntType $chartId, Nominal $nominal)
+    {
+        return (int) $this->select(
+            [
+                'nominal' => $nominal(),
+                'chartId' => $chartId()
+            ]
+        )->current()
+            ->offsetGet('id');
+
+    }
+
 }

@@ -6,7 +6,7 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace SAccounts\Storage\Account\ZendDB;
+namespace SAccounts\Storage\Account\ZendDBAccount;
 
 use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
@@ -93,12 +93,32 @@ class ChartTableGateway extends TableGateway implements RecordStatusRecordable
      * Fetch chart definition from DB
      *
      * @param StringType $name
+     * @param IntType $orgId
      *
      * @return Chart
      */
-    public function fetchChart(StringType $name)
+    public function fetchChart(StringType $name, IntType $orgId)
     {
 
+    }
+
+    /**
+     * Fetch the internal Id for a chart
+     *
+     * @param StringType $name
+     * @param IntType    $orgId
+     *
+     * @return int
+     */
+    public function getIdForChart(StringType $name, IntType $orgId)
+    {
+        return (int) $this->select(
+            [
+                'name' => $name(),
+                'orgId' => $orgId()
+            ]
+        )->current()
+            ->offsetGet('id');
     }
 
 }

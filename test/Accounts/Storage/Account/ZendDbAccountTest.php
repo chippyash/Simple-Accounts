@@ -16,12 +16,12 @@ use SAccounts\Chart;
 use SAccounts\ChartDefinition;
 use SAccounts\Organisation;
 use SAccounts\Storage\Account\ZendDbAccount;
-use SAccounts\Storage\Account\ZendDB\ChartTableGateway;
-use SAccounts\Storage\Account\ZendDB\OrgTableGateway;
+use SAccounts\Storage\Account\ZendDBAccount\ChartTableGateway;
+use SAccounts\Storage\Account\ZendDBAccount\OrgTableGateway;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use Chippyash\Currency\Factory as Crcy;
 
-class ZendDbTest extends \PHPUnit_Framework_TestCase
+class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var DbAdapter

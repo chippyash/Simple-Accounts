@@ -6,7 +6,7 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace SAccounts\Storage\Account\ZendDB;
+namespace SAccounts\Storage\Account\ZendDBAccount;
 
 use MyCLabs\Enum\Enum;
 
