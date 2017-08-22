@@ -124,7 +124,7 @@ EOF;
 
     public function testCreatingANewLedgerRecordWillReturnTheInternalId()
     {
-        $id = $this->sut->createLedger(
+        $id = $this->sut->create(
             new IntType(1),
             new Nominal('000000'),
             AccountType::REAL(),
@@ -136,7 +136,7 @@ EOF;
 
     public function testCreatingANewLedgerRecordWillSetDefaultValuesForTheTableStatusFields()
     {
-        $id = $this->sut->createLedger(
+        $id = $this->sut->create(
             new IntType(1),
             new Nominal('000000'),
             AccountType::REAL(),
@@ -159,7 +159,7 @@ EOF;
 
     public function testCreatingANewLedgerRecordWillNotCreateALedgerLinkIfNoParentIsGiven()
     {
-        $id = $this->sut->createLedger(
+        $id = $this->sut->create(
             new IntType(1),
             new Nominal('000000'),
             AccountType::REAL(),
@@ -171,14 +171,14 @@ EOF;
 
     public function testCreatingANewLedgerRecordWillCreateALedgerLinkIfAParentIsGivenAndExists()
     {
-        $prnt = $this->sut->createLedger(
+        $prnt = $this->sut->create(
             new IntType(1),
             new Nominal('000000'),
             AccountType::REAL(),
             new StringType('COA')
         );
 
-        $this->sut->createLedger(
+        $this->sut->create(
             new IntType(1),
             new Nominal('100000'),
             AccountType::REAL(),
@@ -191,7 +191,7 @@ EOF;
 
     public function testCreatingANewLedgerRecordWillNotCreateALedgerLinkIfAParentIsGivenButParentDoesNotExist()
     {
-        $this->sut->createLedger(
+        $this->sut->create(
             new IntType(1),
             new Nominal('000000'),
             AccountType::REAL(),

@@ -24,7 +24,7 @@ use Zend\Db\Sql\Ddl\Column\Char;
 /**
  * Account chart storage using ZendDb to store in a database
  */
-class ZendDb implements AccountStorageInterface, Visitor
+class ZendDbAccount implements AccountStorageInterface, Visitor
 {
     /**
      * @var AdapterInterface

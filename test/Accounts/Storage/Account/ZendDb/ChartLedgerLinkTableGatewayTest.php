@@ -77,7 +77,7 @@ EOF;
 
     public function testYouCanAddALedgerLinkRecord()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $this->assertTrue($this->sut->create(
             new IntType(1),
             new IntType(2)
         ));
@@ -87,7 +87,7 @@ EOF;
 
     public function testAddingALedgerLinkRecordWillSetDefaultValuesForTheTableStatusFields()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $this->assertTrue($this->sut->create(
             new IntType(1),
             new IntType(2)
         ));
@@ -108,7 +108,7 @@ EOF;
 
     public function testSettingTheRecordStatusWillReturnTrueIfSuccessful()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $this->assertTrue($this->sut->create(
             new IntType(1),
             new IntType(2)
         ));
@@ -146,7 +146,7 @@ EOF;
 
     public function testYouCanGetTheRecordStatus()
     {
-        $this->assertTrue($this->sut->createLedgerLink(
+        $this->assertTrue($this->sut->create(
             new IntType(1),
             new IntType(2)
         ));

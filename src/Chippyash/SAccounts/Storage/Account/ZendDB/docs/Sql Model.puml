@@ -61,7 +61,7 @@ class sa_coa_link<? extends StatusTable> << (T,red) >> {
 	child FK
 }
 
-class sa_coa_graph << (T,lightblue) >> {
+class sa_coa_graph << (V,lightblue) >> {
 	OQ Graph readonly table
 	---
 	latch: varchar(32),

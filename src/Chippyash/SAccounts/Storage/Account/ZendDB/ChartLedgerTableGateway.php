@@ -89,7 +89,7 @@ class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecord
      *
      * @return int Internal id
      */
-    public function createLedger(
+    public function create(
         IntType $chartId,
         Nominal $nominal,
         AccountType $type,
@@ -113,7 +113,7 @@ class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecord
             return (int) $this->lastInsertValue;
         }
 
-        $this->linkGW->createLedgerLink($prntId, new IntType($this->lastInsertValue));
+        $this->linkGW->create($prntId, new IntType($this->lastInsertValue));
 
         return (int) $this->lastInsertValue;
     }

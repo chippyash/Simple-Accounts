@@ -53,7 +53,7 @@ class ChartLedgerLinkTableGateway extends TableGateway implements RecordStatusRe
      *
      * @return boolean
      */
-    public function createLedgerLink(
+    public function create(
         IntType $prnt,
         IntType $child
     ) {

@@ -15,7 +15,7 @@ use SAccounts\Accountant;
 use SAccounts\Chart;
 use SAccounts\ChartDefinition;
 use SAccounts\Organisation;
-use SAccounts\Storage\Account\ZendDb;
+use SAccounts\Storage\Account\ZendDbAccount;
 use SAccounts\Storage\Account\ZendDB\ChartTableGateway;
 use SAccounts\Storage\Account\ZendDB\OrgTableGateway;
 use Zend\Db\Adapter\Adapter as DbAdapter;
@@ -130,7 +130,7 @@ EOF;
 
     protected function setUp()
     {
-        $this->sut = new ZendDb(
+        $this->sut = new ZendDbAccount(
             new OrgTableGateway(self::$zendAdapter),
             new ChartTableGateway(self::$zendAdapter)
         );
