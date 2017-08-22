@@ -78,7 +78,7 @@ class sa_coa_graph << (T,lightblue) >> {
     data_table='sa_coa_link' origid='prnt' destid='child'
 }
 
-class sa_journal<? extends StatusTable> << (T, red) >> {
+class sa_journal << (T, red) >> {
 	Transaction Journal
 	---
 	id: int unsigned
@@ -90,7 +90,7 @@ class sa_journal<? extends StatusTable> << (T, red) >> {
 	chartId FK
 }
 
-class sa_journal_entry<? extends StatusTable> << (T, red >> {
+class sa_journal_entry << (T, red >> {
 	A Transaction journal entry
 	---
 	id: int unsigned

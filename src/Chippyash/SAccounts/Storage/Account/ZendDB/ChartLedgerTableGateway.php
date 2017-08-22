@@ -27,9 +27,14 @@ use Zend\Db\TableGateway\TableGateway;
  *   name: string account name
  *   acCr: int Credit amount
  *   acDr: int Debit amount
+ *
+ * @method RecordStatus getStatus(array $key) $key = [id=>int]
+ * @method bool setStatus(RecordStatus $status, array $key) $key = [id=>int]
  */
-class ChartLedgerTableGateway extends TableGateway
+class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecordable
 {
+    use RecordStatusRecording;
+
     /**
      * @var ChartLedgerLinkTableGateway
      */

@@ -115,9 +115,11 @@ EOF;
 
         $this->assertTrue(
             $this->sut->setStatus(
-                new IntType(1),
-                new IntType(2),
-                RecordStatus::SUSPENDED()
+                RecordStatus::SUSPENDED(),
+                [
+                    'prnt' => 1,
+                    'child' => 2
+                ]
             )
         );
 
@@ -133,9 +135,11 @@ EOF;
     {
         $this->assertFalse(
             $this->sut->setStatus(
-                new IntType(1),
-                new IntType(2),
-                RecordStatus::SUSPENDED()
+                RecordStatus::SUSPENDED(),
+                [
+                    'prnt' => 1,
+                    'child' => 2
+                ]
             )
         );
     }
@@ -148,13 +152,17 @@ EOF;
         ));
 
         $this->sut->setStatus(
-            new IntType(1),
-            new IntType(2),
-            RecordStatus::DEFUNCT()
+            RecordStatus::DEFUNCT(),
+            [
+                'prnt' => 1,
+                'child' => 2
+            ]
         );
         $test = $this->sut->getStatus(
-            new IntType(1),
-            new IntType(2)
+            [
+                'prnt' => 1,
+                'child' => 2
+            ]
         );
         $this->assertInstanceOf(
             '\SAccounts\Storage\Account\ZendDB\RecordStatus',
@@ -169,8 +177,10 @@ EOF;
     public function testGettingTheStatusForAnUnknownRecordWillThrowAnException()
     {
         $this->sut->getStatus(
-            new IntType(1),
-            new IntType(2)
+            [
+                'prnt' => 1,
+                'child' => 2
+            ]
         );
     }
 }

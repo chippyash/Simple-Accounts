@@ -23,9 +23,14 @@ use Zend\Db\TableGateway\TableGateway;
  *   id: int Chart id IDX
  *   name: string Chart Name PK
  *   orgId: int Organisation Id PK
+ *
+ * @method RecordStatus getStatus(array $key) $key = [id=>int]
+ * @method bool setStatus(RecordStatus $status, array $key) $key = [id=>int]
  */
-class ChartTableGateway extends TableGateway
+class ChartTableGateway extends TableGateway implements RecordStatusRecordable
 {
+    use RecordStatusRecording;
+
     /**
      * Constructor.
      *

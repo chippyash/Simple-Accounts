@@ -22,9 +22,14 @@ use Zend\Db\TableGateway\TableGateway;
  *   id: int Org id PK
  *   name: string Org Name IDX
  *   crcyCode: string Currency Code for organisation
+ *
+ * @method RecordStatus getStatus(array $key) $key = [id=>int]
+ * @method bool setStatus(RecordStatus $status, array $key) $key = [id=>int]
  */
-class OrgTableGateway extends TableGateway
+class OrgTableGateway extends TableGateway implements RecordStatusRecordable
 {
+    use RecordStatusRecording;
+
     /**
      * Constructor.
      *
