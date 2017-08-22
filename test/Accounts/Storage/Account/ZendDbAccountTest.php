@@ -16,6 +16,7 @@ use SAccounts\Chart;
 use SAccounts\ChartDefinition;
 use SAccounts\Organisation;
 use SAccounts\Storage\Account\ZendDbAccount;
+use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\ChartTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\OrgTableGateway;
 use Zend\Db\Adapter\Adapter as DbAdapter;
@@ -132,7 +133,8 @@ EOF;
     {
         $this->sut = new ZendDbAccount(
             new OrgTableGateway(self::$zendAdapter),
-            new ChartTableGateway(self::$zendAdapter)
+            new ChartTableGateway(self::$zendAdapter),
+            new ChartLedgerTableGateway(self::$zendAdapter)
         );
         $this->org = new Organisation(new IntType(1), new StringType('Test'), Crcy::create('gbp'));
         $this->accountant= new Accountant($this->sut);
