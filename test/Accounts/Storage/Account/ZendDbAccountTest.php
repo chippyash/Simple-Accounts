@@ -17,6 +17,7 @@ use SAccounts\ChartDefinition;
 use SAccounts\Nominal;
 use SAccounts\Organisation;
 use SAccounts\Storage\Account\ZendDbAccount;
+use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerLinkTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\ChartTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\OrgTableGateway;
@@ -60,6 +61,75 @@ class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
      * @var ChartLedgerTableGateway
      */
     protected $ledgerGW;
+    /**
+     * @var ChartLedgerLinkTableGateway
+     */
+    protected $linkGW;
+
+    protected function setUp()
+    {
+        $this->orgGW = new OrgTableGateway(self::$zendAdapter);
+        $this->chartGW = new ChartTableGateway(self::$zendAdapter);
+        $this->ledgerGW = new ChartLedgerTableGateway(self::$zendAdapter);
+
+        $this->sut = new ZendDbAccount(
+            $this->orgGW,
+            $this->chartGW,
+            $this->ledgerGW
+        );
+        $this->org = new Organisation(new IntType(1), new StringType('Test'), Crcy::create('gbp'));
+        $this->accountant= new Accountant($this->sut);
+
+        $root = vfsStream::setup();
+        vfsStream::create(
+            [
+                'def.xml' => $this->chartDefinition()
+            ],
+            $root
+        );
+
+        $def = new ChartDefinition(new StringType($root->url() . '/def.xml'));
+        $this->chart = $this->accountant->createChart(
+            new StringType('Test'),
+            $this->org,
+            $def
+        );
+
+        $this->linkGW = new ChartLedgerLinkTableGateway(self::$zendAdapter);
+    }
+
+    protected function tearDown()
+    {
+        $db = self::$zendAdapter;
+        $db->query('delete from sa_org', DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_coa', DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_coa_ledger', DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_coa_link', DbAdapter::QUERY_MODE_EXECUTE);
+    }
+
+    public function testYouCanSendANewChartToStorageAndItWillStoreAccountBalances()
+    {
+        $this->chart->getAccount(new Nominal('7100'))
+            ->debit(Crcy::create('GBP', 10));
+        $this->chart->getAccount(new Nominal('2100'))
+            ->credit(Crcy::create('GBP', 10));
+
+        $this->assertTrue($this->sut->send($this->chart));
+
+        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
+        $this->assertEquals(1000, $balance['acDr']);
+        $this->assertEquals(1000, $balance['acCr']);
+
+        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
+        $this->assertEquals(1000, $balance['acDr']);
+        $this->assertEquals(0, $balance['acCr']);
+
+        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
+        $this->assertEquals(0, $balance['acDr']);
+        $this->assertEquals(1000, $balance['acCr']);
+
+        $this->assertEquals(21, $this->linkGW->select()->count());
+    }
 
     /**
      * Set up SQLite database on real file system as it doesn't
@@ -107,7 +177,6 @@ EOF;
         $ddl = 'create table if not exists sa_org (id INTEGER PRIMARY KEY ASC, name TEXT, crcyCode TEXT)';
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
         $db->query('delete from sa_org', DbAdapter::QUERY_MODE_EXECUTE);
-        $db->query("insert into sa_org (id, name) values (1, 'Test')");
 
         //Chart of accounts table
         $ddl = <<<EOF
@@ -161,47 +230,6 @@ EOF;
     {
         self::$zendAdapter = null;
         unlink(__DIR__ . '/resources/sqlite.db');
-    }
-
-    protected function setUp()
-    {
-        $this->orgGW = new OrgTableGateway(self::$zendAdapter);
-        $this->chartGW = new ChartTableGateway(self::$zendAdapter);
-        $this->ledgerGW = new ChartLedgerTableGateway(self::$zendAdapter);
-
-        $this->sut = new ZendDbAccount(
-            $this->orgGW,
-            $this->chartGW,
-            $this->ledgerGW
-        );
-        $this->org = new Organisation(new IntType(1), new StringType('Test'), Crcy::create('gbp'));
-        $this->accountant= new Accountant($this->sut);
-
-        $root = vfsStream::setup();
-        vfsStream::create(
-            [
-                'def.xml' => $this->chartDefinition()
-            ],
-            $root
-        );
-
-        $def = new ChartDefinition(new StringType($root->url() . '/def.xml'));
-        $this->chart = $this->accountant->createChart(
-            new StringType('Test'),
-            $this->org,
-            $def
-        );
-    }
-
-    public function testYouCanSendAChartANewChartAndItWillStoreAccountBalances()
-    {
-        $this->chart->getAccount(new Nominal('7100'))
-            ->debit(Crcy::create('GBP', 10));
-        $this->chart->getAccount(new Nominal('2100'))
-            ->credit(Crcy::create('GBP', 10));
-
-        $this->assertTrue($this->sut->send($this->chart));
-       // $this->assertEquals($test, $chart);
     }
 
     protected function chartDefinition()

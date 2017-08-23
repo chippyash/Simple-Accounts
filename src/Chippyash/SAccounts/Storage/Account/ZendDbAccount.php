@@ -195,6 +195,10 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
                 $prntAccountId
             );
         }
+
+        foreach ($node->getChildren() as $child) {
+            $child->accept($this);
+        }
     }
 
     /**
@@ -237,5 +241,9 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
                 'id' => $ledgerId
             ]
         );
+
+        foreach ($node->getChildren() as $child) {
+            $child->accept($this);
+        }
     }
 }
