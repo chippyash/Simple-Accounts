@@ -14,6 +14,7 @@ use org\bovigo\vfs\vfsStream;
 use SAccounts\Accountant;
 use SAccounts\Chart;
 use SAccounts\ChartDefinition;
+use SAccounts\Nominal;
 use SAccounts\Organisation;
 use SAccounts\Storage\Account\ZendDbAccount;
 use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerTableGateway;
@@ -47,6 +48,18 @@ class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
      * @var Chart
      */
     protected $chart;
+    /**
+     * @var OrgTableGateway
+     */
+    protected $orgGW;
+    /**
+     * @var ChartTableGateway
+     */
+    protected $chartGW;
+    /**
+     * @var ChartLedgerTableGateway
+     */
+    protected $ledgerGW;
 
     /**
      * Set up SQLite database on real file system as it doesn't
@@ -102,8 +115,6 @@ create table IF NOT EXISTS sa_coa
 (
   id INTEGER primary key,
   orgId INTEGER,
-  nominal TEXT,
-  type TEXT,
   name TEXT,
   crcyCode TEXT,
   acDr INTEGER,
@@ -115,9 +126,32 @@ EOF;
         $db->query('delete from sa_coa', DbAdapter::QUERY_MODE_EXECUTE);
 
         //Chart of Accounts Ledger table
-        $ddl = 'create table if not exists sa_coa_ledger (chartId INTEGER, name TEXT, orgId INTEGER, PRIMARY KEY (name, orgId))';
+        $ddl =<<<EOF
+create table if not exists sa_coa_ledger 
+(
+  id INTEGER primary key,
+  chartId INTEGER NOT NULL ,
+  nominal TEXT NOT NULL ,
+  type TEXT NOT NULL ,
+  name TEXT NOT NULL ,
+  acDr INTEGER DEFAULT 0,
+  acCr INTEGER DEFAULT 0
+)
+EOF;
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_coa_ledger', DbAdapter::QUERY_MODE_EXECUTE);
 
+        //Chart of accounts link table
+        $ddl = <<<EOF
+create table if not exists sa_coa_link
+(
+  prnt INTEGER not null,
+  child INTEGER not null,
+  primary key (prnt, child)
+)
+EOF;
+        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_coa_link', DbAdapter::QUERY_MODE_EXECUTE);
     }
 
     /**
@@ -131,10 +165,14 @@ EOF;
 
     protected function setUp()
     {
+        $this->orgGW = new OrgTableGateway(self::$zendAdapter);
+        $this->chartGW = new ChartTableGateway(self::$zendAdapter);
+        $this->ledgerGW = new ChartLedgerTableGateway(self::$zendAdapter);
+
         $this->sut = new ZendDbAccount(
-            new OrgTableGateway(self::$zendAdapter),
-            new ChartTableGateway(self::$zendAdapter),
-            new ChartLedgerTableGateway(self::$zendAdapter)
+            $this->orgGW,
+            $this->chartGW,
+            $this->ledgerGW
         );
         $this->org = new Organisation(new IntType(1), new StringType('Test'), Crcy::create('gbp'));
         $this->accountant= new Accountant($this->sut);
@@ -155,9 +193,14 @@ EOF;
         );
     }
 
-    public function testYouCanSendAChart()
+    public function testYouCanSendAChartANewChartAndItWillStoreAccountBalances()
     {
-       // $this->sut->send($this->chart);
+        $this->chart->getAccount(new Nominal('7100'))
+            ->debit(Crcy::create('GBP', 10));
+        $this->chart->getAccount(new Nominal('2100'))
+            ->credit(Crcy::create('GBP', 10));
+
+        $this->assertTrue($this->sut->send($this->chart));
        // $this->assertEquals($test, $chart);
     }
 

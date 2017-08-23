@@ -210,11 +210,11 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
         $account = $node->getValue();
 
         //see if we have a parent
-        $prntAccount = $node->getParent()->getValue();
+        $parent = $node->getParent();
         $prntAccountId = null;
-        if ($prntAccount instanceof Account) {
+        if (!is_null($parent)) {
             $prntAccountId = new IntType(
-                $this->ledgerGW->getIdForLedger($this->currentChartId, $prntAccount->getId())
+                $this->ledgerGW->getIdForLedger($this->currentChartId, $parent->getValue()->getId())
             );
         }
 
