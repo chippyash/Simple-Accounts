@@ -47,7 +47,7 @@ class SerializedTest extends \PHPUnit_Framework_TestCase {
     {
         $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), Factory::create('gbp')));
         $this->sut->send($chart);
-        $contents = file_get_contents($this->root->url() . '/foo_bar.saccount');
+        $contents = file_get_contents($this->root->url() . '/foo_bar_1.saccount');
         $test = unserialize($contents);
         $this->assertEquals($test, $chart);
     }
@@ -62,9 +62,16 @@ class SerializedTest extends \PHPUnit_Framework_TestCase {
 
     public function testYouCanFetchAChart()
     {
-        $chart = new Chart(new StringType('foo bar'), new Organisation(new IntType(1), new StringType('Foo Org'), Factory::create('gbp')));
-        file_put_contents($this->root->url() . '/foo_bar.saccount', serialize($chart));
-        $this->assertEquals($chart, $this->sut->fetch(new StringType('foo bar')));
+        $chart = new Chart(
+            new StringType('foo bar'),
+            new Organisation(
+                new IntType(1),
+                new StringType('Foo Org'),
+                Factory::create('gbp')
+            )
+        );
+        file_put_contents($this->root->url() . '/foo_bar_1.saccount', serialize($chart));
+        $this->assertEquals($chart, $this->sut->fetch(new StringType('foo bar'), new IntType(1)));
     }
 
 }

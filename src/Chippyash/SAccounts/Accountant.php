@@ -11,6 +11,7 @@ namespace SAccounts;
 
 use Assembler\FFor;
 use Chippyash\Currency\Currency;
+use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\Transaction\SplitTransaction;
 use Tree\Node\Node;
@@ -96,12 +97,13 @@ class Accountant
      * Fetch a chart from storage
      *
      * @param StringType $chartName
+     * @param IntType $orgId
      *
      * @return Chart
      */
-    public function fetchChart(StringType $chartName)
+    public function fetchChart(StringType $chartName, IntType $orgId)
     {
-        return $this->fileClerk->fetch($chartName);
+        return $this->fileClerk->fetch($chartName, $orgId);
     }
 
     /**

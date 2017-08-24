@@ -11,7 +11,9 @@ namespace Chippyash\Test\SAccounts\Storage\Account;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use org\bovigo\vfs\vfsStream;
+use SAccounts\Account;
 use SAccounts\Accountant;
+use SAccounts\AccountType;
 use SAccounts\Chart;
 use SAccounts\ChartDefinition;
 use SAccounts\Nominal;
@@ -71,11 +73,13 @@ class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
         $this->orgGW = new OrgTableGateway(self::$zendAdapter);
         $this->chartGW = new ChartTableGateway(self::$zendAdapter);
         $this->ledgerGW = new ChartLedgerTableGateway(self::$zendAdapter);
+        $this->linkGW = new ChartLedgerLinkTableGateway(self::$zendAdapter);
 
         $this->sut = new ZendDbAccount(
             $this->orgGW,
             $this->chartGW,
-            $this->ledgerGW
+            $this->ledgerGW,
+            $this->linkGW
         );
         $this->org = new Organisation(new IntType(1), new StringType('Test'), Crcy::create('gbp'));
         $this->accountant= new Accountant($this->sut);
@@ -94,8 +98,6 @@ class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
             $this->org,
             $def
         );
-
-        $this->linkGW = new ChartLedgerLinkTableGateway(self::$zendAdapter);
     }
 
     protected function tearDown()
@@ -107,28 +109,87 @@ class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
         $db->query('delete from sa_coa_link', DbAdapter::QUERY_MODE_EXECUTE);
     }
 
-    public function testYouCanSendANewChartToStorageAndItWillStoreAccountBalances()
-    {
-        $this->chart->getAccount(new Nominal('7100'))
-            ->debit(Crcy::create('GBP', 10));
-        $this->chart->getAccount(new Nominal('2100'))
-            ->credit(Crcy::create('GBP', 10));
+//    public function testYouCanSendANewChartToStorageAndItWillStoreAccountBalances()
+//    {
+//        $this->chart->getAccount(new Nominal('7100'))
+//            ->debit(Crcy::create('GBP', 10));
+//        $this->chart->getAccount(new Nominal('2100'))
+//            ->credit(Crcy::create('GBP', 10));
+//
+//        $this->assertTrue($this->sut->send($this->chart));
+//
+//        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
+//        $this->assertEquals(1000, $balance['acDr']);
+//        $this->assertEquals(1000, $balance['acCr']);
+//
+//        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
+//        $this->assertEquals(1000, $balance['acDr']);
+//        $this->assertEquals(0, $balance['acCr']);
+//
+//        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
+//        $this->assertEquals(0, $balance['acDr']);
+//        $this->assertEquals(1000, $balance['acCr']);
+//
+//        $this->assertEquals(21, $this->linkGW->select()->count());
+//    }
+//
+//    public function testYouCanSendAnAmendedChartToStorageAndItWillNotStoreAccountBalances()
+//    {
+//        //set up original chart with balances
+//        $this->chart->getAccount(new Nominal('7100'))
+//            ->debit(Crcy::create('GBP', 10));
+//        $this->chart->getAccount(new Nominal('2100'))
+//            ->credit(Crcy::create('GBP', 10));
+//
+//        $this->assertTrue($this->sut->send($this->chart));
+//
+//        //add an account and new balances
+//        $this->chart->addAccount(
+//            new Account(
+//                $this->chart,
+//                new Nominal('7110'),
+//                AccountType::EXPENSE(),
+//                new StringType('Utilities')
+//            ),
+//            new Nominal('7100')
+//        )->getAccount(new Nominal('7110'))
+//            ->credit(Crcy::create('GBP', 30));
+//        $this->chart->getAccount(new Nominal('2100'))
+//            ->debit(Crcy::create('GBP', 30));
+//
+//        //and send the amended chart
+//        $this->assertTrue($this->sut->send($this->chart));
+//
+//        //balances should be as per before adding the new account
+//        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
+//        $this->assertEquals(1000, $balance['acDr']);
+//        $this->assertEquals(1000, $balance['acCr']);
+//
+//        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
+//        $this->assertEquals(1000, $balance['acDr']);
+//        $this->assertEquals(0, $balance['acCr']);
+//
+//        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
+//        $this->assertEquals(0, $balance['acDr']);
+//        $this->assertEquals(1000, $balance['acCr']);
+//
+//        //even though we set a balance on new account it hasn't been recorded
+//        $balance = $this->ledgerGW->select(['nominal' => '2110'])->toArray()[0];
+//        $this->assertEquals(0, $balance['acDr']);
+//        $this->assertEquals(0, $balance['acCr']);
+//
+//        //but we have a new link
+//        $this->assertEquals(22, $this->linkGW->select()->count());
+//    }
 
+    public function testYouCanFetchAnExistingChart()
+    {
         $this->assertTrue($this->sut->send($this->chart));
 
-        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
-        $this->assertEquals(1000, $balance['acDr']);
-        $this->assertEquals(1000, $balance['acCr']);
-
-        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
-        $this->assertEquals(1000, $balance['acDr']);
-        $this->assertEquals(0, $balance['acCr']);
-
-        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
-        $this->assertEquals(0, $balance['acDr']);
-        $this->assertEquals(1000, $balance['acCr']);
-
-        $this->assertEquals(21, $this->linkGW->select()->count());
+        $this->assertInstanceOf(
+            '\SAccounts\Chart',
+            $this->sut->fetch(new StringType('Test'), new IntType(1))
+            );
     }
 
     /**

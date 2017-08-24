@@ -75,7 +75,10 @@ class AccountantTest extends \PHPUnit_Framework_TestCase {
         $this->fileClerk->expects($this->once())
             ->method('fetch')
             ->will($this->returnValue($chart));
-        $this->assertInstanceOf('SAccounts\Chart', $this->sut->fetchChart(new StringType('foo bar')));
+        $this->assertInstanceOf(
+            'SAccounts\Chart',
+            $this->sut->fetchChart(new StringType('foo bar'), new IntType(1))
+        );
     }
 
     public function testAnAccountantCanCreateANewChartOfAccounts()

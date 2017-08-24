@@ -66,4 +66,24 @@ class ChartLedgerLinkTableGateway extends TableGateway implements RecordStatusRe
 
         return true;
     }
+
+    /**
+     * Return id of parent ledger to the child
+     *
+     * Will return 0 if no parent found (i.e. root ledger)
+     *
+     * @param IntType $child
+     *
+     * @return IntType
+     */
+    public function parentOf(IntType $child)
+    {
+        $result = $this->select(['child' => $child()]);
+        if ($result->count() == 0) {
+            return new IntType(0);
+        }
+
+        return new IntType($result->current()->offsetGet('prnt'));
+    }
+
 }

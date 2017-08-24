@@ -147,9 +147,14 @@ $accountant->fileChart($chart));
 </pre>
 
 #### Fetching the chart
+In fetching a chart you need to know the id of the organisation that it belongs to
+
 <pre>
-$chart = $accountant->fetchChart(new StringType('Name of Chart'));
+$chart = $accountant->fetchChart(new StringType('Name of Chart'), new IntType(1));
 </pre>
+
+This allows you to create multiple COAs for an organisation, potentially allowing
+you to keep task specific COAs or COAs for different currencies.
 
 #### Making entries into accounts
 
@@ -207,16 +212,19 @@ The balance respects the conventions of DR and CR accounts.:
 
 #### Using Journals
 
-Whilst an Account records the value state at any given point in time, and a Chart holds the state of a collection (tree)
- of accounts, a Journal is responsible for recording the transaction history that led to the current state of the Account.
+Whilst an Account records the value state at any given point in time, and a Chart holds 
+the state of a collection (tree) of accounts, a Journal is responsible for recording 
+the transaction history that led to the current state of the Account.
  
- You may use the library without using Journalling at all, but most systems will want a transaction history. The Accountant
- can make use of an optional 'Journalist' that implements the JournalStorageInterface to create, save and amend both a Journal
- and the transactions that it records.
+You may use the library without using Journalling at all, but most systems will want 
+a transaction history. The Accountant can make use of an optional 'Journalist' that 
+implements the JournalStorageInterface to create, save and amend both a Journal and 
+the transactions that it records.
 
- You must first supply a Journalist in the form of a JournalStorageInterface.  An example is provided, Accounts\Storage\Journal\Xml
- which stores the Journal and its transactions into an XML file.  You can provide your own to store against any other
- storage mechanism that you want to use.
+You must first supply a Journalist in the form of a JournalStorageInterface.  An 
+example is provided, Accounts\Storage\Journal\Xml which stores the Journal and its 
+transactions into an XML file.  You can provide your own to store against any other
+storage mechanism that you want to use.
  
 <pre>
 use SAccounts\Storage\Journal\Xml as Journalist;
@@ -232,7 +240,8 @@ use Chippyash\Currency\Factory as Currency;
 $journal = $accountant->createJournal(new StringType('My Journal'), Currency::create('gbp'));
 </pre>
 
-Under most circumstances, you'll associate an Organisation, and a Chart with a Journal, so it makes sense to use the same Currency:
+Under most circumstances, you'll associate an Organisation, and a Chart with a Journal, 
+so it makes sense to use the same Currency:
 
 <pre>
 $journal = $accountant->createJournal(new StringType('My Journal'), $chart->getOrg()->getCurrency());
@@ -251,8 +260,9 @@ You can also store a journal via the accountant if you amend its definition
 
 #### Creating transactions in the journal
 
-You can either manage the link between the Journal and the Chart yourself by calling their appropriate store mechanisms
-(see the code, tests and diagrams for that,) or more simply, ask the accountant to do it for you.  In either case, you first of all
+You can either manage the link between the Journal and the Chart yourself by calling 
+their appropriate store mechanisms (see the code, tests and diagrams for that,) or 
+more simply, ask the accountant to do it for you.  In either case, you first of all
 need a Transaction. Transactions are provided by way of the `SAccounts\Transaction\SplitTransaction`
 and `SAccounts\Transaction\SimpleTransaction`.  `SimpleTransaction` is provided as helper
 for creating and writing out transactions that consist of a pair of balanced debit and credit
@@ -274,8 +284,9 @@ You can set an optional 4th parameter when creating a SimpleTransaction:
 $txn = new  SimpleTransaction($drAc, $crAc, $amount, new StringType('This is a note'));
 </pre>
 
-By default the date and time for the transaction is set to now().  You can set an optional 5th parameter when creating
-a SimpleTransaction and supply a DateTime object of your own choosing.
+By default the date and time for the transaction is set to now().  You can set an 
+optional 5th parameter when creating a SimpleTransaction and supply a DateTime object
+of your own choosing.
 
 <pre>
 $txn = new  SimpleTransaction($drAc, $crAc, $amount, new StringType(''), new \DateTime('2015-12-03T12:14:30Z));
@@ -295,8 +306,8 @@ The Transaction will now have its transaction id set, which you can recover via:
 $txnId = $txn->getId() //returns IntType
 </pre>
 
-You don't need to save the Journal, as it is inherently transactional, but don't forget to save your Chart once you 
-have finished writing transactions!
+You don't need to save the Journal, as it is inherently transactional, but don't forget 
+to save your Chart once you have finished writing transactions!
 
 The full power of the transaction is provided by the `SplitTransaction`. And remember,
  that when you read transactions back from the journal they will be in SplitTransaction
@@ -415,10 +426,10 @@ on the basis, that it is likely that you'll dependency inject them into your app
  Collections in an application.
  
 ### Database support
-Version 1.5 brings support for MariaDb via the Zend Framework DB library. If you need
+Version 2.0 brings support for MariaDb via the Zend Framework DB library. If you need
 another DB library supported or another database supported, please consider forking 
 this package and issuing a pull request back,to enhance this library.  Hopefully by
-studying the Storage/../ZendDb classes and related files, you'll have enough information
+studying the Storage/../ZendDb.. classes and related files, you'll have enough information
 to create your own flavours.
 
 MariaDb V10+ is supported (or at least that is what the code is tested on,) and was
@@ -439,7 +450,7 @@ of directed graph work.  Search the web for additional how-tos and the like.
 #### Creating your database tables
 To create the supporting DB tables, edit and run the contents of 
 src/Chippyash/SAccounts/Storage/Account/ZendDB/docs/db-support.sql into your database.
-Please note that the script contains a set of triggers. The 'journal_trigger' is required
+Please note that the script contains a trigger. The 'journal_trigger' is required
 for proper operation of the Chart of Accounts.  If you have [PlantUml](http://plantuml.com/) 
 installed in your IDE, you can view the DB structure by opening 
 /src/Chippyash/SAccounts/Storage/Account/ZendDB/docs/Sql Model.puml
@@ -480,6 +491,34 @@ or defuncting their entries:
 - sa_journal: journal header records
 - sa_journal_entry: nominal account entries for a journal record  
 	
+#### You need to use Journaling in a DB environment
+
+Unlike the static XML chart store provided by example in the initial release of this
+library, using a database brings it's own concerns and side effects.  Principle to 
+this is that other systems may be interfacing to your accounting system and we need
+to maintain integrity of the core chart of accounts, which simply records account
+balances. This means you are bound to use journalling for your accounts. Underlaying
+this is the journal_trigger bound into the database which is responsible for updating
+the chart of account balances when a journal entry is made. 
+
+##### Creating charts of account
+
+You can create a chart of account as described elsewhere in this document.  The first
+save of the account tree will save its structure __and any balances__ contained in them.
+This allows you to create a chart and set its opening balances.  If you subsequently
+add an account to the chart and save again, any balances you have modified directly
+in the chart will not be saved.  You must save the chart and the new account(s) which
+will have a zero balance and then use the journalling system to add balances.  For the
+time being this effectively means that you are limited to creating accounts that are
+leaf nodes of existing accounts.  Future enhancements will remove this limitation.
+
+Please note that deleting accounts will have no effect on the existing DB stored 
+structure.  This is again a future enhancement.
+
+__NB__ If you exclusively use journalling to create balances, rather than setting opening
+balances directly, you will have a mechanism to replay the journal to potentially recreate
+the COA in the event of disaster.  Worth bearing in mind.  Always assuming of course
+that you are backing up! 
 	
 ### Class diagrams
 
@@ -580,3 +619,6 @@ V1.4.2 Verify PHP 7 compatibility
 V1.4.3 Code cleanup
 
 V1.4.4 Dependency update
+
+V2.0.0 BC Break - DB support added - signatures changed for AccountStorageInterface
+and Accountant

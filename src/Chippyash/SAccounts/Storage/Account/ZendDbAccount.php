@@ -8,12 +8,16 @@
  */
 namespace SAccounts\Storage\Account;
 
+use Chippyash\Currency\Factory as Crcy;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\Account;
 use SAccounts\AccountStorageInterface;
+use SAccounts\AccountType;
 use SAccounts\Chart;
+use SAccounts\Nominal;
 use SAccounts\Organisation;
+use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerLinkTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\ChartTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\OrgTableGateway;
@@ -42,6 +46,10 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
      * @var ChartLedgerTableGateway
      */
     protected $ledgerGW;
+    /**
+     * @var ChartLedgerLinkTableGateway
+     */
+    protected $linkGW;
 
     /**
      * Are we visiting the chart tree to update it?
@@ -65,30 +73,71 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
     public function __construct(
         OrgTableGateway $orgGW,
         ChartTableGateway $chartGW,
-        ChartLedgerTableGateway $ledgerGW
+        ChartLedgerTableGateway $ledgerGW,
+        ChartLedgerLinkTableGateway $linkGW
     ) {
         $this->orgGW = $orgGW;
         $this->chartGW = $chartGW;
         $this->ledgerGW = $ledgerGW;
+        $this->linkGW = $linkGW;
     }
 
     /**
      * Fetch a chart from storage
      *
      * @param StringType $name Name of chart
+     * @param IntType $orgId that the chart belongs to
      *
      * @return Chart
      */
-    public function fetch(StringType $name)
+    public function fetch(StringType $name, IntType $orgId)
     {
-        // TODO: Implement fetch() method.
+        $orgRecord = $this->orgGW->select(['id' => $orgId()])->current();
+        $org = new Organisation(
+            $orgId,
+            new StringType($orgRecord->offsetGet('name')),
+            Crcy::create($orgRecord->offsetGet('crcyCode'))
+        );
+
+        $chart = new Chart($name, $org);
+        $chartId = $this->chartGW->getIdForChart($name, $orgId);
+
+        foreach ($this->ledgerGW->select(['chartId' => $chartId]) as $accountRecord) {
+            $prntId = $this->linkGW->parentOf(
+                new IntType($accountRecord->offsetGet('id'))
+            )->get();
+            $prntNominal =null;
+            if ($prntId != 0) {
+                $prntNominal = new Nominal(
+                        $this->ledgerGW->select(
+                        [
+                            'id' => $prntId
+                        ]
+                    )->current()
+                    ->offsetGet('nominal')
+                );
+            }
+
+            $acType = AccountType::search((int) $accountRecord->offsetGet('type'));
+            $chart->addAccount(
+                new Account(
+                    $chart,
+                    new Nominal($accountRecord->offsetGet('nominal')),
+                    AccountType::$acType(),
+                    new StringType($accountRecord->offsetGet('name'))
+                ),
+                $prntNominal
+            );
+        }
+
+        return $chart;
     }
 
     /**
      * Send a chart to storage
      *
      * If the chart does not exist, then its structure and current values will
-     * be stored.
+     * be stored. This allows for initial chart creation.
      *
      * If the chart exists, then only changes in its structure are saved as you are
      * expected to use the journal in a DB environment to update the chart values
@@ -203,6 +252,7 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
 
     /**
      * Visit each node and create a record in sa_coa_ledger table
+     * but do not record any balance information
      *
      * @param NodeInterface $node
      *

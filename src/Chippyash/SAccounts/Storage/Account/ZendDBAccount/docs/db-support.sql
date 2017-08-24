@@ -60,7 +60,8 @@ create table IF NOT EXISTS sa_coa (
   CONSTRAINT sa_coa_sa_org_id_fk
   FOREIGN KEY (orgId) REFERENCES sa_org (id),
   CONSTRAINT sa_coa_sa_crcy_code_fk
-  FOREIGN KEY (crcyCode) REFERENCES sa_crcy (code)
+  FOREIGN KEY (crcyCode) REFERENCES sa_crcy (code),
+  CONSTRAINT sa_coa_orgId_name_idx UNIQUE (orgId, name)
 )
   comment 'A Chart of Account for an Organisation'
 ;

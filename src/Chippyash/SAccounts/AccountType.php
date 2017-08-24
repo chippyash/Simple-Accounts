@@ -29,7 +29,7 @@ use MyCLabs\Enum\Enum;
  * @method static AccountType EQUITY()
  * @method static AccountType SUPPLIER()
  */
-final class AccountType extends Enum
+class AccountType extends Enum
 {
     /**
      * A dummy account - used internally, not for public consumption
