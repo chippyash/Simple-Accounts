@@ -10,18 +10,19 @@ namespace Chippyash\Test\SAccounts\Storage\Journal\ZendDbJournal;
 
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
+use SAccounts\Nominal;
 use Zend\Db\Adapter\Adapter as DbAdapter;
-use SAccounts\Storage\Journal\ZendDbJournal\JournalTableGateway;
+use SAccounts\Storage\Journal\ZendDbJournal\JournalEntryTableGateway;
 use Chippyash\Currency\Factory as Crcy;
 
-class JournalTableGatewayTest extends \PHPUnit_Framework_TestCase
+class JournalEntryTableGatewayTest extends \PHPUnit_Framework_TestCase
 {
     /**
      * @var DbAdapter
      */
     static protected $zendAdapter;
     /**
-     * @var JournalTableGateway
+     * @var JournalEntryTableGateway
      */
     protected $sut;
 
@@ -40,18 +41,18 @@ class JournalTableGatewayTest extends \PHPUnit_Framework_TestCase
             ]
         );
 
-        //Journal table
+        //Journal entries table
         $ddl = <<<EOF
-create table if NOT EXISTS sa_journal (
-  id INTEGER primary key,
-  chartId INTEGER UNSIGNED not null,
-  note TEXT not null,
-  date DATETIME default CURRENT_TIMESTAMP,
-  ref INT UNSIGNED null
+create table if not exists sa_journal_entry (
+  id integer primary key,
+  jrnId int unsigned null,
+  nominal TEXT not null,
+  acDr INTEGER default 0,
+  acCr INTEGER default 0 
 )
 EOF;
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
-        $db->query('delete from sa_journal', DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_journal_entry', DbAdapter::QUERY_MODE_EXECUTE);
     }
 
     /**
@@ -65,7 +66,7 @@ EOF;
 
     protected function setUp()
     {
-        $this->sut = new JournalTableGateway(self::$zendAdapter);
+        $this->sut = new JournalEntryTableGateway(self::$zendAdapter);
     }
 
     protected function tearDown()
@@ -73,47 +74,25 @@ EOF;
         $this->sut->delete([]);
     }
 
-    public function testCreatingANewJournalRecordWillReturnTheInternalId()
+    public function testCreatingANewJournalEntryRecordWillReturnTheInternalId()
     {
         $id = $this->sut->create(
-            new IntType(1)
+            new IntType(2),
+            new Nominal('0000'),
+            Crcy::create('GBP', 0),
+            Crcy::create('GBP', 100)
         );
 
         $this->assertEquals(1, $id);
     }
 
-    public function testYouCanSpecifyAnOptionalNoteWhenCreatingAJournal()
+    public function testYouCanTestThatAJournalEntryExistsForAGivenId()
     {
         $id = $this->sut->create(
             new IntType(1),
-            new StringType('foo')
-        );
-
-        $this->assertEquals(
-            'foo',
-            $this->sut->select(['id'=>$id])->current()->offsetGet('note')
-        );
-    }
-
-    public function testYouCanOptionallySpecifyTheDateWhenCreatingAJournal()
-    {
-        $dt = new \DateTime('2017-08-21 12:00:00');
-        $id = $this->sut->create(
-            new IntType(1),
-            new StringType('foo'),
-            $dt
-        );
-
-        $this->assertEquals(
-            '2017-08-21 12:00:00',
-            $this->sut->select(['id'=>$id])->current()->offsetGet('date')
-        );
-    }
-
-    public function testYouCanTestThatAJournalExistsForAGivenJournalId()
-    {
-        $id = $this->sut->create(
-            new IntType(1)
+            new Nominal('0000'),
+            Crcy::create('GBP', 0),
+            Crcy::create('GBP', 100)
         );
         $this->assertEquals(1, $id);
 
