@@ -57,7 +57,7 @@
                 <account nominal="132000" type="equity" name="Retained Earnings"/>
             </account>
         </account>
-        <account nominal="200000" type="real" name="Income Statement">
+        <account nominal="200000" type="real" name="Profit and Loss">
             <account nominal="210000" type="income" name="Income">
                 <account nominal="211000" type="income" name="Revenue">
                     <account nominal="211100" type="income" name="Cash Sales"/>
