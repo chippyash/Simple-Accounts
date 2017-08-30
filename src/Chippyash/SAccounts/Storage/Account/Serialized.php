@@ -68,7 +68,7 @@ class Serialized implements AccountStorageInterface
     {
         return (
             file_put_contents(
-                $this->normalizeName($chart->getName(),$chart->getOrg()->getId()),
+                $this->normalizeName($chart->getName(),$chart->getOrg()->id()),
                 serialize($chart)) > 0
         );
     }

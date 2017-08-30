@@ -6,7 +6,7 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace SAccounts\Storage\Account\ZendDBAccount;
+namespace SAccounts;
 
 use MyCLabs\Enum\Enum;
 
@@ -33,4 +33,20 @@ class RecordStatus extends Enum
      * Record is defunct (no longer in use)
      */
     const DEFUNCT = 'defunct';
+
+    /**
+     * Can you change from one status to another
+     *
+     * Basically, yes except if this status == 'defunct'
+     *
+     * @return bool
+     */
+    public function canChange()
+    {
+        if ($this->equals(RecordStatus::DEFUNCT())) {
+            return false;
+        }
+
+        return true;
+    }
 }

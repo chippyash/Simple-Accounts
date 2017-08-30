@@ -9,8 +9,13 @@
 namespace SAccounts\Storage\Account\ZendDBAccount;
 
 use Chippyash\Currency\Currency;
+use Chippyash\Currency\Factory as Crcy;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
+use SAccounts\Organisation;
+use SAccounts\RecordStatus;
+use SAccounts\RecordStatusRecordable;
+use SAccounts\Storage\Exceptions\StorageException;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -23,12 +28,12 @@ use Zend\Db\TableGateway\TableGateway;
  *   name: string Org Name IDX
  *   crcyCode: string Currency Code for organisation
  *
- * @method RecordStatus getStatus(array $key) $key = [id=>int]
- * @method bool setStatus(RecordStatus $status, array $key) $key = [id=>int]
+ * @method RecordStatus getStatus(array $key = null) $key = [id=>int]
+ * @method bool setStatus(RecordStatus $status, array $key = null) $key = [id=>int]
  */
 class OrgTableGateway extends TableGateway implements RecordStatusRecordable
 {
-    use RecordStatusRecording;
+    use DbRecordStatusRecording;
 
     /**
      * Constructor.
@@ -81,5 +86,28 @@ class OrgTableGateway extends TableGateway implements RecordStatusRecordable
         );
 
         return $this->lastInsertValue;
+    }
+
+    /**
+     * Return Organisation identified by id
+     *
+     * @param IntType $id
+     *
+     * @return Organisation
+     *
+     * @throws StorageException
+     */
+    public function getForId(IntType $id)
+    {
+        $record = $this->select(['id' => $id()]);
+        if ($record->count() == 0) {
+            throw new StorageException('Organisation not found');
+        }
+
+        return new Organisation(
+            $id,
+            new StringType($record->current()->offsetGet('name')),
+            Crcy::create($record->current()->offsetGet('crcyCode'))
+        );
     }
 }

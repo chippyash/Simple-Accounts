@@ -21,8 +21,10 @@ use Tree\Node\Node;
 /**
  * A Chart of Accounts
  */
-class Chart
+class Chart implements InternallyIdentifiable
 {
+    use InternallyIdentifying;
+
     /**@+
      * Exception error messages
      */
@@ -55,15 +57,21 @@ class Chart
      * @param StringType $name Chart Name
      * @param Organisation $org Organisation that owns this chart
      * @param Node $tree Tree of accounts
+     * @param IntType|null $internalId default == 0
      */
-    public function __construct(StringType $name, Organisation $org, Node $tree = null)
-    {
+    public function __construct(
+        StringType $name,
+        Organisation $org,
+        Node $tree = null,
+        IntType $internalId = null
+    ) {
         $this->chartName = $name;
         $this->org = $org;
         $this->tree = Match::on($tree)
             ->Tree_Node_Node($tree)
             ->null(new Node())
             ->value();
+        $this->internalId =(is_null($internalId) ? new IntType(0): $internalId);
     }
 
     /**
@@ -77,7 +85,7 @@ class Chart
      */
     public function addAccount(Account $account, Nominal $parent = null)
     {
-        Match::on($this->tryHasNode($account->getId(), self::ERR_ACEXISTS))
+        Match::on($this->tryHasNode($account->getNominal(), self::ERR_ACEXISTS))
             ->Monad_FTry_Success(
                 Success::create(
                     Match::on($parent)
@@ -193,8 +201,9 @@ class Chart
                 ->value()
         )
             ->Tree_Node_Node(function ($node) {
+                /** @var Account $v */
                 $v = $node->getValue();
-                return is_null($v) ? null : $v->getId();
+                return is_null($v) ? null : $v->getNominal();
             })
             ->value();
     }

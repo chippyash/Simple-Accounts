@@ -8,7 +8,9 @@
  */
 namespace SAccounts\Storage\Exceptions;
 
-class StorageException extends \Exception
+use SAccounts\AccountsException;
+
+class StorageException extends AccountsException
 {
 
 }

@@ -183,6 +183,7 @@ EOF;
             new Nominal('100000'),
             AccountType::REAL(),
             new StringType('COA Sub ledger'),
+            null,
             new IntType($prnt)
         );
 
@@ -196,10 +197,25 @@ EOF;
             new Nominal('000000'),
             AccountType::REAL(),
             new StringType('COA'),
+            null,
             new IntType(0)
         );
 
         $this->assertEquals(0, $this->linkGw->select(['prnt' => 0])->count());
+    }
+
+    public function testYouCanOptionallyProvideTheInternalId()
+    {
+        $this->assertEquals(
+            12,
+            $this->sut->create(
+                new IntType(1),
+                new Nominal('000000'),
+                AccountType::REAL(),
+                new StringType('COA'),
+                new IntType(12)
+            )
+        );
     }
 
 }

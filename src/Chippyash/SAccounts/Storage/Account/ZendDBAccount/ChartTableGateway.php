@@ -11,7 +11,9 @@ namespace SAccounts\Storage\Account\ZendDBAccount;
 use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
-use SAccounts\Chart;
+use SAccounts\RecordStatus;
+use SAccounts\RecordStatusRecordable;
+use SAccounts\Storage\Exceptions\StorageException;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -23,13 +25,14 @@ use Zend\Db\TableGateway\TableGateway;
  *   id: int Chart id IDX
  *   name: string Chart Name PK
  *   orgId: int Organisation Id PK
+ *   crcyCode: char(3)
  *
- * @method RecordStatus getStatus(array $key) $key = [id=>int]
- * @method bool setStatus(RecordStatus $status, array $key) $key = [id=>int]
+ * @method RecordStatus getStatus(array $key = null) $key = [id=>int]
+ * @method bool setStatus(RecordStatus $status, array $key = null) $key = [id=>int]
  */
 class ChartTableGateway extends TableGateway implements RecordStatusRecordable
 {
-    use RecordStatusRecording;
+    use DbRecordStatusRecording;
 
     /**
      * Constructor.
@@ -45,7 +48,6 @@ class ChartTableGateway extends TableGateway implements RecordStatusRecordable
         $resultSetPrototype = null,
         $sql = null
     ) {
-
         parent::__construct('sa_coa', $adapter, $features, $resultSetPrototype, $sql);
     }
 
@@ -73,33 +75,26 @@ class ChartTableGateway extends TableGateway implements RecordStatusRecordable
      * @param StringType $coaName
      * @param IntType $orgId
      * @param Currency $currency
+     * @param IntType|null $internalId If null, will create new chart record id
      *
      * @return int The chart record id
      */
-    public function create(StringType $coaName, IntType $orgId, Currency $currency)
-    {
+    public function create(
+        StringType $coaName,
+        IntType $orgId,
+        Currency $currency,
+        IntType $internalId = null
+    ) {
         $this->insert(
             [
                 'name' => $coaName(),
                 'orgId' => $orgId(),
-                'crcyCode' => $currency->getCode()
+                'crcyCode' => $currency->getCode(),
+                'id' => (is_null($internalId) ? null : $internalId())
             ]
         );
 
         return (int) $this->lastInsertValue;
-    }
-
-    /**
-     * Fetch chart definition from DB
-     *
-     * @param StringType $name
-     * @param IntType $orgId
-     *
-     * @return Chart
-     */
-    public function fetchChart(StringType $name, IntType $orgId)
-    {
-
     }
 
     /**
@@ -109,16 +104,24 @@ class ChartTableGateway extends TableGateway implements RecordStatusRecordable
      * @param IntType    $orgId
      *
      * @return int
+     *
+     * @throws StorageException
      */
     public function getIdForChart(StringType $name, IntType $orgId)
     {
-        return (int) $this->select(
+        $record = $this->select(
             [
                 'name' => $name(),
                 'orgId' => $orgId()
             ]
-        )->current()
+        );
+
+        if ($record->count() == 0) {
+            throw new StorageException('No chart found');
+        }
+
+        return (int) $record
+            ->current()
             ->offsetGet('id');
     }
-
 }

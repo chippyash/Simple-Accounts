@@ -14,9 +14,11 @@
         <xs:sequence>
             <xs:element type="accountType" name="account" maxOccurs="unbounded" minOccurs="0"/>
         </xs:sequence>
+        <xs:attribute type="xs:integer" name="id" use="optional" default="0"/>
         <xs:attribute type="nominalType" name="nominal" use="required"/>
         <xs:attribute type="accountBaseType" name="type" use="required"/>
         <xs:attribute type="xs:token" name="name" use="required"/>
+        <xs:attribute type="recordStatus" name="status" default="active"/>
     </xs:complexType>
 
     <xs:simpleType name="nominalType">
@@ -38,6 +40,14 @@
             <xs:enumeration value="equity"/>
             <xs:enumeration value="liability"/>
             <xs:enumeration value="supplier"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="recordStatus">
+        <xs:restriction base="xs:token">
+            <xs:enumeration value="active"/>
+            <xs:enumeration value="suspended"/>
+            <xs:enumeration value="defunct"/>
         </xs:restriction>
     </xs:simpleType>
 </xs:schema>

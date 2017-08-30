@@ -14,12 +14,9 @@ use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 
-class Organisation
+class Organisation implements InternallyIdentifiable
 {
-    /**
-     * @var IntType
-     */
-    protected $id;
+    use InternallyIdentifying;
 
     /**
      * @var StringType
@@ -33,17 +30,9 @@ class Organisation
 
     public function __construct(IntType $id, StringType $name, Currency $crcy)
     {
-        $this-> id = $id;
+        $this->internalId = $id;
         $this->name = $name;
         $this->crcy = $crcy;
-    }
-
-    /**
-     * @return IntType
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**
@@ -68,5 +57,14 @@ class Organisation
     public function getCurrencyCode()
     {
         return $this->crcy->getCode();
+    }
+
+    /**
+     * @deprecated Use id()
+     * @return IntType
+     */
+    public function getId()
+    {
+        return $this->internalId;
     }
 }

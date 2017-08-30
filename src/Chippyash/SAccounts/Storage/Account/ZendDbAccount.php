@@ -17,10 +17,12 @@ use SAccounts\AccountType;
 use SAccounts\Chart;
 use SAccounts\Nominal;
 use SAccounts\Organisation;
+use SAccounts\RecordStatus;
 use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerLinkTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\ChartTableGateway;
 use SAccounts\Storage\Account\ZendDBAccount\OrgTableGateway;
+use SAccounts\Storage\Exceptions\StorageException;
 use Tree\Node\NodeInterface;
 use Tree\Visitor\Visitor;
 use Zend\Db\Adapter\AdapterInterface;
@@ -69,6 +71,12 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
      * @var Intype|null
      */
     private $currentChartId = null;
+    /**
+     * The current chart we are processing
+     *
+     * @var Chart|null
+     */
+    private $currentChart = null;
 
     public function __construct(
         OrgTableGateway $orgGW,
@@ -89,10 +97,15 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
      * @param IntType $orgId that the chart belongs to
      *
      * @return Chart
+     *
+     * @throws StorageException
      */
     public function fetch(StringType $name, IntType $orgId)
     {
         $orgRecord = $this->orgGW->select(['id' => $orgId()])->current();
+        if(is_null($orgRecord)) {
+            throw new StorageException('Organisation not found');
+        }
         $org = new Organisation(
             $orgId,
             new StringType($orgRecord->offsetGet('name')),
@@ -119,12 +132,15 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
             }
 
             $acType = AccountType::search((int) $accountRecord->offsetGet('type'));
+            $status = RecordStatus::search($accountRecord->offsetGet('rowSts'));
             $chart->addAccount(
                 new Account(
                     $chart,
                     new Nominal($accountRecord->offsetGet('nominal')),
                     AccountType::$acType(),
-                    new StringType($accountRecord->offsetGet('name'))
+                    new StringType($accountRecord->offsetGet('name')),
+                    new IntType($accountRecord->offsetGet('id')),
+                    RecordStatus::$status()
                 ),
                 $prntNominal
             );
@@ -151,12 +167,12 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
     public function send(Chart $chart)
     {
         $org = $chart->getOrg();
-        if (!$this->orgGW->has($org->getId())) {
+        if (!$this->orgGW->has($org->id())) {
             //create the organisation record
             $orgId = $this->orgGW->create(
                 $org->getName(),
                 $org->getCurrency(),
-                $org->getId()
+                $org->id()
             );
             //modify chart to use org record with an id that is known
             $chart = new Chart(
@@ -166,20 +182,22 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
             );
         }
 
-        if (!$this->chartGW->has($chart->getName(), $chart->getOrg()->getId())) {
+        if (!$this->chartGW->has($chart->getName(), $chart->getOrg()->id())) {
             //create chart with current account balances
             $this->currentChartId = new IntType(
                 $this->chartGW->create(
                     $chart->getName(),
-                    $chart->getOrg()->getId(),
+                    $chart->getOrg()->id(),
                     $chart->getOrg()->getCurrency()
                 )
             );
 
+            $this->currentChart= $chart;
             $this->visitForCreate = true;
             $chart->getTree()->accept($this);
             $this->visitForCreate = false;
             $this->currentChartId = null;
+            $this->currentChart = null;
 
             return true;
         }
@@ -188,13 +206,15 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
         $this->currentChartId = new IntType(
             $this->chartGW->getIdForChart(
                 $chart->getName(),
-                $chart->getOrg()->getId()
+                $chart->getOrg()->id()
             )
         );
+        $this->currentChart= $chart;
         $this->visitForUpdate = true;
         $chart->getTree()->accept($this);
         $this->visitForUpdate = false;
         $this->currentChartId = null;
+        $this->currentChart= null;
 
         return true;
     }
@@ -228,20 +248,34 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
         $account = $node->getValue();
 
         //does the node exist in the chart storage?
-        if (!$this->ledgerGW->has($this->currentChartId, $account->getId())) {
+        if (!$this->ledgerGW->has($this->currentChartId, $account->getNominal())) {
             //if not, then create it
             /** @var Account $account */
             $prntAccount = $node->getParent()->getValue();
             $prntAccountId = new IntType(
-                $this->ledgerGW->getIdForLedger($this->currentChartId, $prntAccount->getId())
+                $this->ledgerGW->getIdForLedger($this->currentChartId, $prntAccount->getNominal())
             );
 
-            $this->ledgerGW->create(
+            $internalId = ($account->id()->get() == 0 ? null : $account->id());
+            $ledgerId = $this->ledgerGW->create(
                 $this->currentChartId,
-                $account->getId(),
+                $account->getNominal(),
                 $account->getType(),
                 $account->getName(),
+                $internalId,
                 $prntAccountId
+            );
+
+            //save account with its new internal id into tree
+            $node->setValue(
+                new Account(
+                    $this->currentChart,
+                    $account->getNominal(),
+                    $account->getType(),
+                    $account->getName(),
+                    new IntType($ledgerId),
+                    $account->getStatus()
+                )
             );
         }
 
@@ -268,16 +302,18 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
         $prntAccountId = null;
         if (!is_null($parent)) {
             $prntAccountId = new IntType(
-                $this->ledgerGW->getIdForLedger($this->currentChartId, $parent->getValue()->getId())
+                $this->ledgerGW->getIdForLedger($this->currentChartId, $parent->getValue()->getNominal())
             );
         }
 
         //create the ledger record and get its internal id
+        $internalId = ($account->id()->get() == 0 ? null : $account->id());
         $ledgerId = $this->ledgerGW->create(
             $this->currentChartId,
-            $account->getId(),
+            $account->getNominal(),
             $account->getType(),
             $account->getName(),
+            $internalId,
             $prntAccountId
         );
 
@@ -290,6 +326,18 @@ class ZendDbAccount implements AccountStorageInterface, Visitor
             [
                 'id' => $ledgerId
             ]
+        );
+
+        //save account with its new internal id into tree
+        $node->setValue(
+            new Account(
+                $this->currentChart,
+                $account->getNominal(),
+                $account->getType(),
+                $account->getName(),
+                new IntType($ledgerId),
+                $account->getStatus()
+            )
         );
 
         foreach ($node->getChildren() as $child) {

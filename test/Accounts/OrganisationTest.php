@@ -28,7 +28,7 @@ class OrganisationTest extends \PHPUnit_Framework_TestCase {
 
     public function testYouCanGetOrganisationId()
     {
-        $this->assertEquals(1, $this->sut->getId()->get());
+        $this->assertEquals(1, $this->sut->id()->get());
     }
 
     public function testYouCanGetOrganisationName()

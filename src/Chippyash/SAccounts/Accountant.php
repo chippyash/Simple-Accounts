@@ -206,22 +206,27 @@ class Accountant
     protected function buildTree(Node $tree, \DOMNode $node, Chart $chart, array $accountTypes)
     {
         //create current node
-        list($nominal, $type, $name) = FFor::create()
+        list($nominal, $type, $name, $id) = FFor::create()
             ->attributes(function () use ($node) {
                 return $node->attributes;
             })
-            ->nominal(function ($attributes) {
+            ->nominal(function (\DOMNamedNodeMap $attributes) {
                 return new Nominal($attributes->getNamedItem('nominal')->nodeValue);
             })
-            ->name(function ($attributes) {
+            ->name(function (\DOMNamedNodeMap $attributes) {
                 return new StringType($attributes->getNamedItem('name')->nodeValue);
             })
-            ->type(function ($attributes) use ($accountTypes) {
-                return new AccountType($accountTypes[strtoupper($attributes->getNamedItem('type')->nodeValue)]);
+            ->type(function (\DOMNamedNodeMap $attributes) use ($accountTypes) {
+                return new AccountType(
+                    $accountTypes[strtoupper($attributes->getNamedItem('type')->nodeValue)]
+                );
             })
-            ->fyield('nominal', 'type', 'name');
+            ->id(function (\DOMNamedNodeMap $attributes) {
+                return new IntType($attributes->getNamedItem('id')->nodeValue);
+            })
+            ->fyield('nominal', 'type', 'name', 'id');
 
-        $tree->setValue(new Account($chart, $nominal, $type, $name));
+        $tree->setValue(new Account($chart, $nominal, $type, $name, $id));
 
         //recurse through sub accounts
         foreach ($node->childNodes as $childNode) {

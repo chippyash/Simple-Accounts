@@ -138,7 +138,7 @@ $chart->addAccount($ac)
 
 <pre>
 ac2 = new Account($chart, new Nominal('2100'), AccountType::BANK(), new StringType('Bank'));
-$chart->addAccount($ac, $ac1->getId())
+$chart->addAccount($ac, $ac1->id())
 </pre>
 
 #### Saving the chart
@@ -307,13 +307,15 @@ $txnId = $txn->getId() //returns IntType
 </pre>
 
 You don't need to save the Journal, as it is inherently transactional, but don't forget 
-to save your Chart once you have finished writing transactions!
+to save your Chart once you have finished writing transactions. (If you are using
+The database storage mechanisms, you only need to save that chart if you have
+amended it as the balances will be updated when you create transactions.)
 
 The full power of the transaction is provided by the `SplitTransaction`. And remember,
  that when you read transactions back from the journal they will be in SplitTransaction
  format.  A split transaction allows you to have, say, one debit entry and three credit
  entries.  As long as the total debit entry amounts equal the total credit entry 
- amounts, you have a balanced transaction, i.e. valid double entry transaction.
+ amounts, you have a balanced transaction, i.e. a valid double entry transaction.
  
 With power comes a little more complexity, as you'd expect! 
 

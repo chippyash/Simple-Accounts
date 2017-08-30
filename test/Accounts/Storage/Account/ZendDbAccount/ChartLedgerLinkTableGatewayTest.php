@@ -10,7 +10,7 @@ namespace Chippyash\Test\SAccounts\Storage\Account\ZendDBAccount;
 
 
 use Chippyash\Type\Number\IntType;
-use SAccounts\Storage\Account\ZendDBAccount\RecordStatus;
+use SAccounts\RecordStatus;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use SAccounts\Storage\Account\ZendDBAccount\ChartLedgerLinkTableGateway;
 
@@ -165,7 +165,7 @@ EOF;
             ]
         );
         $this->assertInstanceOf(
-            '\SAccounts\Storage\Account\ZendDBAccount\RecordStatus',
+            '\SAccounts\RecordStatus',
             $test
         );
         $this->assertEquals('defunct', $test->getValue());

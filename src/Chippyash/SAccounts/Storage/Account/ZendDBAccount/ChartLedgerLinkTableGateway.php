@@ -11,6 +11,8 @@ namespace SAccounts\Storage\Account\ZendDBAccount;
 use Chippyash\Type\Number\IntType;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\TableGateway\TableGateway;
+use SAccounts\RecordStatusRecordable;
+use SAccounts\RecordStatus;
 
 /**
  * Data model for Chart of Accounts Ledger entries
@@ -25,7 +27,7 @@ use Zend\Db\TableGateway\TableGateway;
  */
 class ChartLedgerLinkTableGateway extends TableGateway implements RecordStatusRecordable
 {
-    use RecordStatusRecording;
+    use DbRecordStatusRecording;
 
     /**
      * Constructor.
@@ -85,5 +87,4 @@ class ChartLedgerLinkTableGateway extends TableGateway implements RecordStatusRe
 
         return new IntType($result->current()->offsetGet('prnt'));
     }
-
 }

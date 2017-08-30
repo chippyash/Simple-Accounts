@@ -36,7 +36,7 @@ class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
     /**
      * System Under Test
      *
-     * @var
+     * @var ZendDBAccount
      */
     protected $sut;
     /**
@@ -109,87 +109,113 @@ class ZendDbAccountTest extends \PHPUnit_Framework_TestCase
         $db->query('delete from sa_coa_link', DbAdapter::QUERY_MODE_EXECUTE);
     }
 
-//    public function testYouCanSendANewChartToStorageAndItWillStoreAccountBalances()
-//    {
-//        $this->chart->getAccount(new Nominal('7100'))
-//            ->debit(Crcy::create('GBP', 10));
-//        $this->chart->getAccount(new Nominal('2100'))
-//            ->credit(Crcy::create('GBP', 10));
-//
-//        $this->assertTrue($this->sut->send($this->chart));
-//
-//        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
-//        $this->assertEquals(1000, $balance['acDr']);
-//        $this->assertEquals(1000, $balance['acCr']);
-//
-//        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
-//        $this->assertEquals(1000, $balance['acDr']);
-//        $this->assertEquals(0, $balance['acCr']);
-//
-//        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
-//        $this->assertEquals(0, $balance['acDr']);
-//        $this->assertEquals(1000, $balance['acCr']);
-//
-//        $this->assertEquals(21, $this->linkGW->select()->count());
-//    }
-//
-//    public function testYouCanSendAnAmendedChartToStorageAndItWillNotStoreAccountBalances()
-//    {
-//        //set up original chart with balances
-//        $this->chart->getAccount(new Nominal('7100'))
-//            ->debit(Crcy::create('GBP', 10));
-//        $this->chart->getAccount(new Nominal('2100'))
-//            ->credit(Crcy::create('GBP', 10));
-//
-//        $this->assertTrue($this->sut->send($this->chart));
-//
-//        //add an account and new balances
-//        $this->chart->addAccount(
-//            new Account(
-//                $this->chart,
-//                new Nominal('7110'),
-//                AccountType::EXPENSE(),
-//                new StringType('Utilities')
-//            ),
-//            new Nominal('7100')
-//        )->getAccount(new Nominal('7110'))
-//            ->credit(Crcy::create('GBP', 30));
-//        $this->chart->getAccount(new Nominal('2100'))
-//            ->debit(Crcy::create('GBP', 30));
-//
-//        //and send the amended chart
-//        $this->assertTrue($this->sut->send($this->chart));
-//
-//        //balances should be as per before adding the new account
-//        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
-//        $this->assertEquals(1000, $balance['acDr']);
-//        $this->assertEquals(1000, $balance['acCr']);
-//
-//        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
-//        $this->assertEquals(1000, $balance['acDr']);
-//        $this->assertEquals(0, $balance['acCr']);
-//
-//        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
-//        $this->assertEquals(0, $balance['acDr']);
-//        $this->assertEquals(1000, $balance['acCr']);
-//
-//        //even though we set a balance on new account it hasn't been recorded
-//        $balance = $this->ledgerGW->select(['nominal' => '2110'])->toArray()[0];
-//        $this->assertEquals(0, $balance['acDr']);
-//        $this->assertEquals(0, $balance['acCr']);
-//
-//        //but we have a new link
-//        $this->assertEquals(22, $this->linkGW->select()->count());
-//    }
+    public function testYouCanSendANewChartToStorageAndItWillStoreAccountBalances()
+    {
+        $this->chart->getAccount(new Nominal('7100'))
+            ->debit(Crcy::create('GBP', 10));
+        $this->chart->getAccount(new Nominal('2100'))
+            ->credit(Crcy::create('GBP', 10));
+
+        $this->assertTrue($this->sut->send($this->chart));
+
+        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
+        $this->assertEquals(1000, $balance['acDr']);
+        $this->assertEquals(1000, $balance['acCr']);
+
+        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
+        $this->assertEquals(1000, $balance['acDr']);
+        $this->assertEquals(0, $balance['acCr']);
+
+        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
+        $this->assertEquals(0, $balance['acDr']);
+        $this->assertEquals(1000, $balance['acCr']);
+
+        $this->assertEquals(21, $this->linkGW->select()->count());
+    }
+
+    public function testYouCanSendAnAmendedChartToStorageAndItWillNotStoreAccountBalances()
+    {
+        //set up original chart with balances
+        $this->chart->getAccount(new Nominal('7100'))
+            ->debit(Crcy::create('GBP', 10));
+        $this->chart->getAccount(new Nominal('2100'))
+            ->credit(Crcy::create('GBP', 10));
+
+        $this->assertTrue($this->sut->send($this->chart));
+
+        //add an account and new balances
+        $this->chart->addAccount(
+            new Account(
+                $this->chart,
+                new Nominal('7110'),
+                AccountType::EXPENSE(),
+                new StringType('Utilities')
+            ),
+            new Nominal('7100')
+        )->getAccount(new Nominal('7110'))
+            ->credit(Crcy::create('GBP', 30));
+        $this->chart->getAccount(new Nominal('2100'))
+            ->debit(Crcy::create('GBP', 30));
+
+        //and send the amended chart
+        $this->assertTrue($this->sut->send($this->chart));
+
+        //balances should be as per before adding the new account
+        $balance = $this->ledgerGW->select(['nominal' => '0000'])->toArray()[0];
+        $this->assertEquals(1000, $balance['acDr']);
+        $this->assertEquals(1000, $balance['acCr']);
+
+        $balance = $this->ledgerGW->select(['nominal' => '7100'])->toArray()[0];
+        $this->assertEquals(1000, $balance['acDr']);
+        $this->assertEquals(0, $balance['acCr']);
+
+        $balance = $this->ledgerGW->select(['nominal' => '2100'])->toArray()[0];
+        $this->assertEquals(0, $balance['acDr']);
+        $this->assertEquals(1000, $balance['acCr']);
+
+        //even though we set a balance on new account it hasn't been recorded
+        $balance = $this->ledgerGW->select(['nominal' => '2110'])->toArray()[0];
+        $this->assertEquals(0, $balance['acDr']);
+        $this->assertEquals(0, $balance['acCr']);
+
+        //but we have a new link
+        $this->assertEquals(22, $this->linkGW->select()->count());
+    }
 
     public function testYouCanFetchAnExistingChart()
     {
         $this->assertTrue($this->sut->send($this->chart));
 
-        $this->assertInstanceOf(
-            '\SAccounts\Chart',
-            $this->sut->fetch(new StringType('Test'), new IntType(1))
-            );
+        /** @var Chart $chart */
+        $chart = $this->sut->fetch(new StringType('Test'), new IntType(1));
+
+        $this->assertInstanceOf('\SAccounts\Chart', $chart);
+
+        $tree = $chart->getTree();
+        $this->assertTrue($tree->isRoot());
+        //first element of root is the COA head account
+        $this->assertEquals(2,count($tree->getChildren()[0]->getChildren()));
+    }
+
+    /**
+     * @expectedException \SAccounts\Storage\Exceptions\StorageException
+     */
+    public function testFetchingAChartWillThrowAnExceptionIfOrganisationDoesNotExist()
+    {
+        $this->sut->fetch(new StringType('Test'), new IntType(1));
+    }
+
+    /**
+     * @expectedException \SAccounts\Storage\Exceptions\StorageException
+     */
+    public function testFetchingANonExistentChartWillThrowAnException()
+    {
+        $this->orgGW->create(
+            new StringType('Foo'),
+            Crcy::create('GBP'),
+            new IntType(1)
+        );
+        $this->sut->fetch(new StringType('Test'), new IntType(1));
     }
 
     /**
@@ -235,7 +261,7 @@ EOF;
         $db->query("INSERT INTO sa_crcy (code) VALUES ('GBP'), ('EUR'), ('USD')");
 
         //Organisation table
-        $ddl = 'create table if not exists sa_org (id INTEGER PRIMARY KEY ASC, name TEXT, crcyCode TEXT)';
+        $ddl = 'create table if not exists sa_org (id INTEGER PRIMARY KEY, name TEXT, crcyCode TEXT, rowSts TEXT DEFAULT \'active\')';
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
         $db->query('delete from sa_org', DbAdapter::QUERY_MODE_EXECUTE);
 
@@ -248,7 +274,8 @@ create table IF NOT EXISTS sa_coa
   name TEXT,
   crcyCode TEXT,
   acDr INTEGER,
-  acCr INTEGER
+  acCr INTEGER,
+  rowSts TEXT DEFAULT 'active'
 )
 EOF;
 
@@ -265,7 +292,8 @@ create table if not exists sa_coa_ledger
   type TEXT NOT NULL ,
   name TEXT NOT NULL ,
   acDr INTEGER DEFAULT 0,
-  acCr INTEGER DEFAULT 0
+  acCr INTEGER DEFAULT 0,
+  rowSts TEXT DEFAULT 'active'
 )
 EOF;
         $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
@@ -277,6 +305,7 @@ create table if not exists sa_coa_link
 (
   prnt INTEGER not null,
   child INTEGER not null,
+  rowSts TEXT DEFAULT 'active',
   primary key (prnt, child)
 )
 EOF;
@@ -300,35 +329,35 @@ EOF;
 <chart  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="chart-definition.xsd"
         name="Personal">
-    <account nominal="0000" type="real" name="COA">
-        <account nominal="1000" type="real" name="Balance Sheet">
-            <account nominal="2000" type="asset" name="Assets">
-                <account nominal="2100" type="bank" name="At Bank">
-                    <account nominal="2110" type="bank" name="Current Account"/>
-                    <account nominal="2120" type="bank" name="Savings Account"/>
+    <account id="1" nominal="0000" type="real" name="COA">
+        <account id="2" nominal="1000" type="real" name="Balance Sheet">
+           <account id="3" nominal="2000" type="asset" name="Assets">
+                <account id="4" nominal="2100" type="bank" name="At Bank">
+                    <account id="5" nominal="2110" type="bank" name="Current Account"/>
+                    <account id="6" nominal="2120" type="bank" name="Savings Account"/>
                 </account>
-                <account nominal="3000" type="liability" name="Liabilities">
-                    <account nominal="3100" type="equity" name="Equity">
-                        <account nominal="3110" type="equity" name="Opening Balance"/>
-                    </account>
-                    <account nominal="3200" type="liability" name="Loans">
-                        <account nominal="3210" type="liability" name="Mortgage"/>
-                    </account>
+            </account>
+            <account id="7" nominal="3000" type="liability" name="Liabilities">
+                <account id="8" nominal="3100" type="equity" name="Equity">
+                    <account id="9" nominal="3110" type="equity" name="Opening Balance"/>
+                </account>
+                <account id="10" nominal="3200" type="liability" name="Loans">
+                    <account id="11" nominal="3210" type="liability" name="Mortgage"/>
                 </account>
             </account>
         </account>
-        <account nominal="5000" type="real" name="Profit And Loss">
-            <account nominal="6000" type="income" name="Income">
-                <account nominal="6100" type="income" name="Salary"/>
-                <account nominal="6200" type="income" name="Interest Received"/>
+        <account id="12" nominal="5000" type="real" name="Profit And Loss">
+            <account id="13" nominal="6000" type="income" name="Income">
+                <account id="14" nominal="6100" type="income" name="Salary"/>
+                <account id="15" nominal="6200" type="income" name="Interest Received"/>
             </account>
-            <account nominal="7000" type="expense" name="Expenses">
-                <account nominal="7100" type="expense" name="House"/>
-                <account nominal="7200" type="expense" name="Travel"/>
-                <account nominal="7300" type="expense" name="Insurance"/>
-                <account nominal="7400" type="expense" name="Food"/>
-                <account nominal="7500" type="expense" name="Leisure"/>
-                <account nominal="7600" type="expense" name="Interest Payments"/>
+            <account id="16" nominal="7000" type="expense" name="Expenses">
+                <account id="17" nominal="7100" type="expense" name="House"/>
+                <account id="18" nominal="7200" type="expense" name="Travel"/>
+                <account id="19" nominal="7300" type="expense" name="Insurance"/>
+                <account id="20" nominal="7400" type="expense" name="Food"/>
+                <account id="21" nominal="7500" type="expense" name="Leisure"/>
+                <account id="22" nominal="7600" type="expense" name="Interest Payments"/>
             </account>
         </account>
     </account>

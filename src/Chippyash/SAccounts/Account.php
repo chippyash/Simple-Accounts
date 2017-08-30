@@ -10,6 +10,7 @@ namespace SAccounts;
 
 use Chippyash\Currency\Currency;
 use Chippyash\Currency\Factory;
+use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use Monad\FTry;
 use Monad\Match;
@@ -19,8 +20,11 @@ use Monad\Option;
  * An Account
  *
  */
-class Account
+class Account implements RecordStatusRecordable, InternallyIdentifiable
 {
+    use RecordStatusRecording;
+    use InternallyIdentifying;
+
     /**
      * Chart that this account belongs to
      *
@@ -33,7 +37,7 @@ class Account
      *
      * @var Nominal
      */
-    protected $id;
+    protected $nominal;
 
     /**
      * Account Type
@@ -63,15 +67,33 @@ class Account
      */
 	protected $acCr;
 
-    public function __construct(Chart $chart, Nominal $id, AccountType $type, StringType $name)
-    {
+    /**
+     * Account constructor.
+     *
+     * @param Chart             $chart
+     * @param Nominal           $id
+     * @param AccountType       $type
+     * @param StringType        $name
+     * @param IntType           $internalId default = 0
+     * @param RecordStatus|null $status default == active
+     */
+    public function __construct(
+        Chart $chart,
+        Nominal $nominal,
+        AccountType $type,
+        StringType $name,
+        IntType $internalId = null,
+        RecordStatus $status = null
+    ) {
         $this->chart = $chart;
-        $this->id = $id;
+        $this->nominal = $nominal;
         $this->type= $type;
         $this->name = $name;
         $currencyClass = $this->chart->getOrg()->getCurrencyCode()->get();
         $this->acDr = Factory::create($currencyClass);
         $this->acCr = Factory::create($currencyClass);
+        $this->recordStatus = (is_null($status) ? RecordStatus::ACTIVE() : $status);
+        $this->internalId = (is_null($internalId) ? new IntType(0) : $internalId);
     }
 
     /**
@@ -146,9 +168,9 @@ class Account
      *
      * @return Nominal
      */
-    public function getId()
+    public function getNominal()
     {
-        return $this->id;
+        return $this->nominal;
     }
 
     /**
@@ -191,9 +213,8 @@ class Account
         return $this->chart;
     }
 
-
     /**
-     * Get parent id as an Option
+     * Get parent nominal id as an Option
      *
      * @return Option
      */
@@ -202,7 +223,7 @@ class Account
         return Match::on(
             FTry::with(
                 function () {
-                    return $this->chart->getParentId($this->id);
+                    return $this->chart->getParentId($this->nominal);
                 }
             )
         )

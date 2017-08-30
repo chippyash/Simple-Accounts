@@ -12,6 +12,8 @@ use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\AccountType;
 use SAccounts\Nominal;
+use SAccounts\RecordStatus;
+use SAccounts\RecordStatusRecordable;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\TableGateway\TableGateway;
 
@@ -28,12 +30,12 @@ use Zend\Db\TableGateway\TableGateway;
  *   acCr: int Credit amount
  *   acDr: int Debit amount
  *
- * @method RecordStatus getStatus(array $key) $key = [id=>int]
- * @method bool setStatus(RecordStatus $status, array $key) $key = [id=>int]
+ * @method RecordStatus getStatus(array $key = null) $key = [id=>int]
+ * @method bool setStatus(RecordStatus $status, array $key = null) $key = [id=>int]
  */
 class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecordable
 {
-    use RecordStatusRecording;
+    use DbRecordStatusRecording;
 
     /**
      * @var ChartLedgerLinkTableGateway
@@ -85,6 +87,7 @@ class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecord
      * @param Nominal $nominal Nominal account code
      * @param AccountType $type Type of account
      * @param StringType $name Name of account
+     * @param IntType $internalId|null default = 0 -new internal id will be created
      * @param IntType|null $prntId Internal id of parent of this ledger account
      *
      * @return int Internal id
@@ -94,6 +97,7 @@ class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecord
         Nominal $nominal,
         AccountType $type,
         StringType $name,
+        IntType $internalId = null,
         IntType $prntId = null
     ) {
         $this->insert(
@@ -101,7 +105,8 @@ class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecord
                 'chartId' => $chartId(),
                 'nominal' => $nominal(),
                 'type' => $type->getValue(),
-                'name' => $name()
+                'name' => $name(),
+                'id' => (is_null($internalId) ? null : $internalId())
             ]
         );
 
@@ -137,5 +142,4 @@ class ChartLedgerTableGateway extends TableGateway implements RecordStatusRecord
             ->offsetGet('id');
 
     }
-
 }

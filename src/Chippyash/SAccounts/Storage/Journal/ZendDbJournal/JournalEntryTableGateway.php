@@ -6,28 +6,26 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license GPL V3+ See LICENSE.md
  */
-namespace SAccounts\Storage\Account\ZendDB;
+namespace SAccounts\Storage\Journal\ZendDbJournal;
 
 use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
-use Chippyash\Type\String\StringType;
+use SAccounts\Nominal;
 use Zend\Db\Adapter\AdapterInterface;
 use Zend\Db\TableGateway\TableGateway;
 
 /**
- * Data model for Journal Header records
+ * Data model for Journal Entry records
  *
  * Table name = sa_journal
  * Columns:
- *   id: int Journal id PK
- *   chartId: int Chart Id FK
- *   date: DateTime
- *   note: string
- *
- * @method RecordStatus getStatus(array $key) $key = [id=>int]
- * @method bool setStatus(RecordStatus $status, array $key) $key = [id=>int]
+ *   id: int Entry id PK
+ *   jrnId: int Journal Id FK
+ *   nominal: Nominal
+ *   acDr: Currency
+ *   acCr: Currency
  */
-class JournalTableGateway extends TableGateway
+class JournalEntryTableGateway extends TableGateway
 {
     /**
      * Constructor.
@@ -43,12 +41,11 @@ class JournalTableGateway extends TableGateway
         $resultSetPrototype = null,
         $sql = null
     ) {
-
-        parent::__construct('sa_journal', $adapter, $features, $resultSetPrototype, $sql);
+        parent::__construct('sa_journal_entry', $adapter, $features, $resultSetPrototype, $sql);
     }
 
     /**
-     * Does the table have required journal header record?
+     * Does the table have required journal entry record?
      *
      * @param IntType $id
      *
@@ -60,22 +57,23 @@ class JournalTableGateway extends TableGateway
     }
 
     /**
-     * Create a new journal header record
+     * Create a new journal entry record
      *
-     * @param IntType   $chartId    Id of chart that this record is for
-     * @param StringType   $note    Note for entry
-     * @param \DateTime|null  $date  Entry date.  Default == now()
+     * @param IntType   $jrnId    Id of journal header that this record is for
+     * @param Nominal   $nominal  Nominal code for entry
+     * @param Currency  $acDr     Debit amount
+     * @param Currency  $acCr     Credit amount
      *
      * @return int Internal id of record
      */
-    public function create(IntType $chartId, StringType $note, \DateTime $date = null)
+    public function create(IntType $jrnId, Nominal $nominal, Currency $acDr, Currency $acCr)
     {
-        $dt = is_null($date) ? null : $date->format('Y-m-d H:i:s');
         $this->insert(
             [
-                'chartId' => $chartId(),
-                'note' => $note(),
-                'date' => $dt
+                'jrnId' => $jrnId(),
+                'nominal' => $nominal(),
+                'acDr' => $acDr(),
+                'acCr' => $acCr()
             ]
         );
 
