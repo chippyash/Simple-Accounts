@@ -10,11 +10,15 @@ namespace Chippyash\Test\SAccounts\Storage\Journal;
 
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
+use SAccounts\AccountType;
 use SAccounts\Journal;
+use SAccounts\Nominal;
 use SAccounts\Storage\Account\ZendDBAccount\ChartTableGateway;
 use SAccounts\Storage\Journal\ZendDbJournal;
 use SAccounts\Storage\Journal\ZendDbJournal\JournalEntryTableGateway;
 use SAccounts\Storage\Journal\ZendDbJournal\JournalTableGateway;
+use SAccounts\Transaction\Entry;
+use SAccounts\Transaction\SimpleTransaction;
 use Zend\Db\Adapter\Adapter as DbAdapter;
 use Chippyash\Currency\Factory as Crcy;
 
@@ -93,6 +97,50 @@ class ZendDbJournalTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('Test', $journal->getName()->get());
     }
 
+    public function testWritingATransactionWillReturnATransactionId()
+    {
+        $txnId = $this->sut->writeTransaction($this->createTransaction('0000','00001',12.26));
+        $this->assertEquals(1, $txnId());
+    }
+
+    /**
+     * @expectedException \SAccounts\AccountsException
+     * @expectedExceptionMessage Transaction is not balanced. Cannot save
+     */
+    public function testYouCannotWriteAnUnbalancedTransaction()
+    {
+        $txn = $this->createTransaction('0000','00001',12.26);
+        $txn->addEntry(new Entry(new Nominal('00002'),Crcy::create('GBP', 14), AccountType::DR()));
+        $this->sut->writeTransaction($txn);
+    }
+
+    public function testWritingTransactionsWillAddRecordsToTheDatabase()
+    {
+        $txnId = $this->sut->writeTransaction($this->createTransaction('0000','00001',12.26));
+        $this->assertEquals(1, $this->journalGW->select(['id'=>$txnId()])->count());
+        $this->assertEquals(2, $this->entryGW->select(['jrnId'=>$txnId()])->count());
+    }
+
+    public function testYouCanRetrieveAJournalEntryByItsTransactionId()
+    {
+        $txnId = $this->sut->writeTransaction($this->createTransaction('0000','00001',12.26));
+        $txn = $this->sut->readTransaction($txnId);
+        $this->assertInstanceOf('Saccounts\Transaction\SplitTransaction', $txn);
+    }
+
+    public function testYouCanFetchAllTransactionsForANominalCode()
+    {
+        $this->sut->writeTransaction($this->createTransaction('0000','00001',12.26));
+        $this->sut->writeTransaction($this->createTransaction('2000','00001',13.74));
+
+        $txns = $this->sut->readTransactions(new Nominal('00001'));
+        $this->assertEquals(2, count($txns));
+        $txns = $this->sut->readTransactions(new Nominal('0000'));
+        $this->assertEquals(1, count($txns));
+        $txns = $this->sut->readTransactions(new Nominal('2000'));
+        $this->assertEquals(1, count($txns));
+    }
+
     /**
      * Set up SQLite database on real file system as it doesn't
      * support streams and cannot therefore use VFSStream
@@ -104,7 +152,7 @@ class ZendDbJournalTest extends \PHPUnit_Framework_TestCase
         self::$zendAdapter = $db = new DbAdapter(
             [
                 'driver' => 'Pdo_sqlite',
-                'database' => __DIR__ . '/../resources/sqlite.db'
+                'database' => __DIR__ . '/resources/sqlite.db'
             ]
         );
 
@@ -157,6 +205,28 @@ EOF;
     public static function tearDownAfterClass()
     {
         self::$zendAdapter = null;
-        unlink(__DIR__ . '/../resources/sqlite.db');
+        unlink(__DIR__ . '/resources/sqlite.db');
+    }
+
+    /**
+     * Create and return a test transaction
+     *
+     * @param $dr
+     * @param $cr
+     * @param $amount
+     * @param null $note
+     *
+     * @return SimpleTransaction
+     */
+    protected function createTransaction($dr, $cr, $amount, $note = null)
+    {
+        $crcy = Crcy::create('gbp', $amount);
+        if (is_null($note)) {
+            $txn = new SimpleTransaction(new Nominal($dr), new Nominal($cr), $crcy);
+        } else {
+            $txn = new SimpleTransaction(new Nominal($dr), new Nominal($cr), $crcy, new StringType($note));
+        }
+
+        return $txn;
     }
 }

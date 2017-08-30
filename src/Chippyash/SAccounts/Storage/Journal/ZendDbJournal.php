@@ -112,9 +112,6 @@ class ZendDbJournal implements JournalStorageInterface
      */
     public function writeTransaction(SplitTransaction $transaction)
     {
-        if (empty($this->chartId)) {
-            throw new AccountsException('Chart id is not set.  Please set journal name');
-        }
         if (!$transaction->checkBalance()) {
             throw new AccountsException('Transaction is not balanced. Cannot save');
         }
@@ -155,7 +152,7 @@ class ZendDbJournal implements JournalStorageInterface
             ->getConnection()
             ->commit();
 
-        return $jId;
+        return new IntType($jId);
     }
 
     /**
@@ -169,13 +166,9 @@ class ZendDbJournal implements JournalStorageInterface
      */
     public function readTransaction(IntType $id)
     {
-        if (empty($this->chartId)) {
-            throw new AccountsException('Chart id is not set.  Please set journal name');
-        }
-
         $jrnRecord = $this->journalGW->select(
             [
-                'id' => $id
+                'id' => $id()
             ]
         );
 
@@ -195,14 +188,16 @@ class ZendDbJournal implements JournalStorageInterface
         ))
         ->setId(new IntType($jrnRecord->current()->offsetGet('id')));
 
-        $crcyCode = $jrnRecord->current()->offsetGet('crcyCode');
+        $currency = Crcy::create($this->crcy->getCode()->get());
+
         foreach ($entries as $entry) {
             $amount = (int) (((int) $entry['acDr'] == 0) ? $entry['acCr'] : $entry['acDr']);
             $type = ((int) $entry['acDr'] == 0) ? AccountType::CR() : AccountType::DR();
+            $crcy = clone $currency;
             $txn->addEntry(
                 new Entry(
                     new Nominal($entry['nominal']),
-                    Crcy::create($crcyCode, $amount),
+                    $crcy->set($amount),
                     $type
                 )
             );
@@ -222,10 +217,6 @@ class ZendDbJournal implements JournalStorageInterface
      */
     public function readTransactions(Nominal $nominal)
     {
-        if (empty($this->chartId)) {
-            throw new AccountsException('Chart id is not set.  Please set journal name');
-        }
-
         $sql = (new Sql($this->chartGW->getAdapter()));
         $select = $sql
             ->select()
