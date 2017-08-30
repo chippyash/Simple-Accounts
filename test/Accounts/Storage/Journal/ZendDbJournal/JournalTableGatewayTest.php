@@ -25,44 +25,6 @@ class JournalTableGatewayTest extends \PHPUnit_Framework_TestCase
      */
     protected $sut;
 
-    /**
-     * Set up SQLite database on real file system as it doesn't
-     * support streams and cannot therefore use VFSStream
-     *
-     * @link https://bugs.php.net/bug.php?id=55154
-     */
-    public static function setUpBeforeClass()
-    {
-        self::$zendAdapter = $db = new DbAdapter(
-            [
-                'driver' => 'Pdo_sqlite',
-                'database' => __DIR__ . '/../resources/sqlite.db'
-            ]
-        );
-
-        //Journal table
-        $ddl = <<<EOF
-create table if NOT EXISTS sa_journal (
-  id INTEGER primary key,
-  chartId INTEGER UNSIGNED not null,
-  note TEXT not null,
-  date DATETIME default CURRENT_TIMESTAMP,
-  ref INT UNSIGNED null
-)
-EOF;
-        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
-        $db->query('delete from sa_journal', DbAdapter::QUERY_MODE_EXECUTE);
-    }
-
-    /**
-     * Remove sqlite db
-     */
-    public static function tearDownAfterClass()
-    {
-        self::$zendAdapter = null;
-        unlink(__DIR__ . '/../resources/sqlite.db');
-    }
-
     protected function setUp()
     {
         $this->sut = new JournalTableGateway(self::$zendAdapter);
@@ -128,5 +90,43 @@ EOF;
                 new IntType(2)
             )
         );
+    }
+
+    /**
+     * Set up SQLite database on real file system as it doesn't
+     * support streams and cannot therefore use VFSStream
+     *
+     * @link https://bugs.php.net/bug.php?id=55154
+     */
+    public static function setUpBeforeClass()
+    {
+        self::$zendAdapter = $db = new DbAdapter(
+            [
+                'driver' => 'Pdo_sqlite',
+                'database' => __DIR__ . '/../resources/sqlite.db'
+            ]
+        );
+
+        //Journal table
+        $ddl = <<<EOF
+create table if NOT EXISTS sa_journal (
+  id INTEGER primary key,
+  chartId INTEGER UNSIGNED not null,
+  note TEXT not null,
+  date DATETIME default CURRENT_TIMESTAMP,
+  ref INT UNSIGNED null
+)
+EOF;
+        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_journal', DbAdapter::QUERY_MODE_EXECUTE);
+    }
+
+    /**
+     * Remove sqlite db
+     */
+    public static function tearDownAfterClass()
+    {
+        self::$zendAdapter = null;
+        unlink(__DIR__ . '/../resources/sqlite.db');
     }
 }

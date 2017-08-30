@@ -6,7 +6,7 @@
  * @copyright Ashley Kitson, 2017, UK
  * @license   GPL V3+ See LICENSE.md
  */
-namespace SAccounts\SAccounts\Storage\Journal;
+namespace SAccounts\Storage\Journal;
 
 use Chippyash\Currency\Currency;
 use Chippyash\Currency\Factory as Crcy;

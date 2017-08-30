@@ -25,46 +25,6 @@ class ChartTableGatewayTest extends \PHPUnit_Framework_TestCase
      */
     protected $sut;
 
-    /**
-     * Set up SQLite database on real file system as it doesn't
-     * support streams and cannot therefore use VFSStream
-     *
-     * @link https://bugs.php.net/bug.php?id=55154
-     */
-    public static function setUpBeforeClass()
-    {
-        self::$zendAdapter = $db = new DbAdapter(
-            [
-                'driver' => 'Pdo_sqlite',
-                'database' => __DIR__ . '/../resources/sqlite.db'
-            ]
-        );
-
-        //COA table
-        $ddl = <<<EOF
-create table if NOT EXISTS sa_coa (
-  id INTEGER primary key,
-  orgId INTEGER not null,
-  name TEXT not null,
-  crcyCode TEXT default 'GBP' not null,
-  rowDt DATETIME DEFAULT CURRENT_TIMESTAMP,
-  rowSts TEXT DEFAULT 'active',
-  rowUid INTEGER DEFAULT 0
-)
-EOF;
-        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
-        $db->query('delete from sa_coa', DbAdapter::QUERY_MODE_EXECUTE);
-    }
-
-    /**
-     * Remove sqlite db
-     */
-    public static function tearDownAfterClass()
-    {
-        self::$zendAdapter = null;
-        unlink(__DIR__ . '/../resources/sqlite.db');
-    }
-
     protected function setUp()
     {
         $this->sut = new ChartTableGateway(self::$zendAdapter);
@@ -136,5 +96,45 @@ EOF;
         $dt = (new \Datetime($test->current()->offsetGet('rowDt')))->format('Y-M-d');
         $now = (new \Datetime())->format('Y-M-d');
         $this->assertEquals($now, $dt);
+    }
+
+    /**
+     * Set up SQLite database on real file system as it doesn't
+     * support streams and cannot therefore use VFSStream
+     *
+     * @link https://bugs.php.net/bug.php?id=55154
+     */
+    public static function setUpBeforeClass()
+    {
+        self::$zendAdapter = $db = new DbAdapter(
+            [
+                'driver' => 'Pdo_sqlite',
+                'database' => __DIR__ . '/../resources/sqlite.db'
+            ]
+        );
+
+        //COA table
+        $ddl = <<<EOF
+create table if NOT EXISTS sa_coa (
+  id INTEGER primary key,
+  orgId INTEGER not null,
+  name TEXT not null,
+  crcyCode TEXT default 'GBP' not null,
+  rowDt DATETIME DEFAULT CURRENT_TIMESTAMP,
+  rowSts TEXT DEFAULT 'active',
+  rowUid INTEGER DEFAULT 0
+)
+EOF;
+        $db->query($ddl, DbAdapter::QUERY_MODE_EXECUTE);
+        $db->query('delete from sa_coa', DbAdapter::QUERY_MODE_EXECUTE);
+    }
+
+    /**
+     * Remove sqlite db
+     */
+    public static function tearDownAfterClass()
+    {
+        self::$zendAdapter = null;
+        unlink(__DIR__ . '/../resources/sqlite.db');
     }
 }
