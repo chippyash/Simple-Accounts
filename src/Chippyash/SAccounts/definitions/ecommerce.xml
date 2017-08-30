@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chart  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="chart-definition.xsd"
+        name="Ecommerce">
+    <!-- https://docs.google.com/spreadsheets/d/1BbvR0aG8ft4J2_oHmTBiEqpqR_Vrehde08C9wWD4LeI/edit#gid=1359122274 -->
+    <account nominal="000000" type="real" name="COA">
+        <account nominal="100000" type="real" name="Balance Sheet">
+            <account nominal="110000" type="asset" name="Assets">
+                <account nominal="111000" type="asset" name="Current Assets">
+                    <account nominal="111100" type="asset" name="Bank Current Account">
+                        <account nominal="111110" type="bank" name="Paypal"/>
+                        <account nominal="111120" type="bank" name="Worldpay"/>
+                    </account>
+                    <account nominal="111200" type="asset" name="Bank Savings Account"/>
+                    <account nominal="111300" type="asset" name="Petty Cash"/>
+                    <account nominal="111400" type="asset" name="Accounts Receivable"/>
+                    <account nominal="111500" type="asset" name="Inventory"/>
+                </account>
+                <account nominal="112000" type="asset" name="Long Term Assets">
+                    <account nominal="112100" type="asset" name="Property, Plant and Equipment">
+                        <account nominal="112110" type="asset" name="Property"/>
+                        <account nominal="112120" type="asset" name="Plant"/>
+                        <account nominal="112130" type="asset" name="Equipment"/>
+                    </account>
+                    <account nominal="112200" type="asset" name="Goodwill"/>
+                    <account nominal="112300" type="asset" name="Intellectual Property"/>
+                    <account nominal="112400" type="asset" name="Other Long Term Assets"/>
+                </account>
+            </account>
+            <account nominal="120000" type="liability" name="Liabilities">
+                <account nominal="121000" type="liability" name="Current Liabilities">
+                    <account nominal="121100" type="liability" name="Accounts Payable">
+                        <account nominal="121110" type="liability" name="Payroll Payable"/>
+                        <account nominal="121120" type="liability" name="Interest Payable"/>
+                        <account nominal="121130" type="liability" name="Accrued Expenses"/>
+                        <account nominal="121140" type="liability" name="Unearned revenue"/>
+                        <account nominal="121150" type="liability" name="Sales Tax payable">
+                            <account nominal="121151" type="liability" name="VAT Rate A"/>
+                            <account nominal="121152" type="liability" name="VAT Rate B"/>
+                            <account nominal="121153" type="liability" name="VAT Rate C"/>
+                        </account>
+                        <account nominal="121160" type="liability" name="Purchase Tax payable"/>
+                        <account nominal="121170" type="liability" name="Payroll tax payable"/>
+                        <account nominal="121180" type="liability" name="Income tax payable"/>
+                    </account>
+                </account>
+                <account nominal="122000" type="liability" name="Long Term Liabilities">
+                    <account nominal="122100" type="liability" name="Mortgages"/>
+                </account>
+            </account>
+            <account nominal="130000" type="equity" name="Equity">
+                <account nominal="131000" type="equity" name="Capital"/>
+                <account nominal="132000" type="equity" name="Retained Earnings"/>
+            </account>
+        </account>
+        <account nominal="200000" type="real" name="Income Statement">
+            <account nominal="210000" type="income" name="Income">
+                <account nominal="6100" type="income" name="Salary"/>
+                <account nominal="6200" type="income" name="Interest Received"/>
+            </account>
+            <account nominal="220000" type="expense" name="Expenses">
+            </account>
+        </account>
+    </account>
+</chart>
