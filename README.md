@@ -513,3 +513,5 @@ V1.4.2 Verify PHP 7 compatibility
 V1.4.3 Code cleanup
 
 V1.4.4 Dependency update
+
+V1.4.5 PhpUnit test suite update

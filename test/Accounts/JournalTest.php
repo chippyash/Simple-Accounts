@@ -50,8 +50,10 @@ class JournalTest extends \PHPUnit_Framework_TestCase
             new \DateTime()
         );
 
-        $this->chart = $this->getMock('SAccounts\Chart', array(), array(), '', false);
-        $this->journalist = $this->getMock('SAccounts\JournalStorageInterface');
+        $this->chart = $this->getMockBuilder('SAccounts\Chart')
+            ->disableOriginalConstructor()
+            ->getMock();
+        $this->journalist = $this->createMock('SAccounts\JournalStorageInterface');
 
         $this->sut = new Journal(new StringType('Foo Bar'), Factory::create('gbp'), $this->journalist);
     }
