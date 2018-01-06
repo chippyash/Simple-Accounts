@@ -522,3 +522,5 @@ V1.4.3 Code cleanup
 V1.4.4 Dependency update
 
 V1.4.5 PhpUnit test suite update
+
+V1.4.6 Update build script
