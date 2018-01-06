@@ -37,15 +37,22 @@ testSuiteLoaderFile="/path/to/StandardTestSuiteLoader.php"
      ! blacklist and whitelist for the code coverage reporting.
      !-->
     <filter>
-        <blacklist>
-            <directory>./vendor</directory>
-            <!-- don't cover interfaces -->
-            <file>./src/chippyash/Accounts/AccountStorageInterface</file>
-            <!-- don't cover empty files -->
-            <file>./src/chippyash/Accounts/Nominal</file>
-        </blacklist>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory>./src</directory>
+            <exclude>
+                <directory>./docs</directory>
+                <directory>./test</directory>
+                <directory>./vendor</directory>
+                <!-- don't cover interfaces -->
+                <file>./src/chippyash/Accounts/AccountStorageInterface</file>
+                <!-- don't cover empty files -->
+                <file>./src/chippyash/Accounts/Nominal</file>
+            </exclude>
+        </whitelist>
     </filter>
-
+    <logging>
+        <log type="coverage-clover" target="./build/logs/clover.xml"/>
+    </logging>
 
 </phpunit>
 

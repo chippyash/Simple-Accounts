@@ -1,8 +1,6 @@
 # Chippyash Simple Accounts
 
-## 
-      Chippyash\Test\SAccounts\Account
-    
+## Chippyash\Test\SAccounts\Account
 
 *  You can create any valid account type
 *  You can debit and credit any account type
@@ -15,9 +13,7 @@
 *  You can get the account type
 *  You can get the account name
 
-## 
-      Chippyash\Test\SAccounts\AccountType
-    
+## Chippyash\Test\SAccounts\AccountType
 
 *  Can get values as constants
 *  Can get values as classes using static methods
@@ -28,9 +24,7 @@
 *  Will get correct balance for all valid account types
 *  Get a balance with invalid account type will throw exception
 
-## 
-      Chippyash\Test\SAccounts\Accountant
-    
+## Chippyash\Test\SAccounts\Accountant
 
 *  An accountant can file a chart
 *  An accountant will throw exception if it cannot file a chart
@@ -46,9 +40,7 @@
 *  Fetching a journal from storage with no journalist set will throw exception
 *  You can write a transaction to a journal and update a chart
 
-## 
-      SAccounts\ChartDefinition
-    
+## SAccounts\ChartDefinition
 
 *  Can construct with valid file name
 *  Construction with invalid file name will throw exception
@@ -57,9 +49,7 @@
 *  Getting definition will throw exception if definition fails validation
 *  Getting the definition will return a dom document with valid definition file
 
-## 
-      Chippyash\Test\SAccounts\Chart
-    
+## Chippyash\Test\SAccounts\Chart
 
 *  Construction creates chart
 *  You can give a chart an optional tree in construction
@@ -75,16 +65,12 @@
 *  Trying to get a parent id of a non existent account will throw an exception
 *  Getting the parent id of an account that has a parent will return the parent id
 
-## 
-      Chippyash\Test\SAccounts\Control\Link
-    
+## Chippyash\Test\SAccounts\Control\Link
 
 *  You can get the name
 *  You can get the id of the associated account
 
-## 
-      Chippyash\Test\SAccounts\Control\Links
-    
+## Chippyash\Test\SAccounts\Control\Links
 
 *  You can get the name
 *  You can set the name
@@ -94,36 +80,28 @@
 *  You can retrieve a control link id by name
 *  Retrieving a non existent control link id by name will return null
 
-## 
-      Chippyash\Test\SAccounts\Journal
-    
+## Chippyash\Test\SAccounts\Journal
 
 *  Writing a transaction will return transaction with id set
 *  Reading a transaction will return a transaction
 *  Reading transactions for an account will return an array of transactions
 *  You can get name of journal
 
-## 
-      Chippyash\Test\SAccounts\Organisation
-    
+## Chippyash\Test\SAccounts\Organisation
 
 *  You can get organisation id
 *  You can get organisation name
 *  You can get organisation currency
 *  You can get organisation currency code
 
-## 
-      Chippyash\Test\SAccounts\Storage\Account\Serialized
-    
+## Chippyash\Test\SAccounts\Storage\Account\Serialized
 
 *  Construction with non existent directory throws an exception
 *  You can send a chart
 *  Fetching a non existent chart will throw an exception
 *  You can fetch a chart
 
-## 
-      Chippyash\Test\SAccounts\Storage\Journal\Xml
-    
+## Chippyash\Test\SAccounts\Storage\Journal\Xml
 
 *  Construction takes an optional journal name
 *  Successful journal write will return true
@@ -142,9 +120,7 @@
 *  Reading transactions for an account that does not exist will return empty array
 *  Reading transactions for an account that does exist will return an array of transactions
 
-## 
-      Chippyash\Test\SAccounts\Transaction\Entries
-    
+## Chippyash\Test\SAccounts\Transaction\Entries
 
 *  You can create an empty entries collection
 *  You can create an entries collections with entry values
@@ -153,9 +129,7 @@
 *  Check balance will return true if entries are balanced
 *  Check balance will return false if entries are not balanced
 
-## 
-      Chippyash\Test\SAccounts\Transaction\Entry
-    
+## Chippyash\Test\SAccounts\Transaction\Entry
 
 *  An entry requires an id an amount and a type
 *  An entry must have cr or dr type
@@ -164,9 +138,7 @@
 *  You can get the amount of an entry
 *  You can get the type of an entry
 
-## 
-      Chippyash\Test\SAccounts\Transaction\SimpleTransaction
-    
+## Chippyash\Test\SAccounts\Transaction\SimpleTransaction
 
 *  Basic construction sets an empty note on the transaction
 *  Basic construction sets date for today on the transaction
@@ -180,9 +152,7 @@
 *  You can get the transaction note
 *  You can get the transaction datetime
 
-## 
-      Chippyash\Test\SAccounts\Transaction\SplitTransaction
-    
+## Chippyash\Test\SAccounts\Transaction\SplitTransaction
 
 *  Basic construction sets an empty note on the transaction
 *  Basic construction sets date for today on the transaction

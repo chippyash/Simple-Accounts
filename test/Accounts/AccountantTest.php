@@ -43,8 +43,8 @@ class AccountantTest extends \PHPUnit_Framework_TestCase {
 
     protected function setUp()
     {
-        $this->fileClerk = $this->createMock('SAccounts\AccountStorageInterface');
-        $this->journalist = $this->createMock('SAccounts\JournalStorageInterface');
+        $this->fileClerk = $this->getMock('SAccounts\AccountStorageInterface');
+        $this->journalist = $this->getMock('SAccounts\JournalStorageInterface');
         $this->sut = new Accountant($this->fileClerk);
     }
 

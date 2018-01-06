@@ -11,6 +11,13 @@
 
 See the [Test Contract](https://github.com/chippyash/Simple-Accounts/blob/master/docs/Test-Contract.md)
 
+### End of life notice
+
+In March 2018, developer support will be withdrawn from this library for PHP <5.6. Older
+versions of PHP are now in such little use that the added effort of maintaining 
+compatibility is not effort effective.  See [PHP Version Stats](https://seld.be/notes/php-versions-stats-2017-1-edition)
+ for the numbers.
+
 ## What?
 
 Provides a simple double entry accounting system, that can be used as a component in a larger application.
