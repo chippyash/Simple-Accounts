@@ -60,7 +60,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testAddingAnAccountThatAlreadyExistsInChartWillThrowException()
     {
@@ -74,7 +74,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
         $ac1 = new Account($this->sut, new Nominal('9998'), AccountType::ASSET(), new StringType('Asset'));
         $this->sut->addAccount($ac1);
         $ac2 = new Account($this->sut, new Nominal('9999'), AccountType::ASSET(), new StringType('Asset-2'));
-        $this->sut->addAccount($ac2,$ac1->getId());
+        $this->sut->addAccount($ac2,$ac1->getNominal());
 
         $rootChildren = $this->sut->getTree()->getChildren();
         $testAc1 = $rootChildren[0]->getValue();
@@ -89,14 +89,14 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
         $ac1 = new Account($this->sut, new Nominal('9998'), AccountType::ASSET(), new StringType('Asset'));
         $this->sut->addAccount($ac1);
         $ac2 = new Account($this->sut, new Nominal('9999'), AccountType::ASSET(), new StringType('Asset-2'));
-        $this->sut->addAccount($ac2,$ac1->getId());
+        $this->sut->addAccount($ac2,$ac1->getNominal());
 
-        $testAc2 = $this->sut->getAccount($ac2->getId());
+        $testAc2 = $this->sut->getAccount($ac2->getNominal());
         $this->assertEquals($ac2, $testAc2);
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testTryingToGetANonExistentAccountWillThrowAnException()
     {
@@ -104,7 +104,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testDeletingANonExistentAccountWillThrowAnException()
     {
@@ -119,7 +119,7 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
         $ac1 = new Account($this->sut, new Nominal('9999'), AccountType::ASSET(), new StringType('Asset'));
         $this->sut->addAccount($ac1);
         $ac1->debit(Factory::create($this->sut->getOrg()->getCurrencyCode(), 12.26));
-        $this->sut->delAccount($ac1->getId());
+        $this->sut->delAccount($ac1->getNominal());
     }
 
     public function testYouCanDeleteAnAccountIfItsBalanceIsZero()
@@ -127,21 +127,21 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
         $ac1 = new Account($this->sut, new Nominal('9998'), AccountType::ASSET(), new StringType('Asset'));
         $this->sut->addAccount($ac1);
         $ac1->debit(Factory::create($this->sut->getOrg()->getCurrencyCode()));
-        $this->sut->delAccount($ac1->getId());
-        $this->assertFalse($this->sut->hasAccount($ac1->getId()));
+        $this->sut->delAccount($ac1->getNominal());
+        $this->assertFalse($this->sut->hasAccount($ac1->getNominal()));
 
         $ac2 = new Account($this->sut, new Nominal('9999'), AccountType::LIABILITY(), new StringType('Asset'));
         $this->sut->addAccount($ac2);
         $ac1->credit(Factory::create($this->sut->getOrg()->getCurrencyCode()));
-        $this->sut->delAccount($ac2->getId());
-        $this->assertFalse($this->sut->hasAccount($ac2->getId()));
+        $this->sut->delAccount($ac2->getNominal());
+        $this->assertFalse($this->sut->hasAccount($ac2->getNominal()));
     }
 
     public function testYouCanTestIfAChartHasAnAccount()
     {
         $ac1 = new Account($this->sut, new Nominal('9998'), AccountType::ASSET(), new StringType('Asset'));
         $this->sut->addAccount($ac1);
-        $this->assertTrue($this->sut->hasAccount($ac1->getId()));
+        $this->assertTrue($this->sut->hasAccount($ac1->getNominal()));
         $this->assertFalse($this->sut->hasAccount(new Nominal('9999')));
     }
 
@@ -158,10 +158,20 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
         $ac1 = new Account($this->sut, new Nominal('9998'), AccountType::ASSET(), new StringType('Asset'));
         $this->sut->addAccount($ac1);
         $ac2 = new Account($this->sut, new Nominal('9999'), AccountType::ASSET(), new StringType('Asset-2'));
-        $this->sut->addAccount($ac2,$ac1->getId());
+        $this->sut->addAccount($ac2,$ac1->getNominal());
 
-        $f = $this->sut->getParentId($ac2->getId());
-        $b = $f->get();
-        $this->assertEquals('9998', $this->sut->getParentId($ac2->getId())->get());
+        $this->assertEquals('9998', $this->sut->getParentId($ac2->getNominal())->get());
+    }
+
+    public function testYouCanProvideAnOptionalInternalIdWhenConstructingAChart()
+    {
+        $sut = new Chart(
+            new StringType('Foo'),
+            $this->org,
+            null,
+            new IntType(12)
+        );
+
+        $this->assertEquals(12, $sut->id()->get());
     }
 }

@@ -9,6 +9,7 @@
 
 namespace SAccounts\Storage\Account;
 
+use Chippyash\Type\Number\IntType;
 use SAccounts\AccountsException;
 use SAccounts\AccountStorageInterface;
 use SAccounts\Chart;
@@ -41,14 +42,15 @@ class Serialized implements AccountStorageInterface
      * Fetch a chart from storage
      *
      * @param StringType $name
-     * 
+     * @param IntType $orgId that the chart belongs to
+     *
      * @return Chart
      * 
      * @throws AccountsException
      */
-    public function fetch(StringType $name)
+    public function fetch(StringType $name, IntType $orgId)
     {
-        $fName = $this->normalizeName($name);
+        $fName = $this->normalizeName($name, $orgId);
         if (!file_exists($fName)) {
             throw new AccountsException('Chart storage file does not exist: ' . $fName);
         }
@@ -64,17 +66,27 @@ class Serialized implements AccountStorageInterface
      */
     public function send(Chart $chart)
     {
-        return (file_put_contents($this->normalizeName($chart->getName()), serialize($chart)) > 0);
+        return (
+            file_put_contents(
+                $this->normalizeName($chart->getName(),$chart->getOrg()->id()),
+                serialize($chart)) > 0
+        );
     }
 
     /**
      * Normalize name for filing
      *
      * @param StringType $name
+     * @param IntType|null $orgId that the chart belongs to. default == ''
+     *
      * @return string
      */
-    protected function normalizeName(StringType $name)
+    protected function normalizeName(StringType $name, IntType $orgId)
     {
-        return $this->baseDir . '/' . strtolower(str_replace(' ', '_', $name())) . '.saccount';
+        return $this->baseDir . '/' . strtolower(
+            str_replace(
+                ' ', '_', "{$name}_{$orgId}")
+            )
+            . '.saccount';
     }
 }

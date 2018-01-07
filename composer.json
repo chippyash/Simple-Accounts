@@ -19,6 +19,8 @@
     "chippyash/currency": ">=3,<4",
     "chippyash/monad": ">=1,<2",
     "chippyash/assembly-builder": ">=1,<2",
+    "chippyash/identity": ">=1.0.2,<2",
+    "chippyash/record-status": ">=1.0.0,<2",
     "myclabs/php-enum": ">=1.3.2,<2",
     "nicmart/tree": ">=0.2.5,<1"
   },

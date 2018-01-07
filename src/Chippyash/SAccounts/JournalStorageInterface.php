@@ -6,16 +6,14 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-
 namespace SAccounts;
-
 
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 use SAccounts\Transaction\SplitTransaction;
 
 /**
- * Interface to save and fetch a Chart to/from storage
+ * Interface to save and fetch a Journal to/from storage
  */
 interface JournalStorageInterface
 {

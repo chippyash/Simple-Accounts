@@ -38,7 +38,7 @@ class NodeFinder implements Visitor
     {
         $currAc = $node->getValue();
 
-        if ($currAc instanceof Account && $currAc->getId() == $this->valueToFind) {
+        if ($currAc instanceof Account && $currAc->getNominal() == $this->valueToFind) {
             return $node;
         }
 

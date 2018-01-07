@@ -45,7 +45,9 @@ class ChartDefinition
      */
     public function getDefinition()
     {
-        set_error_handler(function($number, $error){
+        $err = '';
+        set_error_handler(function($number, $error) use ($err) {
+            $err = $error;
             if (preg_match('/^DOMDocument::load\(\): (.+)$/', $error, $m) === 1) {
                 throw new AccountsException($m[1]);
             }
@@ -54,7 +56,7 @@ class ChartDefinition
         $dom->load($this->xmlFileName->get());
 
         if (!$dom->schemaValidate(__DIR__ .'/definitions/chart-definition.xsd')) {
-            throw new AccountsException('Definition does not validate');
+            throw new AccountsException('Definition does not validate: ' . $err);
         }
 
         restore_error_handler();

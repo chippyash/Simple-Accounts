@@ -39,7 +39,7 @@ EOT;
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testConstructionWithInvalidFileNameWillThrowException()
     {
@@ -53,7 +53,7 @@ EOT;
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testGettingTheDefinitionWillThrowExceptionIfDefinitionFileIsInvalidXml()
     {
@@ -66,7 +66,7 @@ EOT;
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testGettingDefinitionWillThrowExceptionIfDefinitionFailsValidation()
     {
@@ -79,8 +79,8 @@ EOT;
         $xml = <<<EOT
 <?xml version="1.0" encoding="UTF-8"?>
 <chart name="Personal">
-    <account nominal="0000" type="real" name="COA">
-        <account nominal="1000" type="real" name="Balance Sheet"/>
+    <account id="1" nominal="0000" type="real" name="COA">
+        <account id="2" nominal="1000" type="real" name="Balance Sheet"/>
     </account>
 </chart>
 EOT;

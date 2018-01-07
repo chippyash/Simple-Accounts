@@ -12,6 +12,8 @@ namespace SAccounts;
 use Assembler\Assembler;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
+use Chippyash\Identity\Identifying;
+use Chippyash\Identity\Identifiable;
 use Monad\FTry;
 use Monad\FTry\Success;
 use Monad\Match;
@@ -21,8 +23,10 @@ use Tree\Node\Node;
 /**
  * A Chart of Accounts
  */
-class Chart
+class Chart implements Identifiable
 {
+    use Identifying;
+
     /**@+
      * Exception error messages
      */
@@ -55,15 +59,21 @@ class Chart
      * @param StringType $name Chart Name
      * @param Organisation $org Organisation that owns this chart
      * @param Node $tree Tree of accounts
+     * @param IntType|null $internalId default == 0
      */
-    public function __construct(StringType $name, Organisation $org, Node $tree = null)
-    {
+    public function __construct(
+        StringType $name,
+        Organisation $org,
+        Node $tree = null,
+        IntType $internalId = null
+    ) {
         $this->chartName = $name;
         $this->org = $org;
         $this->tree = Match::on($tree)
             ->Tree_Node_Node($tree)
             ->null(new Node())
             ->value();
+        $this->id = (is_null($internalId) ? new IntType(0): $internalId);
     }
 
     /**
@@ -73,11 +83,10 @@ class Chart
      * @param Nominal $parent Optional id of account parent
      *
      * @return $this
-     * @throws AccountsException
      */
     public function addAccount(Account $account, Nominal $parent = null)
     {
-        Match::on($this->tryHasNode($account->getId(), self::ERR_ACEXISTS))
+        Match::on($this->tryHasNode($account->getNominal(), self::ERR_ACEXISTS))
             ->Monad_FTry_Success(
                 Success::create(
                     Match::on($parent)
@@ -102,7 +111,6 @@ class Chart
      * @param Nominal $nId Id of account
      *
      * @return $this
-     * @throws AccountsException
      */
     public function delAccount(Nominal $nId)
     {
@@ -144,7 +152,6 @@ class Chart
      * @param Nominal $nId
      *
      * @return Account|null
-     * @throws AccountsException
      */
     public function getAccount(Nominal $nId)
     {
@@ -193,8 +200,9 @@ class Chart
                 ->value()
         )
             ->Tree_Node_Node(function ($node) {
+                /** @var Account $v */
                 $v = $node->getValue();
-                return is_null($v) ? null : $v->getId();
+                return is_null($v) ? null : $v->getNominal();
             })
             ->value();
     }

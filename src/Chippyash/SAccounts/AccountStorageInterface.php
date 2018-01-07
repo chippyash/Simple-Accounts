@@ -10,6 +10,7 @@
 namespace SAccounts;
 
 
+use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
 
 /**
@@ -21,9 +22,11 @@ interface AccountStorageInterface {
      * Fetch a chart from storage
      *
      * @param StringType $name
+     * @param IntType $orgId that the chart belongs to.
+     *
      * @return Chart
      */
-    public function fetch(StringType $name);
+    public function fetch(StringType $name, IntType $orgId);
 
     /**
      * Send a chart to storage

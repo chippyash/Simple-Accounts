@@ -6,20 +6,17 @@
  * @copyright Ashley Kitson, 2015, UK
  * @license GPL V3+ See LICENSE.md
  */
-
 namespace SAccounts;
-
 
 use Chippyash\Currency\Currency;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
+use Chippyash\Identity\Identifiable;
+use Chippyash\Identity\Identifying;
 
-class Organisation
+class Organisation implements Identifiable
 {
-    /**
-     * @var IntType
-     */
-    protected $id;
+    use Identifying;
 
     /**
      * @var StringType
@@ -33,17 +30,9 @@ class Organisation
 
     public function __construct(IntType $id, StringType $name, Currency $crcy)
     {
-        $this-> id = $id;
+        $this->id = $id;
         $this->name = $name;
         $this->crcy = $crcy;
-    }
-
-    /**
-     * @return IntType
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**
@@ -68,5 +57,14 @@ class Organisation
     public function getCurrencyCode()
     {
         return $this->crcy->getCode();
+    }
+
+    /**
+     * @deprecated Use id()
+     * @return IntType
+     */
+    public function getId()
+    {
+        return $this->id();
     }
 }

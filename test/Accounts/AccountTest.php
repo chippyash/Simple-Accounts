@@ -17,6 +17,7 @@ use SAccounts\Organisation;
 use Chippyash\Currency\Factory;
 use Chippyash\Type\Number\IntType;
 use Chippyash\Type\String\StringType;
+use Chippyash\RStatus\RecordStatus;
 
 class AccountTest extends \PHPUnit_Framework_TestCase {
 
@@ -120,7 +121,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testGettingBalanceOfARealAccountTypeWillThrowAnException()
     {
@@ -134,7 +135,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException SAccounts\AccountsException
+     * @expectedException \SAccounts\AccountsException
      */
     public function testGettingBalanceOfADummyAccountTypeWillThrowAnException()
     {
@@ -162,7 +163,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
             new StringType('foo2')
         );
         $this->chart->addAccount($ac1);
-        $this->chart->addAccount($ac2, $ac1->getId());
+        $this->chart->addAccount($ac2, $ac1->getNominal());
 
         $ac2->debit(Factory::create('gbp',1));
         $this->assertEquals(100, $ac1->getDebit()->get());
@@ -183,7 +184,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
             new StringType('foo2')
         );
         $this->chart->addAccount($ac1);
-        $this->chart->addAccount($ac2, $ac1->getId());
+        $this->chart->addAccount($ac2, $ac1->getNominal());
 
         $ac2->credit(Factory::create('gbp',1));
         $this->assertEquals(100, $ac1->getCredit()->get());
@@ -198,7 +199,7 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
             AccountType::DUMMY(),
             new StringType('foo')
         );
-        $this->assertEquals(new Nominal('9999'), $this->sut->getId());
+        $this->assertEquals(new Nominal('9999'), $this->sut->getNominal());
     }
 
     public function testYouCanGetTheAccountType()
@@ -221,5 +222,92 @@ class AccountTest extends \PHPUnit_Framework_TestCase {
             new StringType('foo')
         );
         $this->assertEquals(new StringType('foo'), $this->sut->getName());
+    }
+
+    public function testYouCanGetTheOrganisationThatTheAccountBelongsTo()
+    {
+        $this->sut = new Account(
+            $this->chart,
+            new Nominal('9999'),
+            AccountType::DUMMY(),
+            new StringType('foo')
+        );
+        $this->assertEquals('foo', $this->sut->getOrg()->getName()->get());
+    }
+
+    public function testYouCanGetTheChartThatTheAccountBelongsTo()
+    {
+        $this->sut = new Account(
+            $this->chart,
+            new Nominal('9999'),
+            AccountType::DUMMY(),
+            new StringType('foo')
+        );
+        $this->assertEquals($this->chart, $this->sut->getChart());
+    }
+
+    public function testYouCanGetTheRecordStatusForTheAccount()
+    {
+        $this->sut = new Account(
+            $this->chart,
+            new Nominal('9999'),
+            AccountType::DUMMY(),
+            new StringType('foo')
+        );
+        $this->assertInstanceOf('Chippyash\RStatus\RecordStatus', $this->sut->getStatus());
+    }
+
+    public function testTheDefaultStatusForANewAccountIsActive()
+    {
+        $this->sut = new Account(
+            $this->chart,
+            new Nominal('9999'),
+            AccountType::DUMMY(),
+            new StringType('foo')
+        );
+        $this->assertTrue(RecordStatus::ACTIVE()->equals($this->sut->getStatus()));
+    }
+
+    public function testYouCanOptionallyProvideARecordStatusOnConstruction()
+    {
+        $this->sut = new Account(
+            $this->chart,
+            new Nominal('9999'),
+            AccountType::DUMMY(),
+            new StringType('foo'),
+            null,
+            RecordStatus::SUSPENDED()
+        );
+        $this->assertTrue(RecordStatus::SUSPENDED()->equals($this->sut->getStatus()));
+    }
+
+    /**
+     * @expectedException \Chippyash\RStatus\RecordStatusException
+     */
+    public function testTryingToChangeTheStatusOfADefunctAccountWillThrowAnException()
+    {
+        $this->sut = new Account(
+            $this->chart,
+            new Nominal('9999'),
+            AccountType::DUMMY(),
+            new StringType('foo'),
+            null,
+            RecordStatus::DEFUNCT()
+        );
+        $this->sut->setStatus(RecordStatus::ACTIVE());
+    }
+
+    public function testYouCanChangeTheStatusOfANonDefunctAccount()
+    {
+        $this->sut = new Account(
+            $this->chart,
+            new Nominal('9999'),
+            AccountType::DUMMY(),
+            new StringType('foo'),
+            null,
+            RecordStatus::SUSPENDED()
+        );
+        $this->sut->setStatus(RecordStatus::ACTIVE());
+        $this->assertTrue(RecordStatus::ACTIVE()->equals($this->sut->getStatus()));
     }
 }
