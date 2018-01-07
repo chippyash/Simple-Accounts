@@ -53,11 +53,11 @@ class SerializedTest extends \PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @expectedException \SAccounts\AccountsException
+     * @expectedException  \SAccounts\AccountsException
      */
     public function testFetchingANonExistentChartWillThrowAnException()
     {
-        $this->sut->fetch(new StringType('foo bar'));
+        $this->sut->fetch(new StringType('foo bar'), new IntType(0));
     }
 
     public function testYouCanFetchAChart()
