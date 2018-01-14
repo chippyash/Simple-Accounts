@@ -238,6 +238,20 @@ class Chart implements Identifiable
     }
 
     /**
+     * Set the Chart's root node
+     *
+     * @param Node $root
+     *
+     * @return $this
+     */
+    public function setRootNode(Node $root)
+    {
+        $this->tree = $root;
+
+        return $this;
+    }
+
+    /**
      * @param Nominal $nId
      * @param $exceptionMessage
      *

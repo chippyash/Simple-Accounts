@@ -12,6 +12,13 @@
 *  You can get the account id
 *  You can get the account type
 *  You can get the account name
+*  You can get the organisation that the account belongs to
+*  You can get the chart that the account belongs to
+*  You can get the record status for the account
+*  The default status for a new account is active
+*  You can optionally provide a record status on construction
+*  Trying to change the status of a defunct account will throw an exception
+*  You can change the status of a non defunct account
 
 ## Chippyash\Test\SAccounts\AccountType
 
@@ -64,6 +71,8 @@
 *  You can test if a chart has an account
 *  Trying to get a parent id of a non existent account will throw an exception
 *  Getting the parent id of an account that has a parent will return the parent id
+*  You can provide an optional internal id when constructing a chart
+*  You can set the chart root node
 
 ## Chippyash\Test\SAccounts\Control\Link
 

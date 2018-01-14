@@ -548,3 +548,5 @@ V1.4.5 PhpUnit test suite update
 V1.4.6 Update build script
 
 V2.0.0 BC break in some interface definitions to support implementation of DB based systems.
+
+V2.1.0 Add ability to set chart root node

@@ -174,4 +174,14 @@ class ChartTest extends \PHPUnit_Framework_TestCase {
 
         $this->assertEquals(12, $sut->id()->get());
     }
+
+    public function testYouCanSetTheChartRootNode()
+    {
+        $ac1 = new Account($this->sut, new Nominal('9998'), AccountType::ASSET(), new StringType('Asset'));
+        $root = new Node($ac1);
+        $this->sut->setRootNode($root);
+        $tree = $this->sut->getTree();
+
+        $this->assertEquals($root, $tree);
+    }
 }
