@@ -1,5 +1,11 @@
 # chippyash/Simple-Accounts
 
+## Notice
+
+This project has been stopped.  There is not enough traction on it to warrant 
+its continuance.  If you want to take it over, please contact me. Or simply
+fork it and carry on.
+
 ## Quality Assurance
 
 ![PHP 5.5](https://img.shields.io/badge/PHP-5.5-blue.svg)
